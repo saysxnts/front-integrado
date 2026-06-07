@@ -1,5 +1,5 @@
 // ─── CONFIGURAÇÃO ───────────────────────────────────────────────
-const API_BASE = 'http://localhost:8080/api';
+const API_BASE = 'https://ler-e-educar-api.onrender.com';
 
 // ─── AUTH ────────────────────────────────────────────────────────
 const Auth = {
