@@ -1,5 +1,5 @@
 // ─── CONFIGURAÇÃO ───────────────────────────────────────────────
-const API_BASE = 'https://ler-e-educar-api.onrender.com';
+const API_BASE = 'https://ler-e-educar-api.onrender.com/api';
 
 // ─── AUTH ────────────────────────────────────────────────────────
 const Auth = {
