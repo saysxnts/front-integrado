@@ -1,0 +1,282 @@
+*{
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: Arial, Helvetica, sans-serif, Poppins;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background-color: #f5f5f5;
+}
+
+/* ==========================================================================
+   HEADER PRINCIPAL (AJUSTADO PARA REPLICAR O CANVA)
+   ========================================================================== */
+.header {
+  display: flex;
+  justify-content: space-between; /* Logo de um lado, pesquisa do outro */
+  align-items: center;            /* Alinha tudo que está dentro no meio */
+  height: 80px;                   /* Altura do topo marrom */
+  background-color: #8b6c51;
+  padding: 25px 60px;
+  color: white;
+}
+
+.logo-container {
+    display: flex;
+    align-items: center; /* Mudamos de 'center' para 'baseline' */
+    gap: 15px;        /* Dá um espaço horizontal entre a imagem e o texto */
+}
+
+.logo-texto {
+    color: #e9decf;             /* Cor bege clara/dourada similar à imagem */
+    font-family: 'Georgia', 'Times New Roman', serif; /* Fonte com serifa elegante */
+    font-size: 1.2rem;          /* Tamanho do texto */
+    font-weight: bold;          /* Deixa em negrito */
+    letter-spacing: 1px;
+    
+    position: relative;
+    top: -8px;
+}
+
+/* Container que agrupa o hambúrguer e a logo */
+.logo-header {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.logo-container {
+  display: flex;
+  align-items: center;
+  gap: 12px; /* Espaçamento horizontal entre o ícone e o texto */
+}
+
+/* O truque para o logo não ficar gigante */
+.logo-img {
+  height: 35px; /* Força o ícone a ficar pequeno e proporcional */
+  width: auto;
+}
+
+/* Texto ao lado do logo adaptado para o padrão Arial Sublinhado do Canva */
+.logo-text {
+  color: #ffffff; /* Ajustado para branco puro conforme modelo */
+  font-family: Arial, Helvetica, sans-serif; /* Alinhado com a fonte da imagem */
+  font-size: 1.3rem;
+  font-weight: bold;
+  letter-spacing: 0.5px;
+  text-decoration: underline; /* Linha inferior do modelo */
+}
+
+/* Barra de Busca Minimalista do Canva (Transparente + Linha Branca) */
+.busca {
+  background: transparent !important;
+  border: none !important;
+  border-bottom: 2px solid #ffffff !important;
+  border-radius: 0 !important;
+  color: #ffffff !important;
+  width: 280px;
+  padding: 4px 5px;
+  font-size: 15px;
+  outline: none;
+}
+
+.busca::placeholder {
+  color: #ffffff;
+  opacity: 0.8;
+}
+
+/* Lado Direito do Cabeçalho Empilhado na Vertical */
+.header-direita {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+}
+
+.usuario {
+  color: #000000; /* Texto 'Olá, Gestor' em preto conforme imagem do Canva */
+  font-weight: bold;
+  font-size: 15px;
+  margin: 0;
+}
+
+.sair {
+  color: white;
+  font-weight: bold;
+  text-decoration: underline;
+  font-size: 18px;
+  cursor: pointer;
+}
+
+/* Botão Entrar da Página de Login */
+.Entrar {
+  background-color: #efe7db;
+  color: #7b5a3c;
+  border: none;
+  padding: 12px 28px;
+  border-radius: 15px;
+  font-size: 18px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.Entrar:hover {
+  background-color: white;
+}
+
+/* ==========================================================================
+   BANNER E CONTEÚDO PRINCIPAL
+   ========================================================================== */
+.banner {
+  background: url("../img/fundo.jpg") no-repeat center;
+  background-size: cover;
+  min-height: 100vh;
+  position: relative;
+}
+
+.overlay {
+  background: rgba(255, 255, 255, 0.75);
+  width: 100%;
+  min-height: 100vh;
+  padding: 60px;
+}
+
+.conteudo-banner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 80px;
+  margin-top: 60px;
+}
+
+.lado-esquerdo {
+  width: 40%;
+  text-align: center;
+}
+
+.logo-banner {
+  width: 180px;
+  margin-bottom: 20px;
+}
+
+.lado-esquerdo h1 {
+  font-size: 50px;
+  color: #9a7655;
+}
+
+.lado-direito {
+  width: 50%;
+}
+
+.lado-direito p {
+  font-size: 20px;
+  line-height: 1.8;
+  margin-bottom: 30px;
+  text-align: center;
+  color: black;
+}
+
+.texto-banner p {
+  margin-bottom: 35px;
+}
+
+/* ==========================================================================
+   SEÇÃO DE TEMAS E CARDS
+   ========================================================================== */
+.temas {
+  text-align: center;
+  margin-top: 100px;
+}
+
+.temas h2 {
+  font-size: 30px;
+  margin-bottom: 60px;
+  color: black;
+}
+
+.cards-temas {
+  display: flex;
+  justify-content: center;
+  gap: 30px;
+  margin-top: 50px;
+  flex-wrap: wrap;
+}
+
+.card-tema {
+  background-color: #8b6c51;
+  width: 220px;
+  height: 300px;
+  border-radius: 15px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.card-tema img {
+  width: 130px;
+  height: 130px;
+  object-fit: cover;
+  margin-bottom: 20px;
+}
+
+.card-tema p {
+  color: white;
+  font-size: 18px;
+  font-weight: bold;
+  text-align: center;
+}
+
+/* ==========================================================================
+   CATÁLOGO E FOOTER
+   ========================================================================== */
+.catalogo {
+  margin-top: 70px;
+  margin-bottom: 90px;
+  text-align: center;
+}
+
+.catalogo h2 {
+  font-size: 45px;
+  color: black;
+}
+
+.catalogo a {
+  color: black;
+  font-weight: bold;
+}
+
+footer {
+  margin-top: auto;
+  background-color: #8b6c51;
+  color: white;
+  text-align: center;
+  padding: 18px;
+  font-size: 15px;
+}
+
+/* ==========================================================================
+   MENU LATERAL
+   ========================================================================== */
+.menu-icone {
+  font-size: 35px;
+  cursor: pointer;
+  color: white;
+  user-select: none;
+}
+
+.menu-lateral {
+  position: fixed;
+  top: 0;
+  left: -250px;
+  width: 250px;
+  height: 100%;
+  background-color: #7b5a3c;
+  padding-top: 60px;
+  transition: 0.3s;
+}

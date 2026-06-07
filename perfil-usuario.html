@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <title>Meu Perfil - Ler e Educar</title>
+  <link rel="stylesheet" href="css/layout.css">
+  <link rel="stylesheet" href="css/perfil-usuario.css">
+  <style>
+    .stat-box { display:flex;gap:16px;margin:16px 0;flex-wrap:wrap; }
+    .stat { background:#f0f4ff;border-radius:10px;padding:14px 24px;text-align:center;min-width:120px; }
+    .stat strong { display:block;font-size:1.6rem;color:#2c3e50; }
+    .stat span   { font-size:.85rem;color:#666; }
+  </style>
+</head>
+<body>
+  <nav id="menu-lateral" class="menu-lateral">
+    <div class="fechar-menu" onclick="toggleMenu()">✕</div>
+    <a href="catalogo.html"       class="menu-item">CATÁLOGO</a>
+    <a href="perfil-usuario.html" class="menu-item ativo">MEU PERFIL</a>
+    <a href="reservas.html"       class="menu-item">MINHAS RESERVAS</a>
+    <a href="devolutivas.html"    class="menu-item">DEVOLUÇÕES</a>
+  </nav>
+
+  <header class="header">
+    <div class="menu-hamburguer" onclick="toggleMenu()"><span></span><span></span><span></span></div>
+    <div class="logo-header">
+      <img src="img/logo-capa-e-barra-de-pesquisa.png" alt="Logo" class="logo-img">
+      <span class="logo-text">LER E EDUCAR</span>
+    </div>
+    <input type="text" placeholder="Buscar livro..." class="busca">
+    <div class="header-direita">
+      <div class="usuario">Olá, <span id="nome-usuario-logado">Gestor</span></div>
+      <a href="#" class="sair" onclick="Auth.logout()">SAIR</a>
+    </div>
+  </header>
+
+  <main class="fundo-canva fundo-perfil">
+    <div class="perfil-container">
+      <h1 class="perfil-titulo" id="titulo-perfil">MEU PERFIL</h1>
+      <p class="perfil-sub">Meus dados</p>
+
+      <form class="perfil-formulario">
+        <div class="campo-grupo">
+          <label>Nome completo</label>
+          <input type="text" id="campo-nome" disabled>
+        </div>
+        <div class="campo-grupo">
+          <label>Instituição</label>
+          <input type="text" id="campo-inst" disabled>
+        </div>
+        <div class="campo-grupo">
+          <label>Tipo de usuário</label>
+          <input type="text" id="campo-tipo" disabled>
+        </div>
+      </form>
+
+      <div class="stat-box" id="stats">
+        <div class="stat"><strong id="qt-pendente">-</strong><span>Solicitações</span></div>
+        <div class="stat"><strong id="qt-ativo">-</strong><span>Reservas ativas</span></div>
+        <div class="stat"><strong id="qt-devolvido">-</strong><span>Devolvidos</span></div>
+      </div>
+    </div>
+  </main>
+
+  <script src="js/api.js"></script>
+  <script src="js/layout.js"></script>
+  <script>
+    Auth.exigirLogin();
+    Auth.exibirNome();
+
+    async function carregar() {
+      document.getElementById('campo-nome').value = Auth.nome() || '-';
+      document.getElementById('campo-tipo').value = Auth.isAdmin() ? 'Administrador' : 'Gestor Escolar';
+
+      const emprestimos = await get('/emprestimos/meus');
+      if (emprestimos && !emprestimos.status) {
+        // Pegar nome da instituição do primeiro empréstimo
+        const primeiro = emprestimos.find(e => e.nomeInstituicao);
+        document.getElementById('campo-inst').value = primeiro?.nomeInstituicao || '-';
+        document.getElementById('titulo-perfil').textContent = 'MEU PERFIL — ' + (primeiro?.nomeInstituicao || Auth.nome());
+
+        const pendentes  = emprestimos.filter(e => e.status === 'PENDENTE').length;
+        const ativos     = emprestimos.filter(e => e.status === 'APROVADO').length;
+        const devolvidos = emprestimos.filter(e => e.status === 'DEVOLVIDO').length;
+
+        document.getElementById('qt-pendente').textContent  = pendentes;
+        document.getElementById('qt-ativo').textContent     = ativos;
+        document.getElementById('qt-devolvido').textContent = devolvidos;
+      }
+    }
+
+    carregar();
+  </script>
+</body>
+</html>

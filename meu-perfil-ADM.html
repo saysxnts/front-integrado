@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <title>Meu Perfil - Administrador</title>
+  <link rel="stylesheet" href="css/layout.css">
+  <link rel="stylesheet" href="css/meu-perfil-ADM.css">
+  <style>
+    .stat-box { display:flex;gap:16px;margin:20px 0;flex-wrap:wrap; }
+    .stat { background:#f0f4ff;border-radius:10px;padding:14px 24px;text-align:center;min-width:120px; }
+    .stat strong { display:block;font-size:1.8rem;color:#2c3e50; }
+    .stat span   { font-size:.85rem;color:#666; }
+  </style>
+</head>
+<body>
+  <nav id="menu-lateral" class="menu-lateral">
+    <div class="fechar-menu" onclick="toggleMenu()">✕</div>
+    <a href="catalogo-admin.html"  class="menu-item">CATÁLOGO</a>
+    <a href="meu-perfil-ADM.html"  class="menu-item ativo">MEU PERFIL</a>
+    <a href="adicionar-livro.html" class="menu-item">ADICIONAR LIVROS</a>
+    <a href="emprestimo.html"      class="menu-item">EMPRÉSTIMOS</a>
+    <a href="controle-estoque.html"class="menu-item">CONTROLE DE ESTOQUE</a>
+    <a href="controle-usuario.html"class="menu-item">CONTROLE DE USUÁRIOS</a>
+  </nav>
+
+  <header class="header">
+    <div class="menu-hamburguer" onclick="toggleMenu()"><span></span><span></span><span></span></div>
+    <div class="logo-header">
+      <img src="img/logo-capa-e-barra-de-pesquisa.png" alt="Logo" class="logo-img">
+      <span class="logo-text">LER E EDUCAR</span>
+    </div>
+    <input type="text" placeholder="Buscar livro..." class="busca">
+    <div class="header-direita">
+      <div class="usuario">Olá, <span id="adminName">Administrador</span></div>
+      <a href="#" class="sair" onclick="Auth.logout()">SAIR</a>
+    </div>
+  </header>
+
+  <main class="perfil-adm-container">
+    <h1>MEU PERFIL — ADMINISTRADOR</h1>
+    <p class="subtitulo">Meus dados</p>
+
+    <form class="perfil-form">
+      <div class="linha">
+        <div class="campo">
+          <label>Nome completo</label>
+          <input type="text" id="nomeCompleto" disabled>
+        </div>
+        <div class="campo campo-pequeno">
+          <label>Tipo</label>
+          <input type="text" id="tipoUsuario" value="Administrador" disabled>
+        </div>
+      </div>
+    </form>
+
+    <h2 style="margin-top:28px;margin-bottom:8px">Resumo do sistema</h2>
+    <div class="stat-box">
+      <div class="stat"><strong id="qt-livros">-</strong><span>Livros no catálogo</span></div>
+      <div class="stat"><strong id="qt-inst">-</strong><span>Instituições</span></div>
+      <div class="stat"><strong id="qt-pendente">-</strong><span>Empréstimos pendentes</span></div>
+      <div class="stat"><strong id="qt-aprovado">-</strong><span>Empréstimos ativos</span></div>
+    </div>
+  </main>
+
+  <script src="js/api.js"></script>
+  <script src="js/layout.js"></script>
+  <script>
+    Auth.exigirLogin();
+    Auth.exibirNome();
+
+    async function carregar() {
+      document.getElementById('nomeCompleto').value = Auth.nome() || '-';
+
+      const [livros, inst, empr] = await Promise.all([
+        get('/livros'),
+        get('/instituicoes'),
+        get('/emprestimos')
+      ]);
+
+      if (livros && !livros.status) document.getElementById('qt-livros').textContent = livros.length;
+      if (inst   && !inst.status)   document.getElementById('qt-inst').textContent   = inst.length;
+      if (empr   && !empr.status) {
+        document.getElementById('qt-pendente').textContent = empr.filter(e => e.status === 'PENDENTE').length;
+        document.getElementById('qt-aprovado').textContent = empr.filter(e => e.status === 'APROVADO').length;
+      }
+    }
+
+    carregar();
+  </script>
+</body>
+</html>

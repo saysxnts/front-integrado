@@ -1,0 +1,190 @@
+body {
+
+  margin: 0;
+
+  font-family: Arial, Helvetica, sans-serif;
+
+  background-image: url("../img/fundo.jpg");
+
+  background-size: cover;
+
+  background-position: center;
+
+  background-repeat: no-repeat;
+
+  min-height: 100vh;
+}
+
+
+/* SOBREPOSIÇÃO CLARA */
+
+body::before {
+
+  content: "";
+
+  position: fixed;
+
+  inset: 0;
+
+  background: rgba(255,255,255,0.75);
+
+  z-index: -1;
+}
+
+
+/* BOTÃO SAIR */
+
+.sair {
+
+  position: absolute;
+
+  top: 30px;
+
+  right: 40px;
+
+  color: black;
+
+  font-weight: bold;
+
+  text-decoration: none;
+
+  font-size: 18px;
+}
+
+
+/* CONTAINER */
+
+.container-cadastro {
+
+  display: flex;
+
+  justify-content: center;
+
+  gap: 120px;
+
+  padding-top: 80px;
+}
+
+
+/* COLUNAS */
+
+.coluna {
+
+  display: flex;
+
+  flex-direction: column;
+}
+
+
+/* TÍTULOS */
+
+h2 {
+
+  color: #5c3412;
+
+  margin-bottom: 20px;
+
+  font-size: 30px;
+}
+
+
+/* INPUTS */
+
+input {
+
+  width: 410px;
+
+  height: 55px;
+
+  margin-bottom: 18px;
+
+  border: none;
+
+  background-color: #e5dac8;
+
+  padding-left: 15px;
+
+  font-size: 22px;
+
+  color: #5c3412;
+
+  font-weight: bold;
+}
+
+
+/* ÁREA LOGO */
+
+.logo-area {
+  position: absolute;
+  top: 40px;
+  right: 60px;
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* Garante que o ícone e o texto fiquem perfeitamente alinhados no centro */
+  text-align: center;
+  gap: 6px; /* Espaçamento controlado entre o desenho e o texto */
+}
+
+.logo {
+  width: 65px; /* Diminuído de 80px para 65px para manter a proporção da Imagem 1 */
+  height: auto;
+}
+
+
+.logo-area h1 {
+  color: #8b6c51;                 /* Tom marrom padrão do seu projeto */
+  font-family: 'Georgia', serif;  /* Fonte com serifa elegante idêntica ao topo da outra página */
+  font-size: 1.1rem;              /* Tamanho reduzido para não brigar com o layout */
+  font-weight: bold;
+  letter-spacing: 0.5px;          /* Espaçamento sutil entre as letras */
+  margin: 0;
+}
+
+
+/* TÍTULO GESTOR */
+
+.titulo-gestor {
+
+  margin-top: 40px;
+}
+
+
+/* BOTÃO */
+
+.botao-area {
+
+  display: flex;
+
+  justify-content: flex-end;
+
+  padding-right: 120px;
+
+  margin-top: 40px;
+
+  margin-bottom: 60px;
+}
+
+
+.botao-cadastro {
+
+  background: none;
+
+  border: none;
+
+  color: #9c7552;
+
+  font-size: 18px;
+
+  cursor: pointer;
+}
+
+
+.botao-cadastro:hover {
+
+  text-decoration: underline;
+}
+
+.titulo-confirmacao {
+
+  margin-top: 25px;
+}

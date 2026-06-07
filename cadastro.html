@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <title>Cadastro - Ler e Educar</title>
+  <link rel="stylesheet" href="css/cadastro.css">
+  <style>
+    .form-select { width:100%;padding:8px;border-radius:6px;border:1px solid #ccc;margin-bottom:10px;font-size:.95rem; }
+    .checkbox-group { display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px; }
+    .checkbox-group label { display:flex;align-items:center;gap:4px;font-size:.9rem; }
+    .feedback { padding:10px 14px;border-radius:6px;margin:12px auto;max-width:900px;display:none; }
+    .feedback.ok  { background:#d4edda;color:#155724; }
+    .feedback.err { background:#f8d7da;color:#721c24; }
+    .secao-titulo { font-size:1rem;font-weight:bold;margin:10px 0 4px;color:#555; }
+  </style>
+</head>
+<body>
+  <a href="index.html" class="sair">SAIR</a>
+
+  <div class="container-cadastro">
+    <div class="logo-area">
+      <img src="img/logo-capa-e-barra-de-pesquisa.png" class="logo">
+      <h1>LER E EDUCAR</h1>
+    </div>
+
+    <!-- COLUNA ESQUERDA - Instituição -->
+    <div class="coluna">
+      <h2>CADASTRAR NOVA INSTITUIÇÃO</h2>
+
+      <input type="text"  id="razaoSocial"       placeholder="Razão Social">
+
+      <select id="tipo" class="form-select">
+        <option value="">Tipo da Instituição</option>
+        <option value="ESCOLA_MUNICIPAL">Escola Municipal</option>
+        <option value="ESCOLA_ESTADUAL">Escola Estadual</option>
+        <option value="COLEGIO_PRIVADO">Colégio Privado</option>
+        <option value="CENTRO_RECREACAO_INFANTIL">Centro de Recreação Infantil</option>
+        <option value="OUTRO">Outro</option>
+      </select>
+
+      <input type="email" id="emailInstitucional" placeholder="E-mail Institucional">
+      <input type="text"  id="telefone"           placeholder="Telefone da Instituição">
+      <input type="text"  id="cnpj"               placeholder="CNPJ (14 dígitos, sem formatação)">
+
+      <p class="secao-titulo">SÉRIES ATENDIDAS:</p>
+      <div class="checkbox-group">
+        <label><input type="checkbox" value="PRIMEIRO_ANO"> 1º Ano</label>
+        <label><input type="checkbox" value="SEGUNDO_ANO"> 2º Ano</label>
+        <label><input type="checkbox" value="TERCEIRO_ANO"> 3º Ano</label>
+        <label><input type="checkbox" value="QUARTO_ANO"> 4º Ano</label>
+        <label><input type="checkbox" value="QUINTO_ANO"> 5º Ano</label>
+      </div>
+
+      <h2 class="titulo-gestor">GESTOR DE ENSINO</h2>
+      <input type="text"  id="nomeGestor"  placeholder="Nome do gestor">
+      <input type="text"  id="cpfGestor"   placeholder="CPF do gestor (11 dígitos)">
+      <input type="text"  id="telefoneGestor" placeholder="Telefone do gestor">
+    </div>
+
+    <!-- COLUNA DIREITA - Endereço + Acesso -->
+    <div class="coluna">
+      <h2>ENDEREÇO</h2>
+      <input type="text" id="cep"        placeholder="CEP (8 dígitos)">
+      <input type="text" id="logradouro" placeholder="Logradouro">
+      <input type="text" id="numero"     placeholder="Número">
+      <input type="text" id="bairro"     placeholder="Bairro">
+      <input type="text" id="cidade"     placeholder="Cidade">
+      <input type="text" id="uf"         placeholder="UF (ex: SP)" maxlength="2">
+
+      <h2 class="titulo-confirmacao">ACESSO DO GESTOR</h2>
+      <input type="email"    id="emailGestor" placeholder="E-mail do gestor">
+      <input type="password" id="senhaGestor" placeholder="Senha do gestor">
+    </div>
+  </div>
+
+  <div id="feedback" class="feedback"></div>
+
+  <div class="botao-area">
+    <button class="botao-cadastro" onclick="cadastrar()">Concluir cadastro</button>
+  </div>
+
+  <script src="js/api.js"></script>
+  <script>
+    async function cadastrar() {
+      const series = [...document.querySelectorAll('.checkbox-group input:checked')].map(c => c.value);
+
+      const dados = {
+        razaoSocial:       document.getElementById('razaoSocial').value.trim(),
+        cnpj:              document.getElementById('cnpj').value.trim(),
+        tipo:              document.getElementById('tipo').value,
+        telefone:          document.getElementById('telefone').value.trim(),
+        emailInstitucional:document.getElementById('emailInstitucional').value.trim(),
+        cep:               document.getElementById('cep').value.trim(),
+        logradouro:        document.getElementById('logradouro').value.trim(),
+        numero:            document.getElementById('numero').value.trim(),
+        bairro:            document.getElementById('bairro').value.trim(),
+        cidade:            document.getElementById('cidade').value.trim(),
+        uf:                document.getElementById('uf').value.trim().toUpperCase(),
+        series,
+        nomeGestor:        document.getElementById('nomeGestor').value.trim(),
+        emailGestor:       document.getElementById('emailGestor').value.trim(),
+        senhaGestor:       document.getElementById('senhaGestor').value.trim(),
+        cpfGestor:         document.getElementById('cpfGestor').value.trim(),
+        telefoneGestor:    document.getElementById('telefoneGestor').value.trim()
+      };
+
+      if (!dados.razaoSocial || !dados.cnpj || !dados.tipo || !dados.emailInstitucional || !series.length) {
+        mostrarFb('Preencha todos os campos obrigatórios e selecione ao menos uma série.', false); return;
+      }
+
+      const res = await post('/instituicoes', dados);
+
+      if (res && res.id) {
+        mostrarFb('✓ Instituição cadastrada! Faça login com o e-mail e senha do gestor.', true);
+        setTimeout(() => window.location.href = 'login.html', 2000);
+      } else {
+        const msgs = res?.mensagens?.join(', ') || 'Erro ao cadastrar. Verifique os dados.';
+        mostrarFb(msgs, false);
+      }
+    }
+
+    function mostrarFb(msg, ok) {
+      const fb = document.getElementById('feedback');
+      fb.textContent = msg;
+      fb.className = 'feedback ' + (ok ? 'ok' : 'err');
+      fb.style.display = 'block';
+      fb.scrollIntoView({ behavior: 'smooth' });
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,96 @@
+.pagina-usuarios{
+    padding: 40px;
+}
+
+.usuarios-container{
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.usuarios-container h1{
+    text-align: center;
+    color: #3d2b1f;
+    margin-bottom: 40px;
+}
+
+.tabela-container{
+    background: white;
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+
+table{
+    width: 100%;
+    border-collapse: collapse;
+}
+
+thead{
+    background-color: #9b7b5d;
+    color: white;
+}
+
+th{
+    padding: 15px;
+    text-align: left;
+}
+
+td{
+    padding: 15px;
+    border-bottom: 1px solid #eee;
+}
+
+tbody tr:hover{
+    background-color: #f8f5f1;
+}
+
+/* STATUS */
+
+.status{
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: bold;
+}
+
+.status.ativo{
+    background: #d8f0da;
+    color: #2d6a35;
+}
+
+.status.pendente{
+    background: #fff2c7;
+    color: #856404;
+}
+
+.status.bloqueado{
+    background: #ffd9d9;
+    color: #8a1c1c;
+}
+
+/* BOTÕES */
+
+.btn-editar,
+.btn-aprovar,
+.btn-bloquear{
+    border: none;
+    padding: 8px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.btn-editar{
+    background: #9b7b5d;
+    color: white;
+}
+
+.btn-aprovar{
+    background: #8db08d;
+    color: white;
+}
+
+.btn-bloquear{
+    background: #b85a5a;
+    color: white;
+}

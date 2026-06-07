@@ -1,0 +1,157 @@
+.reservas-bg.fundo-canva {
+  background: url("../img/tela-escolha-de-livro.png") no-repeat center center !important;
+  background-size: cover !important;
+  background-attachment: fixed !important;
+  min-height: calc(100vh - 80px);
+  padding: 40px 60px;
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.reservas-container {
+  width: 100%;
+  max-width: 900px;
+}
+
+.reservas-titulo {
+  font-family: Arial, sans-serif;
+  font-size: 36px;
+  font-weight: bold;
+  color: #5a3f2a;
+  text-align: center;
+  margin-bottom: 40px;
+  letter-spacing: 1px;
+}
+
+/* BLOCOS DE SEÇÃO */
+.bloco-reserva {
+  margin-bottom: 45px;
+}
+
+.bloco-reserva h2 {
+  font-size: 22px;
+  color: #000000;
+  font-weight: bold;
+  margin-bottom: 20px;
+}
+
+/* CARD DO LIVRO (ESTILO CARRINHO) */
+.item-livro {
+  display: flex;
+  gap: 25px;
+  align-items: flex-start;
+  margin-bottom: 30px;
+  background: transparent; /* Deixa o fundo limpo para mostrar o background geral */
+}
+
+.capa-livro {
+  width: 100px;
+  height: 135px;
+  object-fit: cover;
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.detalhes-livro {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 100%;
+}
+
+.titulo-livro {
+  font-size: 18px;
+  color: #000000;
+  font-weight: bold;
+}
+
+.info-quantidade, .info-periodo, .status-livro {
+  font-size: 15px;
+  color: #000000;
+  font-weight: bold;
+}
+
+.info-quantidade span, .info-periodo span {
+  font-weight: normal;
+}
+
+/* CONTAINER DE BOTÕES E STATUS */
+.acoes-livro {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  margin-top: 8px;
+  flex-wrap: wrap;
+}
+
+/* BOTÕES ESTILO CANVA */
+.btn-enviar {
+  background-color: #a3b899; /* Verde pastel do Canva */
+  color: #000000;
+  border: none;
+  padding: 6px 14px;
+  font-weight: bold;
+  font-size: 14px;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+.btn-cancelar {
+  background-color: #9c4a2b; /* Marrom avermelhado do Canva */
+  color: #ffff;
+  color: white;
+  border: none;
+  padding: 6px 14px;
+  font-weight: bold;
+  font-size: 14px;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+.btn-enviar:hover, .btn-cancelar:hover {
+  opacity: 0.9;
+}
+
+/* BADGES DE STATUS */
+.badge-pendente {
+  font-weight: normal;
+  color: #000000;
+}
+
+.badge-ativa {
+  color: #2b599c; /* Azul do status ativa */
+}
+
+/* MENSAGEM DE ALERTA FLUTUANTE (Página 14) */
+.alerta-cancelamento {
+  display: none; /* Inicia escondido, o JS mostra */
+  position: fixed;
+  top: 100px;
+  right: 60px;
+  background-color: transparent;
+  color: #000000;
+  font-weight: bold;
+  font-size: 16px;
+  z-index: 1000;
+  cursor: pointer;
+  animation: fadeIn 0.5s;
+}
+
+.alerta-cancelamento span {
+  margin-left: 10px;
+  font-size: 14px;
+  color: #666;
+}
+
+/* AJUSTES EXCLUSIVOS DO HEADER NESSA TELA */
+header .logo-container {
+  display: flex !important;
+  align-items: center !important; 
+  gap: 35px !important; 
+}
+
+header .logo-texto {
+  position: relative !important;
+  top: -2px !important; 
+}

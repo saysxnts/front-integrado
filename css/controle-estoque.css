@@ -1,0 +1,50 @@
+.pagina-estoque{
+    padding: 40px;
+}
+
+.estoque-container{
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+.estoque-container h1{
+    text-align: center;
+    color: #3d2b1f;
+    font-size: 36px;
+    margin-bottom: 40px;
+}
+
+.secao-estoque h2{
+    color: #3d2b1f;
+    margin-bottom: 25px;
+    font-size: 24px;
+}
+
+.livro-estoque{
+    display: flex;
+    gap: 25px;
+    align-items: center;
+
+    background: white;
+    padding: 20px;
+    border-radius: 20px;
+
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+
+.capa-livro img{
+    width: 120px;
+    height: auto;
+    border-radius: 8px;
+}
+
+.info-livro h3{
+    font-size: 20px;
+    color: #3d2b1f;
+    margin-bottom: 10px;
+}
+
+.info-livro p{
+    font-size: 16px;
+    color: #5a3f28;
+}

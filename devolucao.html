@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Devolução - Administrador</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=League+Spartan:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="background"></div>
+    <aside class="sidebar" id="sidebar">
+        <ul>
+            <li><a href="meu-perfil-ADM.html">MEU PERFIL</a></li>
+            <li><a href="adicionar-livro.html">ADICIONAR LIVROS</a></li>
+            <li><a href="emprestimo.html">EMPRÉSTIMO</a></li>
+            <li><a href="devolucao.html">DEVOLUÇÃO</a></li>
+            <li><a href="controle-estoque.html">CONTROLE DE ESTOQUE</a></li>
+            <li><a href="controle-usuario.html">CONTROLE DE USUÁRIO</a></li>
+        </ul>
+    </aside>
+    <main class="container">
+        <header class="navbar">
+            <div class="menu-icon" id="menuBtn"><span></span><span></span><span></span></div>
+            <div class="logo-area"><img src="img/logo-capa-e-barra-de-pesquisa.png" alt=""></div>
+            <div class="search-area"><input type="text" placeholder="Buscar livro"></div>
+            <div class="right-navbar">
+                <a href="#" class="logout">SAIR</a>
+                <div class="admin-info"><p>Olá,</p><span id="adminName"></span></div>
+            </div>
+        </header>
+        <section class="content">
+            <h1 class="page-title-center">DEVOLUÇÃO</h1>
+            <div class="loan-section">
+                <h2 class="section-title">DEVOLUTIVAS</h2>
+                <div class="loan-item">
+                    <div class="mini-cover-box"><img src="img/capa-historia-de-dois-amores.png" alt=""></div>
+                    <div class="loan-info">
+                        <h3 id="devTitle"></h3>
+                        <p id="devQty"></p>
+                        <p id="devPeriod"></p>
+                        <p id="devDate"></p>
+                    </div>
+                </div>
+            </div>
+            <div class="loan-section">
+                <h2 class="section-title">EM ATRASO</h2>
+                <div class="loan-item">
+                    <div class="mini-cover-box"><img src="img/capa-historia-de-dois-amores.png" alt=""></div>
+                    <div class="loan-info">
+                        <h3 id="devDelayTitle"></h3>
+                        <p id="devDelayQty"></p>
+                        <p id="devDelayPeriod"></p>
+                        <p id="devDelayDate"></p>
+                        <div class="action-buttons-row">
+                            <button class="btn-loan btn-approve">SOLICITAR A DEVOLUÇÃO</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+    <script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,251 @@
+/* ═══════════════════════════════════════════════════
+   LER E EDUCAR — CATÁLOGO
+═══════════════════════════════════════════════════ */
+@import url('./design-system.css');
+
+body {
+  background: var(--bg);
+  font-family: var(--font-body);
+}
+
+/* ── Container principal ── */
+.catalogo-container {
+  padding: 36px 40px;
+  max-width: 1440px;
+  margin: 0 auto;
+  animation: fadeIn .5s both;
+}
+
+/* ── Seção por categoria ── */
+.categoria {
+  margin-bottom: 56px;
+  animation: fadeUp .6s var(--ease-smooth) both;
+}
+
+.categoria h2 {
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text-dark);
+  margin-bottom: 20px;
+  padding-bottom: 10px;
+  border-bottom: 2px solid var(--beige);
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.categoria h2::before {
+  content: '';
+  display: inline-block;
+  width: 4px;
+  height: 24px;
+  background: linear-gradient(to bottom, var(--primary), var(--accent));
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+
+/* ── Grid de livros ── */
+.livros-grid-wrapper {
+  display: flex;
+  align-items: flex-start;
+  gap: 20px;
+  width: 100%;
+}
+
+.livros-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(175px, 1fr));
+  gap: 20px;
+  flex: 1;
+}
+
+/* ── Card de livro ── */
+.livro-card {
+  background: var(--card-bg);
+  border-radius: var(--radius-lg);
+  padding: 16px;
+  cursor: pointer;
+  transition: transform .35s var(--ease-bounce), box-shadow .35s ease;
+  border: 1px solid rgba(155,123,93,.1);
+  position: relative;
+  overflow: hidden;
+  will-change: transform;
+}
+
+/* Brilho no hover */
+.livro-card::before {
+  content: '';
+  position: absolute;
+  top: -50%; left: -60%;
+  width: 60%; height: 200%;
+  background: linear-gradient(105deg, transparent 40%, rgba(255,255,255,.4) 50%, transparent 60%);
+  transform: skewX(-20deg);
+  transition: left .6s ease;
+  pointer-events: none;
+}
+.livro-card:hover::before { left: 130%; }
+
+.livro-card:hover {
+  transform: translateY(-8px) scale(1.02);
+  box-shadow: var(--shadow-lg);
+}
+.livro-card:active { transform: scale(.97); }
+
+/* ── Capa do livro ── */
+.capa-livro-box {
+  width: 100%;
+  height: 175px;
+  background: var(--bg-warm);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform .35s var(--ease-bounce);
+}
+.livro-card:hover .capa-livro-box { transform: scale(1.04); }
+.capa-livro-box img { width:100%; height:100%; object-fit:cover; border-radius: var(--radius-md); }
+
+/* ── Título e info ── */
+.livro-card h3 {
+  font-family: var(--font-display);
+  font-size: .9rem;
+  color: var(--text-dark);
+  line-height: 1.35;
+  margin-bottom: 4px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.livro-card p {
+  font-size: .78rem;
+  color: var(--text-muted);
+  margin-bottom: 6px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ── Badges ── */
+.badge-disponivel, .badge-indisponivel {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 50px;
+  font-size: .72rem;
+  font-weight: 600;
+  letter-spacing: .04em;
+}
+.badge-disponivel   { background: rgba(39,174,96,.12); color: #1a7a40; border: 1px solid rgba(39,174,96,.25); }
+.badge-indisponivel { background: rgba(231,76,60,.12);  color: #b03228; border: 1px solid rgba(231,76,60,.25); }
+
+/* ── Modal ── */
+.modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(61,43,31,.5);
+  backdrop-filter: blur(6px);
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  animation: fadeIn .25s both;
+}
+
+.modal-conteudo {
+  background: white;
+  border-radius: var(--radius-xl);
+  padding: 36px;
+  max-width: 740px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: var(--shadow-lg);
+  position: relative;
+  animation: fadeUp .4s var(--ease-bounce) both;
+}
+
+.fechar {
+  position: absolute;
+  top: 16px; right: 20px;
+  width: 32px; height: 32px;
+  display: flex; align-items: center; justify-content: center;
+  border-radius: 50%;
+  background: var(--bg-warm);
+  color: var(--text-mid);
+  font-size: .9rem;
+  cursor: pointer;
+  border: none;
+  transition: background .2s, transform .2s;
+}
+.fechar:hover { background: var(--beige); transform: rotate(90deg); }
+
+.modal-info { display: flex; gap: 28px; }
+
+.modal-capa-box {
+  width: 180px;
+  height: 255px;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  background: var(--bg-warm);
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.modal-capa-box img { width:100%; height:100%; object-fit:cover; }
+
+.modal-texto { flex: 1; }
+.modal-texto h2 {
+  font-family: var(--font-display);
+  font-size: 1.3rem;
+  color: var(--text-dark);
+  margin-bottom: 12px;
+  line-height: 1.3;
+}
+.modal-texto p { font-size: .9rem; color: var(--text-mid); margin-bottom: 6px; }
+.modal-texto p strong { color: var(--text-dark); }
+
+.modal-select, .modal-input-qt {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1.5px solid var(--beige);
+  border-radius: var(--radius-md);
+  font-family: var(--font-body);
+  font-size: .9rem;
+  color: var(--text-dark);
+  background: white;
+  outline: none;
+  margin: 6px 0 14px;
+  transition: border-color .2s, box-shadow .2s;
+}
+.modal-select:focus, .modal-input-qt:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(155,123,93,.15);
+}
+.modal-input-qt { width: 100px; }
+
+.btn-reserva {
+  background: var(--primary-dark);
+  color: white;
+  border: none;
+  padding: 12px 28px;
+  border-radius: 50px;
+  font-family: var(--font-body);
+  font-size: .9rem;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 4px;
+  transition: all .25s;
+  position: relative;
+  overflow: hidden;
+}
+.btn-reserva:hover { background: var(--primary-darker); transform: translateY(-2px); box-shadow: var(--shadow-md); }
+.btn-reserva:active { transform: scale(.97); }
+
+.feedback { padding:10px 14px; border-radius: var(--radius-md); margin-top:10px; font-size:.88rem; display:none; }
+.feedback.ok  { background:rgba(39,174,96,.1); color:#1a7a40; border:1px solid rgba(39,174,96,.25); }
+.feedback.err { background:rgba(231,76,60,.1); color:#b03228; border:1px solid rgba(231,76,60,.25); }

@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <title>Catálogo</title>
+  <link rel="stylesheet" href="css/layout.css">
+  <link rel="stylesheet" href="css/catalogo.css">
+  <style>
+    .badge-disponivel   { background:#27ae60;color:#fff;padding:2px 8px;border-radius:12px;font-size:.8rem; }
+    .badge-indisponivel { background:#e74c3c;color:#fff;padding:2px 8px;border-radius:12px;font-size:.8rem; }
+    .livro-card { cursor:pointer; }
+    .capa-livro-box { width:100%;height:160px;background:#f0f0f0;border-radius:6px;overflow:hidden;display:flex;align-items:center;justify-content:center;margin-bottom:8px; }
+    .modal-capa-box { width:180px;height:250px;background:#f0f0f0;border-radius:6px;overflow:hidden;display:flex;align-items:center;justify-content:center;flex-shrink:0; }
+    .modal-select { width:100%;padding:8px;margin:6px 0;border-radius:6px;border:1px solid #ccc; }
+    .modal-input-qt { width:80px;padding:8px;border-radius:6px;border:1px solid #ccc; }
+    .feedback { padding:8px 12px;border-radius:6px;margin-top:8px;display:none; }
+    .feedback.ok  { background:#d4edda;color:#155724; }
+    .feedback.err { background:#f8d7da;color:#721c24; }
+  </style>
+</head>
+<body>
+  <nav id="menu-lateral" class="menu-lateral">
+    <div class="fechar-menu" onclick="toggleMenu()">✕</div>
+    <a href="catalogo.html"       class="menu-item ativo">CATÁLOGO</a>
+    <a href="perfil-usuario.html" class="menu-item">MEU PERFIL</a>
+    <a href="reservas.html"       class="menu-item">MINHAS RESERVAS</a>
+    <a href="devolutivas.html"    class="menu-item">DEVOLUÇÕES</a>
+  </nav>
+
+  <header class="header">
+    <div class="menu-hamburguer" onclick="toggleMenu()"><span></span><span></span><span></span></div>
+    <div class="logo-header">
+      <img src="img/logo-capa-e-barra-de-pesquisa.png" alt="Logo" class="logo-img">
+      <span class="logo-text">LER E EDUCAR</span>
+    </div>
+    <input type="text" id="busca" placeholder="Buscar livro..." class="busca">
+    <div class="header-direita">
+      <div class="usuario">Olá, <span id="nome-usuario-logado">Gestor</span></div>
+      <a href="#" class="sair" onclick="Auth.logout()">SAIR</a>
+    </div>
+  </header>
+
+  <main class="catalogo-container" id="catalogo-main">
+    <p style="padding:20px;color:#888">Carregando catálogo...</p>
+  </main>
+
+  <!-- MODAL -->
+  <div id="modal-livro" class="modal" style="display:none">
+    <div class="modal-conteudo">
+      <span class="fechar" onclick="fecharModal()">X</span>
+      <div class="modal-info">
+        <div class="modal-capa-box" id="modal-capa-box">
+          <div style="color:#888;font-size:.8rem;text-align:center">Carregando capa...</div>
+        </div>
+        <div class="modal-texto">
+          <h2 id="modal-titulo"></h2>
+          <p><strong>Autor:</strong> <span id="modal-autor"></span></p>
+          <p><strong>Editora:</strong> <span id="modal-editora"></span></p>
+          <p><strong>Ano:</strong> <span id="modal-ano"></span></p>
+          <p><strong>Disponíveis:</strong> <span id="modal-disponiveis"></span></p>
+          <label><strong>Série atendida:</strong></label>
+          <select id="modal-serie" class="modal-select">
+            <option value="">Selecione a série</option>
+            <option value="PRIMEIRO_ANO">1º Ano</option>
+            <option value="SEGUNDO_ANO">2º Ano</option>
+            <option value="TERCEIRO_ANO">3º Ano</option>
+            <option value="QUARTO_ANO">4º Ano</option>
+            <option value="QUINTO_ANO">5º Ano</option>
+          </select>
+          <label><strong>Quantidade:</strong></label>
+          <input type="number" id="modal-qtd" class="modal-input-qt" value="1" min="1">
+          <div id="feedback-reserva" class="feedback"></div>
+          <button class="btn-reserva" onclick="solicitarReserva()">Solicitar reserva</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/api.js"></script>
+  <script src="js/layout.js"></script>
+  <script>
+    Auth.exigirLogin();
+    Auth.exibirNome();
+
+    let todosLivros = [];
+    let livroAtual  = null;
+
+    const buscaDebounce = debounce(async (q) => {
+      if (!q.trim()) { renderizarCatalogo(todosLivros); return; }
+      const res = await get('/livros?titulo=' + encodeURIComponent(q));
+      if (res && !res.status) renderizarCatalogo(res);
+    }, 400);
+
+    document.getElementById('busca').addEventListener('input', e => buscaDebounce(e.target.value));
+
+    async function carregarCatalogo() {
+      const livros = await get('/livros');
+      if (!livros || livros.status) return;
+      todosLivros = livros;
+      renderizarCatalogo(livros);
+    }
+
+    function renderizarCatalogo(livros) {
+      const main = document.getElementById('catalogo-main');
+      if (!livros.length) { main.innerHTML = '<p style="padding:20px;color:#888">Nenhum livro encontrado.</p>'; return; }
+
+      const grupos = {};
+      livros.forEach(l => {
+        const cat = CATEGORIAS[l.categoria] || l.categoria;
+        if (!grupos[cat]) grupos[cat] = [];
+        grupos[cat].push(l);
+      });
+
+      main.innerHTML = Object.entries(grupos).map(([cat, livs]) => `
+        <section class="categoria">
+          <h2>${cat}</h2>
+          <div class="livros-grid-wrapper">
+            <div class="livros-grid">
+              ${livs.map(l => `
+                <div class="livro-card" onclick='abrirModal(${JSON.stringify(l).replace(/'/g,"&#39;")})' data-id="${l.id}">
+                  <div class="capa-livro-box" id="capa-card-${l.id}">
+                    <div style="color:#aaa;font-size:.75rem;text-align:center">⏳</div>
+                  </div>
+                  <h3>${l.titulo}</h3>
+                  <p style="font-size:.82rem;color:#666">${l.autor}</p>
+                  <span class="${l.totalDisponiveis > 0 ? 'badge-disponivel':'badge-indisponivel'}">
+                    ${l.totalDisponiveis > 0 ? l.totalDisponiveis + ' disponíveis' : 'Indisponível'}
+                  </span>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        </section>
+      `).join('');
+
+      // Carregar capas em paralelo sem bloquear a UI
+      livros.forEach(l => carregarCapaCard(l));
+    }
+
+    async function carregarCapaCard(livro) {
+      const url = await buscarCapa(livro);
+      const el  = document.getElementById('capa-card-' + livro.id);
+      if (el) el.innerHTML = capaHtml(url, livro.titulo);
+    }
+
+    async function abrirModal(livro) {
+      livroAtual = livro;
+      document.getElementById('modal-titulo').textContent      = livro.titulo;
+      document.getElementById('modal-autor').textContent       = livro.autor;
+      document.getElementById('modal-editora').textContent     = livro.editora || '-';
+      document.getElementById('modal-ano').textContent         = livro.anoPublicacao || '-';
+      document.getElementById('modal-disponiveis').textContent = livro.totalDisponiveis;
+      document.getElementById('modal-serie').value = '';
+      document.getElementById('modal-qtd').value   = 1;
+      document.getElementById('feedback-reserva').style.display = 'none';
+      document.getElementById('modal-capa-box').innerHTML = '<div style="color:#888;font-size:.8rem">Carregando...</div>';
+      document.getElementById('modal-livro').style.display = 'flex';
+
+      const url = await buscarCapa(livro);
+      document.getElementById('modal-capa-box').innerHTML = capaHtml(url, livro.titulo, 'width:180px;height:250px');
+    }
+
+    function fecharModal() {
+      document.getElementById('modal-livro').style.display = 'none';
+      livroAtual = null;
+    }
+
+    async function solicitarReserva() {
+      const serie = document.getElementById('modal-serie').value;
+      const qtd   = parseInt(document.getElementById('modal-qtd').value);
+      if (!serie) { mostrarFeedback('Selecione a série.', false); return; }
+      if (!qtd || qtd < 1) { mostrarFeedback('Quantidade inválida.', false); return; }
+      const res = await post('/emprestimos', { itens: [{ idLivro: livroAtual.id, serie, quantidade: qtd }] });
+      if (res && res.id) {
+        mostrarFeedback('Reserva solicitada com sucesso!', true);
+        setTimeout(fecharModal, 1500);
+      } else {
+        mostrarFeedback(res?.mensagens?.[0] || 'Erro ao solicitar.', false);
+      }
+    }
+
+    function mostrarFeedback(msg, ok) {
+      const fb = document.getElementById('feedback-reserva');
+      fb.textContent = msg;
+      fb.className = 'feedback ' + (ok ? 'ok' : 'err');
+      fb.style.display = 'block';
+    }
+
+    carregarCatalogo();
+  </script>
+</body>
+</html>

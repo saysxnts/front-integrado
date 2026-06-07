@@ -1,0 +1,134 @@
+/* ═══════════════════════════════════════════════════
+   LER E EDUCAR — DESIGN SYSTEM
+   Paleta original preservada + modernização completa
+═══════════════════════════════════════════════════ */
+
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700;900&family=DM+Sans:wght@300;400;500;600&display=swap');
+
+:root {
+  /* ── Paleta original ── */
+  --primary:        #9b7b5d;
+  --primary-dark:   #7b5a3c;
+  --primary-darker: #5a3f28;
+  --primary-light:  #c4a882;
+  --accent:         #d4956a;
+  --bg:             #f2ece4;
+  --bg-warm:        #ede6da;
+  --card-bg:        rgba(255,255,255,0.85);
+  --beige:          #e6dac9;
+  --text-dark:      #3d2b1f;
+  --text-mid:       #5a3f2a;
+  --text-light:     #EADCC9;
+  --text-muted:     #8b7060;
+
+  /* ── Tipografia ── */
+  --font-display: 'Playfair Display', Georgia, serif;
+  --font-body:    'DM Sans', Arial, sans-serif;
+
+  /* ── Sombras ── */
+  --shadow-sm:  0 2px 8px rgba(90,63,40,.12);
+  --shadow-md:  0 8px 24px rgba(90,63,40,.16);
+  --shadow-lg:  0 20px 60px rgba(90,63,40,.22);
+  --shadow-glow:0 0 30px rgba(155,123,93,.35);
+
+  /* ── Bordas / Raios ── */
+  --radius-sm: 8px;
+  --radius-md: 16px;
+  --radius-lg: 24px;
+  --radius-xl: 36px;
+
+  /* ── Transições ── */
+  --ease-smooth: cubic-bezier(.25,.8,.25,1);
+  --ease-bounce: cubic-bezier(.34,1.56,.64,1);
+  --ease-snap:   cubic-bezier(.77,0,.175,1);
+
+  /* ── Glassmorphism ── */
+  --glass-bg:     rgba(242,236,228,.75);
+  --glass-border: rgba(155,123,93,.25);
+  --glass-blur:   blur(20px);
+}
+
+/* ── Reset & Base ── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: var(--font-body);
+  background-color: var(--bg);
+  color: var(--text-dark);
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── Scrollbar customizada ── */
+::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-track { background: var(--bg-warm); }
+::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: var(--primary-dark); }
+
+/* ── Seleção de texto ── */
+::selection { background: var(--primary); color: white; }
+
+/* ── Keyframes globais ── */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(30px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes slideInLeft {
+  from { opacity: 0; transform: translateX(-40px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50%       { transform: scale(1.05); }
+}
+@keyframes shimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position:  200% 0; }
+}
+@keyframes float {
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  33%       { transform: translateY(-12px) rotate(2deg); }
+  66%       { transform: translateY(-6px) rotate(-1deg); }
+}
+@keyframes ripple {
+  to { transform: scale(4); opacity: 0; }
+}
+@keyframes particleFade {
+  0%   { opacity: 0; transform: translateY(0) scale(0); }
+  10%  { opacity: .6; }
+  90%  { opacity: .3; }
+  100% { opacity: 0; transform: translateY(-100vh) scale(1) rotate(360deg); }
+}
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+@keyframes skeleton {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* ── Skeleton loader ── */
+.skeleton {
+  background: linear-gradient(90deg, var(--bg-warm) 25%, var(--beige) 50%, var(--bg-warm) 75%);
+  background-size: 200% 100%;
+  animation: skeleton 1.5s infinite;
+  border-radius: var(--radius-sm);
+}
+
+/* ── Utility classes ── */
+.animate-fade-up  { animation: fadeUp .6s var(--ease-smooth) both; }
+.animate-fade-in  { animation: fadeIn .4s ease both; }
+.animate-slide-left { animation: slideInLeft .5s var(--ease-smooth) both; }
+
+.stagger-1 { animation-delay: .05s; }
+.stagger-2 { animation-delay: .10s; }
+.stagger-3 { animation-delay: .15s; }
+.stagger-4 { animation-delay: .20s; }
+.stagger-5 { animation-delay: .25s; }
+.stagger-6 { animation-delay: .30s; }

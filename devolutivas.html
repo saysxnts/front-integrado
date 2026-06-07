@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <title>Devoluções - Ler e Educar</title>
+  <link rel="stylesheet" href="css/layout.css">
+  <link rel="stylesheet" href="css/tela-devolucao.css">
+  <style>
+    .badge-aprovado  { background:#27ae60;color:#fff;padding:2px 8px;border-radius:12px;font-size:.8rem; }
+    .badge-devolvido { background:#7f8c8d;color:#fff;padding:2px 8px;border-radius:12px;font-size:.8rem; }
+    .sem-dados       { color:#888;font-style:italic;padding:12px 0; }
+    .item-devolucao  { display:flex;align-items:flex-start;gap:16px;padding:14px 0;border-bottom:1px solid #eee; }
+    .info-devolucao  { flex:1; }
+    .info-devolucao h3 { margin:0 0 6px; }
+    .info-devolucao p  { margin:3px 0;font-size:.9rem;color:#666; }
+    .btn-devolutiva  { background:#27ae60;color:#fff;border:none;padding:8px 16px;border-radius:6px;cursor:pointer;margin-top:8px; }
+    .btn-devolutiva:disabled { opacity:.6;cursor:not-allowed; }
+    .itens-lista     { margin:6px 0;font-size:.88rem;color:#444; }
+    .feedback-item   { padding:6px 10px;border-radius:5px;margin-top:6px;font-size:.88rem;display:none; }
+    .feedback-ok  { background:#d4edda;color:#155724; }
+    .feedback-err { background:#f8d7da;color:#721c24; }
+  </style>
+</head>
+<body>
+  <nav id="menu-lateral" class="menu-lateral">
+    <div class="fechar-menu" onclick="toggleMenu()">✕</div>
+    <a href="catalogo.html"       class="menu-item">CATÁLOGO</a>
+    <a href="perfil-usuario.html" class="menu-item">MEU PERFIL</a>
+    <a href="reservas.html"       class="menu-item">MINHAS RESERVAS</a>
+    <a href="devolutivas.html"    class="menu-item ativo">DEVOLUÇÕES</a>
+  </nav>
+
+  <header class="header">
+    <div class="menu-hamburguer" onclick="toggleMenu()"><span></span><span></span><span></span></div>
+    <div class="logo-header">
+      <img src="img/logo-capa-e-barra-de-pesquisa.png" alt="Logo" class="logo-img">
+      <span class="logo-text">LER E EDUCAR</span>
+    </div>
+    <input type="text" placeholder="Buscar livro..." class="busca">
+    <div class="header-direita">
+      <div class="usuario">Olá, <span id="nome-usuario-logado">Gestor</span></div>
+      <a href="#" class="sair" onclick="Auth.logout()">SAIR</a>
+    </div>
+  </header>
+
+  <main class="devolucoes-bg">
+    <div class="devolucoes-container">
+      <h1 class="devolucoes-titulo">DEVOLUÇÕES</h1>
+
+      <section>
+        <h2 style="margin-bottom:12px">EMPRÉSTIMOS ATIVOS — Confirmar Uso</h2>
+        <p style="font-size:.85rem;color:#666;margin-bottom:12px">Confirme o uso a cada 90 dias para renovar automaticamente.</p>
+        <div id="lista-ativos"><p class="sem-dados">Carregando...</p></div>
+      </section>
+
+      <section style="margin-top:32px">
+        <h2 style="margin-bottom:12px">HISTÓRICO DE DEVOLUÇÕES</h2>
+        <div id="lista-devolvidos"><p class="sem-dados">Carregando...</p></div>
+      </section>
+    </div>
+  </main>
+
+  <script src="js/api.js"></script>
+  <script src="js/layout.js"></script>
+  <script>
+    Auth.exigirLogin();
+    Auth.exibirNome();
+
+    async function carregar() {
+      const emprestimos = await get('/emprestimos/meus');
+      if (!emprestimos || emprestimos.status) return;
+
+      const ativos     = emprestimos.filter(e => e.status === 'APROVADO');
+      const devolvidos = emprestimos.filter(e => e.status === 'DEVOLVIDO');
+
+      renderAtivos(ativos);
+      renderDevolvidos(devolvidos);
+    }
+
+    function renderItens(itens) {
+      if (!itens?.length) return '';
+      return `<ul class="itens-lista">${itens.map(it =>
+        `<li>${it.tituloLivro} — ${SERIES[it.serieDestino] || it.serieDestino} — Qt: ${it.quantidade}</li>`
+      ).join('')}</ul>`;
+    }
+
+    function renderAtivos(lista) {
+      const el = document.getElementById('lista-ativos');
+      if (!lista.length) { el.innerHTML = '<p class="sem-dados">Nenhum empréstimo ativo.</p>'; return; }
+      el.innerHTML = lista.map(e => `
+        <div class="item-devolucao">
+          <div class="capa-livro" style="width:70px;height:95px;background:#ddd;display:flex;align-items:center;justify-content:center;font-size:.7rem;text-align:center;flex-shrink:0">Capa</div>
+          <div class="info-devolucao">
+            <h3>Protocolo #${e.id} — ${e.nomeInstituicao || ''}</h3>
+            ${renderItens(e.itens)}
+            <p>Aprovado em: ${formatarData(e.dataEmissao)}</p>
+            ${e.dataVencimento ? `<p>Vencimento: ${formatarData(e.dataVencimento)}</p>` : ''}
+            <span class="badge-aprovado">Ativo</span>
+            <div id="fb-${e.id}" class="feedback-item"></div>
+            <button class="btn-devolutiva" onclick="confirmarUso(${e.id}, this)">CONFIRMAR USO (renovar 90 dias)</button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function renderDevolvidos(lista) {
+      const el = document.getElementById('lista-devolvidos');
+      if (!lista.length) { el.innerHTML = '<p class="sem-dados">Nenhuma devolução registrada.</p>'; return; }
+      el.innerHTML = lista.map(e => `
+        <div class="item-devolucao">
+          <div class="capa-livro" style="width:70px;height:95px;background:#ddd;display:flex;align-items:center;justify-content:center;font-size:.7rem;text-align:center;flex-shrink:0">Capa</div>
+          <div class="info-devolucao">
+            <h3>Protocolo #${e.id}</h3>
+            ${renderItens(e.itens)}
+            <p>Devolvido em: ${formatarData(e.dataEmissao)}</p>
+            <span class="badge-devolvido">Devolvido</span>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    async function confirmarUso(id, btn) {
+      btn.disabled = true;
+      btn.textContent = 'Confirmando...';
+      const res = await patch('/emprestimos/' + id + '/confirmar-uso');
+      const fb = document.getElementById('fb-' + id);
+      if (res && !res.status) {
+        fb.className = 'feedback-item feedback-ok';
+        fb.textContent = '✓ Uso confirmado! Renovado por mais 90 dias.';
+        fb.style.display = 'block';
+        btn.textContent = '✓ Confirmado';
+      } else {
+        fb.className = 'feedback-item feedback-err';
+        fb.textContent = res?.mensagens?.[0] || 'Erro ao confirmar uso.';
+        fb.style.display = 'block';
+        btn.disabled = false;
+        btn.textContent = 'CONFIRMAR USO (renovar 90 dias)';
+      }
+    }
+
+    carregar();
+  </script>
+</body>
+</html>

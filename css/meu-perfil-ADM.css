@@ -1,0 +1,52 @@
+.perfil-adm-container {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 50px 40px;
+}
+
+.perfil-adm-container h1 {
+    color: #5a3f28;
+    font-size: 42px;
+    margin-bottom: 10px;
+}
+
+.subtitulo {
+    font-size: 22px;
+    margin-bottom: 40px;
+    color: #3d2b1f;
+}
+
+.perfil-form {
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+}
+
+.linha {
+    display: flex;
+    gap: 40px;
+}
+
+.campo {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+}
+
+.campo-pequeno {
+    max-width: 250px;
+}
+
+.campo label {
+    font-weight: bold;
+    margin-bottom: 8px;
+    color: #3d2b1f;
+}
+
+.campo input {
+    background: #ededed;
+    border: none;
+    padding: 12px;
+    border-radius: 4px;
+    font-size: 15px;
+}

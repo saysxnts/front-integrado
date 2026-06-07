@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login — Ler e Educar</title>
+  <link rel="stylesheet" href="css/login.css">
+</head>
+<body>
+
+  <!-- Fundo parallax -->
+  <div class="bg-parallax"></div>
+
+  <!-- Canvas de partículas -->
+  <canvas id="particles-canvas"></canvas>
+
+  <a href="index.html" class="sair">SAIR</a>
+
+  <div class="login-box">
+    <img src="img/logo-tela-de-cadastro.png" class="logo" alt="Logo">
+    <h1>LER E EDUCAR</h1>
+
+    <div class="input-group">
+      <label>E-mail</label>
+      <input type="email" id="email" placeholder="seu@email.com" autocomplete="email">
+    </div>
+
+    <div class="input-group">
+      <label>Senha</label>
+      <input type="password" id="senha" placeholder="••••••••" autocomplete="current-password">
+    </div>
+
+    <p class="esqueci">
+      Esqueceu a senha?
+      <a href="esqueciS.html">Clique aqui</a>
+    </p>
+
+    <p class="erro-login" id="erro-login"></p>
+
+    <button class="btn-login" id="btn-entrar" onclick="fazerLogin()">Entrar</button>
+
+    <a href="cadastro.html" class="cadastro">Cadastrar nova instituição</a>
+  </div>
+
+  <script src="js/api.js"></script>
+  <script src="js/animations.js"></script>
+  <script>
+    // Redireciona se já logado
+    if (Auth.token()) {
+      window.location.href = Auth.isAdmin() ? 'catalogo-admin.html' : 'catalogo.html';
+    }
+
+    // Inicia partículas e parallax (sem tilt/stagger nas páginas de login)
+    initAnimations({ tilt: false, stagger: false, hamburguer: false, headerScroll: false });
+    initParallax('.bg-parallax', 15);
+
+    async function fazerLogin() {
+      const email = document.getElementById('email').value.trim();
+      const senha = document.getElementById('senha').value.trim();
+      const erro  = document.getElementById('erro-login');
+      const btn   = document.getElementById('btn-entrar');
+
+      if (!email || !senha) {
+        erro.style.display = 'block';
+        erro.textContent = 'Preencha todos os campos.';
+        return;
+      }
+
+      btn.disabled = true;
+      btn.innerHTML = '<span class="spinner"></span> Entrando...';
+      erro.style.display = 'none';
+
+      const res = await post('/auth/login', { email, senha });
+
+      if (!res || res.status) {
+        erro.style.display = 'block';
+        erro.textContent = 'E-mail ou senha incorretos.';
+        btn.disabled = false;
+        btn.textContent = 'Entrar';
+        // Shake no card
+        const box = document.querySelector('.login-box');
+        box.style.animation = 'none';
+        box.offsetHeight;
+        box.style.animation = 'shakeX .4s both';
+        return;
+      }
+
+      Auth.salvar(res);
+      btn.textContent = '✓ Entrando...';
+      setTimeout(() => {
+        window.location.href = Auth.isAdmin() ? 'catalogo-admin.html' : 'catalogo.html';
+      }, 400);
+    }
+
+    document.addEventListener('keydown', e => { if (e.key === 'Enter') fazerLogin(); });
+  </script>
+
+  <style>
+    @keyframes shakeX {
+      0%,100%{transform:translateX(0)}
+      20%{transform:translateX(-10px)}
+      40%{transform:translateX(10px)}
+      60%{transform:translateX(-6px)}
+      80%{transform:translateX(6px)}
+    }
+  </style>
+</body>
+</html>

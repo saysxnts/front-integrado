@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <title>Controle de Estoque</title>
+  <link rel="stylesheet" href="css/layout.css">
+  <link rel="stylesheet" href="css/controle-estoque.css">
+  <style>
+    .badge-ok  { background:#27ae60;color:#fff;padding:2px 8px;border-radius:12px;font-size:.8rem; }
+    .badge-low { background:#e67e22;color:#fff;padding:2px 8px;border-radius:12px;font-size:.8rem; }
+    .badge-out { background:#e74c3c;color:#fff;padding:2px 8px;border-radius:12px;font-size:.8rem; }
+    .livro-estoque { display:flex;align-items:center;gap:16px;padding:12px;border-bottom:1px solid #eee; }
+    .info-livro h3 { margin:0 0 4px; }
+    .info-livro p  { margin:2px 0;font-size:.9rem;color:#666; }
+  </style>
+</head>
+<body>
+  <nav id="menu-lateral" class="menu-lateral">
+    <div class="fechar-menu" onclick="toggleMenu()">✕</div>
+    <a href="catalogo-admin.html"  class="menu-item">CATÁLOGO</a>
+    <a href="meu-perfil-ADM.html"  class="menu-item">MEU PERFIL</a>
+    <a href="adicionar-livro.html" class="menu-item">ADICIONAR LIVROS</a>
+    <a href="emprestimo.html"      class="menu-item">EMPRÉSTIMOS</a>
+    <a href="controle-estoque.html"class="menu-item ativo">CONTROLE DE ESTOQUE</a>
+    <a href="controle-usuario.html"class="menu-item">CONTROLE DE USUÁRIOS</a>
+  </nav>
+
+  <header class="header">
+    <div class="menu-hamburguer" onclick="toggleMenu()"><span></span><span></span><span></span></div>
+    <div class="logo-header">
+      <img src="img/logo-capa-e-barra-de-pesquisa.png" alt="Logo" class="logo-img">
+      <span class="logo-text">LER E EDUCAR</span>
+    </div>
+    <input type="text" placeholder="Buscar livro..." class="busca">
+    <div class="header-direita">
+      <div class="usuario">Olá, <span id="nome-usuario-logado">Administrador</span></div>
+      <a href="#" class="sair" onclick="Auth.logout()">SAIR</a>
+    </div>
+  </header>
+
+  <main class="pagina-estoque">
+    <div class="estoque-container">
+      <h1>CONTROLE DE ESTOQUE</h1>
+
+      <section class="secao-estoque">
+        <h2>EM ESTOQUE</h2>
+        <div id="lista-estoque"><p style="color:#888">Carregando...</p></div>
+      </section>
+    </div>
+  </main>
+
+  <script src="js/api.js"></script>
+  <script src="js/layout.js"></script>
+  <script>
+    Auth.exigirLogin();
+    Auth.exibirNome();
+
+    async function carregar() {
+      const livros = await get('/livros');
+      if (!livros || livros.status) return;
+
+      const el = document.getElementById('lista-estoque');
+      if (!livros.length) { el.innerHTML = '<p style="color:#888">Nenhum livro cadastrado.</p>'; return; }
+
+      el.innerHTML = livros.map(l => {
+        const disp = l.totalDisponiveis;
+        let badge, status;
+        if (disp === 0)      { badge = 'badge-out'; status = 'Sem estoque'; }
+        else if (disp <= 3)  { badge = 'badge-low'; status = 'Estoque baixo'; }
+        else                 { badge = 'badge-ok';  status = 'Em estoque'; }
+
+        return `
+          <div class="livro-estoque">
+            <div class="capa-livro" style="width:60px;height:80px;background:#ddd;display:flex;align-items:center;justify-content:center;font-size:.7rem;text-align:center;flex-shrink:0">Capa</div>
+            <div class="info-livro">
+              <h3>${l.titulo}</h3>
+              <p>${l.autor} | ${CATEGORIAS[l.categoria] || l.categoria}</p>
+              <p>Disponíveis: <strong>${disp}</strong> <span class="${badge}">${status}</span></p>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    carregar();
+  </script>
+</body>
+</html>

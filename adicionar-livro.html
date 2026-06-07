@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <title>Adicionar Livros</title>
+  <link rel="stylesheet" href="css/layout.css">
+  <link rel="stylesheet" href="css/adicionar-livro.css">
+  <style>
+    .form-select { width:100%;padding:8px;border-radius:6px;border:1px solid #ccc;margin-bottom:10px; }
+    .checkbox-group { display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px; }
+    .checkbox-group label { display:flex;align-items:center;gap:4px;font-size:.9rem; }
+    .feedback { padding:10px 14px;border-radius:6px;margin-top:12px;display:none; }
+    .feedback.ok  { background:#d4edda;color:#155724; }
+    .feedback.err { background:#f8d7da;color:#721c24; }
+  </style>
+</head>
+<body>
+  <nav id="menu-lateral" class="menu-lateral">
+    <div class="fechar-menu" onclick="toggleMenu()">✕</div>
+    <a href="catalogo-admin.html"  class="menu-item">CATÁLOGO</a>
+    <a href="meu-perfil-ADM.html"  class="menu-item">MEU PERFIL</a>
+    <a href="adicionar-livro.html" class="menu-item ativo">ADICIONAR LIVROS</a>
+    <a href="emprestimo.html"      class="menu-item">EMPRÉSTIMOS</a>
+    <a href="controle-estoque.html"class="menu-item">CONTROLE DE ESTOQUE</a>
+    <a href="controle-usuario.html"class="menu-item">CONTROLE DE USUÁRIOS</a>
+  </nav>
+
+  <header class="header">
+    <div class="menu-hamburguer" onclick="toggleMenu()"><span></span><span></span><span></span></div>
+    <div class="logo-header">
+      <img src="img/logo-capa-e-barra-de-pesquisa.png" alt="Logo" class="logo-img">
+      <span class="logo-text">LER E EDUCAR</span>
+    </div>
+    <input type="text" placeholder="Buscar livro..." class="busca">
+    <div class="header-direita">
+      <div class="usuario">Olá, <span id="nome-usuario-logado">Administrador</span></div>
+      <a href="#" class="sair" onclick="Auth.logout()">SAIR</a>
+    </div>
+  </header>
+
+  <main class="pagina-adicionar-livro">
+    <h1 class="titulo-pagina">ADICIONAR LIVROS</h1>
+
+    <div class="form-livro">
+      <div class="coluna-esquerda">
+        <div class="input-group">
+          <label>Nome do livro:</label>
+          <input type="text" id="titulo">
+        </div>
+        <div class="input-group">
+          <label>Autor:</label>
+          <input type="text" id="autor">
+        </div>
+        <div class="input-group">
+          <label>Editora:</label>
+          <input type="text" id="editora">
+        </div>
+      </div>
+
+      <div class="coluna-direita">
+        <div class="input-group">
+          <label>Ano de lançamento:</label>
+          <input type="number" id="ano" min="1900" max="2099">
+        </div>
+        <div class="input-group">
+          <label>Categoria:</label>
+          <select id="categoria" class="form-select">
+            <option value="">Selecione...</option>
+            <option value="ALFABETIZACAO_LETRAMENTO">Alfabetização e Letramento</option>
+            <option value="CIENCIAS_NATUREZA">Ciências da Natureza</option>
+            <option value="FABULAS">Fábulas</option>
+            <option value="CONTOS_DE_FADAS">Conto de Fadas</option>
+            <option value="HISTORIA_CULTURA">História e Cultura</option>
+            <option value="MATEMATICA">Matemática</option>
+            <option value="OUTRO">Outro</option>
+          </select>
+        </div>
+        <div class="input-group">
+          <label>Séries indicadas:</label>
+          <div class="checkbox-group">
+            <label><input type="checkbox" value="PRIMEIRO_ANO"> 1º Ano</label>
+            <label><input type="checkbox" value="SEGUNDO_ANO"> 2º Ano</label>
+            <label><input type="checkbox" value="TERCEIRO_ANO"> 3º Ano</label>
+            <label><input type="checkbox" value="QUARTO_ANO"> 4º Ano</label>
+            <label><input type="checkbox" value="QUINTO_ANO"> 5º Ano</label>
+          </div>
+        </div>
+        <div class="input-group">
+          <label>Quantidade de exemplares:</label>
+          <input type="number" id="qtd" min="1" value="1">
+        </div>
+
+        <div id="feedback" class="feedback"></div>
+        <button class="btn-adicionar" onclick="adicionarLivro()">ADICIONAR AO CATÁLOGO</button>
+      </div>
+    </div>
+  </main>
+
+  <script src="js/api.js"></script>
+  <script src="js/layout.js"></script>
+  <script>
+    Auth.exigirLogin();
+    Auth.exibirNome();
+
+    async function adicionarLivro() {
+      const titulo    = document.getElementById('titulo').value.trim();
+      const autor     = document.getElementById('autor').value.trim();
+      const editora   = document.getElementById('editora').value.trim();
+      const ano       = parseInt(document.getElementById('ano').value);
+      const categoria = document.getElementById('categoria').value;
+      const qtd       = parseInt(document.getElementById('qtd').value);
+      const series    = [...document.querySelectorAll('.checkbox-group input:checked')].map(c => c.value);
+      const fb        = document.getElementById('feedback');
+
+      if (!titulo || !autor || !editora || !ano || !categoria || !qtd) {
+        mostrarFb('Preencha todos os campos obrigatórios.', false); return;
+      }
+      if (!series.length) {
+        mostrarFb('Selecione ao menos uma série.', false); return;
+      }
+
+      const res = await post('/livros', {
+        titulo, autor, editora,
+        anoPublicacao: ano,
+        categoria,
+        seriesIndicadas: series,
+        quantidadeExemplares: qtd
+      });
+
+      if (res && res.id) {
+        mostrarFb('✓ Livro "' + res.titulo + '" adicionado com sucesso!', true);
+        limparForm();
+      } else {
+        const msg = res?.mensagens?.[0] || 'Erro ao adicionar livro.';
+        mostrarFb(msg, false);
+      }
+    }
+
+    function mostrarFb(msg, ok) {
+      const fb = document.getElementById('feedback');
+      fb.textContent = msg;
+      fb.className = 'feedback ' + (ok ? 'ok' : 'err');
+      fb.style.display = 'block';
+    }
+
+    function limparForm() {
+      ['titulo','autor','editora','ano','qtd'].forEach(id => document.getElementById(id).value = '');
+      document.getElementById('categoria').value = '';
+      document.querySelectorAll('.checkbox-group input').forEach(c => c.checked = false);
+    }
+  </script>
+</body>
+</html>

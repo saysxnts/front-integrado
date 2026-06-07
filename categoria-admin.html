@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <title>Ver Categoria</title>
+  <link rel="stylesheet" href="css/layout.css">
+  <link rel="stylesheet" href="css/catalogo.css">
+</head>
+<body>
+
+<nav id="menu-lateral" class="menu-lateral">
+  <div class="fechar-menu" onclick="toggleMenu()">✕</div>
+  <a href="catalogo-admin.html" class="menu-item">← VOLTAR AO CATÁLOGO</a>
+  <a href="catalogo-admin.html" class="menu-item">CATÁLOGO</a>
+  <a href="perfil-usuario.html" class="menu-item">MEU PERFIL</a>
+  <a href="adicionar-livro.html" class="menu-item">ADICIONAR LIVROS</a>
+  <a href="emprestimo.html" class="menu-item">EMPRÉSTIMOS</a>
+  <a href="controle-estoque.html" class="menu-item">CONTROLE DE ESTOQUE</a>
+  <a href="controle-usuario.html" class="menu-item">CONTROLE DE USUÁRIOS</a>
+</nav>
+
+  <header class="header">
+    <div class="menu-hamburguer" onclick="toggleMenu()">
+      <span></span>
+      <span></span>
+      <span></span>
+    </div>
+
+    <div class="logo-header">
+      <img src="img/logo-capa-e-barra-de-pesquisa.png" alt="Logo Ler e Educar" class="logo-img">
+      <span class="logo-text">LER E EDUCAR</span>
+    </div>
+
+    <input type="text" placeholder="Buscar nesta categoria..." class="busca">
+
+    <div class="header-direita">
+      <div class="usuario">Olá, Gestor</div>
+      <a href="index.html" class="sair">SAIR</a>
+    </div>
+  </header>
+
+  <main class="catalogo-container">
+    
+    <section class="categoria">
+      <div class="categoria-topo-voltar">
+        <h2 id="nome-da-categoria">CONTO DE FADAS</h2>
+        <a href="catalogo.html" class="link-voltar">Voltar ao Catálogo Geral</a>
+      </div>
+
+      <div class="filtros-series-container">
+        <span class="titulo-filtro">Filtrar por Ano:</span>
+        <div class="checkbox-group">
+          <label class="checkbox-label">
+            <input type="checkbox" name="serie" value="1" onchange="filtrarPorSerie()">
+            <span>1º ANO</span>
+          </label>
+          <label class="checkbox-label">
+            <input type="checkbox" name="serie" value="2" onchange="filtrarPorSerie()">
+            <span>2º ANO</span>
+          </label>
+          <label class="checkbox-label">
+            <input type="checkbox" name="serie" value="3" onchange="filtrarPorSerie()">
+            <span>3º ANO</span>
+          </label>
+          <label class="checkbox-label">
+            <input type="checkbox" name="serie" value="4" onchange="filtrarPorSerie()">
+            <span>4º ANO</span>
+          </label>
+          <label class="checkbox-label">
+            <input type="checkbox" name="serie" value="5" onchange="filtrarPorSerie()">
+            <span>5º ANO</span>
+          </label>
+        </div>
+      </div>
+
+      <div class="livros-grid" id="grid-categoria">
+        
+        <div class="livro-card" data-serie="3" onclick="abrirModal()">
+          <div class="capa-placeholder">Capa do Livro</div>
+          <h3>História de Dois Amores</h3>
+        </div>
+        <div class="livro-card" data-serie="1" onclick="abrirModal()">
+          <div class="capa-placeholder">Capa do Livro</div>
+          <h3>365 atividades divertidas</h3>
+        </div>
+        <div class="livro-card" data-serie="2" onclick="abrirModal()">
+          <div class="capa-placeholder">Capa do Livro</div>
+          <h3>Montessori Meu Primeiro Livro...</h3>
+        </div>
+        <div class="livro-card" data-serie="3" onclick="abrirModal()">
+          <div class="capa-placeholder">Capa do Livro</div>
+          <h3>O que os Olhos não Veem</h3>
+        </div>
+        <div class="livro-card" data-serie="5" onclick="abrirModal()">
+          <div class="capa-placeholder">Capa do Livro</div>
+          <h3>Projeto Presente - 5º ano</h3>
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+  <div id="modal-livro" class="modal">
+    <div class="modal-conteudo">
+      <span class="fechar" onclick="fecharModal()">X</span>
+      <div class="modal-info">
+        <div class="capa-placeholder" style="width: 250px; height: 350px;">Capa do Livro</div>
+        <div class="modal-texto">
+          <h2>DETALHES DO LIVRO</h2>
+          <p><strong>Status:</strong> Disponível</p>
+          <div class="acoes-admin">
+            <button class="btn-editar">Editar</button>
+            <button class="btn-excluir">Excluir</button>
+        </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/layout.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

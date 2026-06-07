@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <title>Empréstimos - Ler e Educar</title>
+  <link rel="stylesheet" href="css/layout.css">
+  <link rel="stylesheet" href="css/emprestimos.css">
+  <style>
+    .badge-pendente  { background:#f39c12;color:#fff;padding:2px 8px;border-radius:12px;font-size:.8rem; }
+    .badge-ativa     { background:#27ae60;color:#fff;padding:2px 8px;border-radius:12px;font-size:.8rem; }
+    .badge-devolvido { background:#7f8c8d;color:#fff;padding:2px 8px;border-radius:12px;font-size:.8rem; }
+    .sem-dados       { color:#888;font-style:italic;padding:12px 0; }
+    .feedback-msg    { padding:8px 12px;border-radius:6px;margin:8px 0;font-size:.9rem; }
+    .feedback-ok  { background:#d4edda;color:#155724; }
+    .feedback-err { background:#f8d7da;color:#721c24; }
+    .itens-lista  { font-size:.85rem;color:#555;margin:6px 0;padding-left:16px; }
+    .card-info-extra { font-size:.85rem;color:#666;margin:3px 0; }
+  </style>
+</head>
+<body>
+  <nav id="menu-lateral" class="menu-lateral">
+    <div class="fechar-menu" onclick="toggleMenu()">✕</div>
+    <a href="catalogo-admin.html"  class="menu-item">CATÁLOGO</a>
+    <a href="meu-perfil-ADM.html"  class="menu-item">MEU PERFIL</a>
+    <a href="adicionar-livro.html" class="menu-item">ADICIONAR LIVROS</a>
+    <a href="emprestimo.html"      class="menu-item ativo">EMPRÉSTIMOS</a>
+    <a href="controle-estoque.html"class="menu-item">CONTROLE DE ESTOQUE</a>
+    <a href="controle-usuario.html"class="menu-item">CONTROLE DE USUÁRIOS</a>
+  </nav>
+
+  <header class="header">
+    <div class="menu-hamburguer" onclick="toggleMenu()"><span></span><span></span><span></span></div>
+    <div class="logo-header">
+      <img src="img/logo-capa-e-barra-de-pesquisa.png" alt="Logo" class="logo-img">
+      <span class="logo-text">LER E EDUCAR</span>
+    </div>
+    <input type="text" placeholder="Buscar livro..." class="busca">
+    <div class="header-direita">
+      <div class="usuario">Olá, <span id="nome-usuario-logado">Administrador</span></div>
+      <a href="#" class="sair" onclick="Auth.logout()">SAIR</a>
+    </div>
+  </header>
+
+  <main class="fundo-canva emprestimo-bg">
+    <div class="emprestimo-container">
+      <h1 class="pagina-titulo">EMPRÉSTIMOS</h1>
+
+      <section class="bloco-emprestimo">
+        <h2>SOLICITAÇÕES PENDENTES</h2>
+        <div id="lista-solicitacoes"><p class="sem-dados">Carregando...</p></div>
+      </section>
+
+      <section class="bloco-emprestimo">
+        <h2>RESERVAS APROVADAS</h2>
+        <div id="lista-aprovados"><p class="sem-dados">Carregando...</p></div>
+      </section>
+
+      <section class="bloco-emprestimo">
+        <h2>DEVOLVIDOS</h2>
+        <div id="lista-devolvidos"><p class="sem-dados">Carregando...</p></div>
+      </section>
+    </div>
+  </main>
+
+  <script src="js/api.js"></script>
+  <script src="js/layout.js"></script>
+  <script>
+    Auth.exigirLogin();
+    Auth.exibirNome();
+
+    async function carregar() {
+      const emprestimos = await get('/emprestimos');
+      if (!emprestimos || emprestimos.status) return;
+
+      renderSolicitacoes(emprestimos.filter(e => e.status === 'PENDENTE'));
+      renderAprovados(emprestimos.filter(e => e.status === 'APROVADO'));
+      renderDevolvidos(emprestimos.filter(e => e.status === 'DEVOLVIDO'));
+    }
+
+    function renderItens(itens) {
+      if (!itens?.length) return '';
+      return `<ul class="itens-lista">${itens.map(it =>
+        `<li>${it.tituloLivro} — ${SERIES[it.serieDestino] || it.serieDestino} — Qt: ${it.quantidade}</li>`
+      ).join('')}</ul>`;
+    }
+
+    function renderSolicitacoes(lista) {
+      const el = document.getElementById('lista-solicitacoes');
+      if (!lista.length) { el.innerHTML = '<p class="sem-dados">Nenhuma solicitação pendente.</p>'; return; }
+      el.innerHTML = lista.map(e => `
+        <div class="card-emprestimo" id="card-${e.id}">
+          <div class="capa-placeholder" style="width:80px;height:110px;flex-shrink:0">Capa</div>
+          <div class="info-livro">
+            <h3>Protocolo #${e.id}</h3>
+            <p class="card-info-extra"><strong>Escola:</strong> ${e.nomeInstituicao || '-'}</p>
+            <p class="card-info-extra"><strong>Gestor:</strong> ${e.nomeGestor || '-'}</p>
+            <p class="card-info-extra"><strong>Solicitado em:</strong> ${formatarData(e.dataEmissao)}</p>
+            ${renderItens(e.itens)}
+            <p><strong>Status:</strong> <span class="badge-pendente">Pendente</span></p>
+            <div id="fb-${e.id}" class="feedback-msg" style="display:none"></div>
+            <div class="acoes">
+              <button class="btn-aprovar" onclick="aprovar(${e.id})">APROVAR</button>
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function renderAprovados(lista) {
+      const el = document.getElementById('lista-aprovados');
+      if (!lista.length) { el.innerHTML = '<p class="sem-dados">Nenhuma reserva aprovada.</p>'; return; }
+      el.innerHTML = lista.map(e => `
+        <div class="card-emprestimo">
+          <div class="capa-placeholder" style="width:80px;height:110px;flex-shrink:0">Capa</div>
+          <div class="info-livro">
+            <h3>Protocolo #${e.id}</h3>
+            <p class="card-info-extra"><strong>Escola:</strong> ${e.nomeInstituicao || '-'}</p>
+            <p class="card-info-extra"><strong>Gestor:</strong> ${e.nomeGestor || '-'}</p>
+            <p class="card-info-extra"><strong>Aprovado em:</strong> ${formatarData(e.dataEmissao)}</p>
+            ${e.dataVencimento ? `<p class="card-info-extra"><strong>Vencimento:</strong> ${formatarData(e.dataVencimento)}</p>` : ''}
+            ${renderItens(e.itens)}
+            <p><strong>Status:</strong> <span class="badge-ativa">Ativo</span></p>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function renderDevolvidos(lista) {
+      const el = document.getElementById('lista-devolvidos');
+      if (!lista.length) { el.innerHTML = '<p class="sem-dados">Nenhuma devolução registrada.</p>'; return; }
+      el.innerHTML = lista.map(e => `
+        <div class="card-emprestimo">
+          <div class="capa-placeholder" style="width:80px;height:110px;flex-shrink:0">Capa</div>
+          <div class="info-livro">
+            <h3>Protocolo #${e.id}</h3>
+            <p class="card-info-extra"><strong>Escola:</strong> ${e.nomeInstituicao || '-'}</p>
+            ${renderItens(e.itens)}
+            <p><strong>Status:</strong> <span class="badge-devolvido">Devolvido</span></p>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    async function aprovar(id) {
+      const res = await patch('/emprestimos/' + id + '/aprovar');
+      const fb = document.getElementById('fb-' + id);
+      fb.style.display = 'block';
+      if (res && !res.status) {
+        fb.className = 'feedback-msg feedback-ok';
+        fb.textContent = '✓ Empréstimo aprovado com sucesso!';
+        setTimeout(carregar, 1200);
+      } else {
+        fb.className = 'feedback-msg feedback-err';
+        fb.textContent = res?.mensagens?.[0] || 'Erro ao aprovar.';
+      }
+    }
+
+    carregar();
+  </script>
+</body>
+</html>

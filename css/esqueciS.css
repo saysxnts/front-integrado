@@ -1,0 +1,107 @@
+body {
+
+  margin: 0;
+
+  height: 100vh;
+
+  display: flex;
+
+  justify-content: center;
+
+  align-items: center;
+
+  background-image:
+    linear-gradient(
+      rgba(255,255,255,0.7),
+      rgba(255,255,255,0.7)
+    ),
+
+    url("../img/fundo.jpg");
+
+  background-size: cover;
+
+  background-position: center;
+
+  font-family: Arial;
+}
+
+.sair {
+
+  position: absolute;
+
+  top: 20px;
+
+  right: 30px;
+
+  color: black;
+
+  font-weight: bold;
+
+  text-decoration: none;
+}
+
+.login-box {
+
+  width: 400px;
+
+  background-color: #e6dac9;
+
+  padding: 40px;
+
+  border-radius: 10px;
+
+  text-align: center;
+}
+
+.logo {
+
+  width: 100px;
+
+  margin-bottom: 20px;
+}
+
+label {
+
+  display: block;
+
+  text-align: left;
+
+  margin-top: 15px;
+
+  margin-bottom: 5px;
+
+  font-weight: bold;
+
+  color: #5a3f2a;
+}
+
+input {
+
+  width: 100%;
+
+  padding: 10px;
+
+  border: none;
+
+  background: #f2f2f2;
+
+  margin-bottom: 10px;
+
+  box-sizing: border-box;
+}
+
+
+button {
+
+  margin-top: 20px;
+
+  padding: 10px 20px;
+
+  border: 2px solid #5a3f2a;
+
+  background: white;
+
+  cursor: pointer;
+
+  font-weight: bold;
+}

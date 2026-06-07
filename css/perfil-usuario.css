@@ -1,0 +1,83 @@
+/* ==========================================================================
+   FUNDO EXCLUSIVO PARA A TELA DE PERFIL 
+   ========================================================================== */
+
+   .fundo-canva.fundo-perfil {
+  background: url("../img/tela-escolha-de-livro.png") no-repeat center center !important;
+  background-size: cover !important;
+  background-attachment: fixed !important;
+  /* ALTERAÇÃO 1: Ajustado de 80px para 85px para casar perfeitamente com a altura do seu .header */
+  min-height: calc(100vh - 85px) !important; 
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.perfil-container {
+  width: 100%;
+  max-width: 850px;
+  margin: 0 auto;
+  padding: 40px 20px;
+}
+
+.perfil-titulo {
+  font-size: 32px;
+  color: #3b2a1a; /* Marrom escuro do texto do Canva */
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+.perfil-sub {
+  font-size: 18px;
+  color: #5e4a37;
+  margin-bottom: 35px;
+  font-family: 'Georgia', 'Times New Roman', serif;
+}
+
+.perfil-formulario {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* ==========================================================================
+   CAMPOS DO FORMULÁRIO (INPUTS)
+   ========================================================================== */
+.campo-grupo {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+  font-family: 'Montserrat', sans-serif;
+}
+
+.campo-grupo label {
+  font-size: 16px;
+  color: #000000;
+  font-weight: bold;
+  font-family: 'Montserrat', sans-serif;
+}
+
+.campo-grupo input {
+  background-color: #ededed !important; /* Cinza claro do Canva */
+  border: none !important;
+  padding: 12px 15px;
+  font-size: 15px;
+  color: #666;
+  border-radius: 4px;
+  width: 100%;
+  box-sizing: border-box;
+  font-family: 'Montserrat', sans-serif;
+}
+
+.linha-dupla {
+  display: flex;
+  gap: 20px;
+  font-family: 'Montserrat', sans-serif;
+}
+
+/* ALTERAÇÃO 2: Adicionado reset para garantir que o formulário não herde 
+   o "display: flex" do body do seu style.css, o que entortaria os campos */
+.perfil-container, .perfil-formulario {
+  display: flex;
+  flex-direction: column;
+}

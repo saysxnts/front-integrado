@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Catálogo — Admin | Ler e Educar</title>
+  <link rel="stylesheet" href="css/design-system.css">
+  <link rel="stylesheet" href="css/layout.css">
+  <style>
+    /* ── Toolbar ── */
+    .admin-toolbar {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 20px 40px 0;
+      flex-wrap: wrap;
+    }
+    .filter-chips { display: flex; gap: 8px; flex-wrap: wrap; flex: 1; }
+    .chip {
+      padding: 7px 16px;
+      border-radius: 50px;
+      border: 1.5px solid var(--beige);
+      background: white;
+      color: var(--text-mid);
+      font-family: var(--font-body);
+      font-size: .8rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all .2s;
+      white-space: nowrap;
+    }
+    .chip:hover, .chip.ativo {
+      background: var(--primary-dark);
+      border-color: var(--primary-dark);
+      color: white;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(90,63,40,.2);
+    }
+    .btn-add {
+      display: flex; align-items: center; gap: 8px;
+      padding: 10px 22px;
+      background: var(--primary-dark);
+      color: white;
+      border: none;
+      border-radius: 50px;
+      font-family: var(--font-body);
+      font-size: .88rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all .25s;
+      white-space: nowrap;
+      position: relative;
+      overflow: hidden;
+    }
+    .btn-add:hover { background: var(--primary-darker); transform: translateY(-2px); box-shadow: 0 8px 20px rgba(90,63,40,.25); }
+    .btn-add .icon { font-size: 1.1rem; }
+
+    /* ── Catálogo ── */
+    .catalogo-container { padding: 24px 40px 40px; }
+
+    .categoria { margin-bottom: 48px; animation: fadeUp .5s var(--ease-smooth) both; }
+    .categoria h2 {
+      font-family: var(--font-display);
+      font-size: 1.35rem;
+      font-weight: 700;
+      color: var(--text-dark);
+      margin-bottom: 16px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid var(--beige);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .categoria h2::before {
+      content: '';
+      width: 4px; height: 22px;
+      background: linear-gradient(to bottom, var(--primary), var(--accent));
+      border-radius: 2px;
+      flex-shrink: 0;
+    }
+    .qt-badge {
+      font-size: .72rem;
+      font-weight: 600;
+      background: var(--beige);
+      color: var(--text-muted);
+      padding: 2px 8px;
+      border-radius: 50px;
+    }
+
+    /* ── Grid responsivo ── */
+    .livros-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+      gap: 18px;
+    }
+
+    /* ── Card ── */
+    .livro-card {
+      background: white;
+      border-radius: var(--radius-lg);
+      padding: 14px;
+      border: 1px solid rgba(155,123,93,.1);
+      box-shadow: var(--shadow-sm);
+      position: relative;
+      transition: transform .3s var(--ease-bounce), box-shadow .3s;
+      overflow: hidden;
+    }
+    .livro-card:hover { transform: translateY(-6px); box-shadow: var(--shadow-md); }
+
+    /* Overlay de ações no hover */
+    .card-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(61,43,31,.7);
+      backdrop-filter: blur(3px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      opacity: 0;
+      transition: opacity .25s;
+      border-radius: var(--radius-lg);
+    }
+    .livro-card:hover .card-overlay { opacity: 1; }
+
+    .btn-overlay {
+      padding: 9px 18px;
+      border-radius: 50px;
+      border: none;
+      font-family: var(--font-body);
+      font-size: .8rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all .2s;
+    }
+    .btn-edit { background: white; color: var(--primary-darker); }
+    .btn-edit:hover { background: var(--beige); transform: scale(1.05); }
+    .btn-del  { background: rgba(231,76,60,.9); color: white; }
+    .btn-del:hover  { background: #c0392b; transform: scale(1.05); }
+
+    .capa-livro-box {
+      width: 100%; height: 165px;
+      background: var(--bg-warm);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      margin-bottom: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: .72rem; color: var(--text-muted); text-align: center;
+    }
+    .capa-livro-box img { width:100%; height:100%; object-fit:cover; }
+
+    .livro-card h3 {
+      font-family: var(--font-display);
+      font-size: .85rem;
+      color: var(--text-dark);
+      line-height: 1.3;
+      margin-bottom: 3px;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    .livro-card .autor {
+      font-size: .75rem; color: var(--text-muted);
+      margin-bottom: 6px;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+
+    .badge-disponivel   { display:inline-block; padding:2px 9px; border-radius:50px; font-size:.7rem; font-weight:600;
+      background:rgba(39,174,96,.12); color:#1a7a40; border:1px solid rgba(39,174,96,.2); }
+    .badge-indisponivel { display:inline-block; padding:2px 9px; border-radius:50px; font-size:.7rem; font-weight:600;
+      background:rgba(231,76,60,.1); color:#b03228; border:1px solid rgba(231,76,60,.2); }
+
+    /* ── Modal de edição (slide-in lateral) ── */
+    .edit-panel {
+      position: fixed;
+      top: 0; right: -500px;
+      width: 460px;
+      height: 100vh;
+      background: white;
+      box-shadow: -8px 0 40px rgba(0,0,0,.15);
+      z-index: 3000;
+      transition: right .4s var(--ease-snap);
+      overflow-y: auto;
+      padding: 0;
+    }
+    .edit-panel.aberto { right: 0; }
+
+    .edit-panel-overlay {
+      position: fixed; inset: 0;
+      background: rgba(61,43,31,.4);
+      backdrop-filter: blur(3px);
+      z-index: 2999;
+      opacity: 0; pointer-events: none;
+      transition: opacity .4s;
+    }
+    .edit-panel-overlay.aberto { opacity: 1; pointer-events: auto; }
+
+    .edit-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 24px 28px;
+      border-bottom: 1px solid var(--beige);
+      position: sticky; top: 0;
+      background: white;
+      z-index: 1;
+    }
+    .edit-header h2 {
+      font-family: var(--font-display);
+      font-size: 1.2rem;
+      color: var(--text-dark);
+    }
+    .btn-fechar-panel {
+      width: 36px; height: 36px;
+      display: flex; align-items: center; justify-content: center;
+      border-radius: 50%;
+      background: var(--bg-warm);
+      border: none;
+      font-size: 1.1rem;
+      cursor: pointer;
+      transition: all .2s;
+    }
+    .btn-fechar-panel:hover { background: var(--beige); transform: rotate(90deg); }
+
+    .edit-body { padding: 24px 28px; }
+
+    .form-group {
+      margin-bottom: 16px;
+    }
+    .form-group label {
+      display: block;
+      font-size: .75rem;
+      font-weight: 600;
+      letter-spacing: .07em;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+      width: 100%;
+      padding: 10px 14px;
+      border: 1.5px solid var(--beige);
+      border-radius: var(--radius-md);
+      font-family: var(--font-body);
+      font-size: .9rem;
+      color: var(--text-dark);
+      background: white;
+      outline: none;
+      transition: border-color .2s, box-shadow .2s;
+    }
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(155,123,93,.15);
+    }
+    .form-group textarea { resize: vertical; min-height: 60px; }
+
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+    .checkbox-series {
+      display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px;
+    }
+    .checkbox-series label {
+      display: flex; align-items: center; gap: 5px;
+      font-size: .82rem; font-weight: 500;
+      color: var(--text-mid);
+      cursor: pointer;
+      padding: 5px 12px;
+      border: 1.5px solid var(--beige);
+      border-radius: 50px;
+      transition: all .2s;
+      text-transform: none;
+      letter-spacing: 0;
+    }
+    .checkbox-series input { display: none; }
+    .checkbox-series label:has(input:checked) {
+      background: var(--primary-dark);
+      border-color: var(--primary-dark);
+      color: white;
+    }
+
+    .capa-preview {
+      width: 100%; height: 110px;
+      background: var(--bg-warm);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      display: flex; align-items: center; justify-content: center;
+      margin-bottom: 8px;
+      font-size: .75rem; color: var(--text-muted);
+    }
+    .capa-preview img { width:100%; height:100%; object-fit:cover; }
+
+    .btn-salvar {
+      width: 100%;
+      padding: 13px;
+      background: var(--primary-dark);
+      color: white;
+      border: none;
+      border-radius: var(--radius-md);
+      font-family: var(--font-body);
+      font-size: .95rem;
+      font-weight: 600;
+      cursor: pointer;
+      margin-top: 8px;
+      transition: all .25s;
+      position: relative; overflow: hidden;
+    }
+    .btn-salvar:hover { background: var(--primary-darker); transform: translateY(-1px); box-shadow: var(--shadow-md); }
+    .btn-salvar:disabled { opacity: .6; cursor: not-allowed; transform: none; }
+
+    .edit-feedback {
+      padding: 10px 14px;
+      border-radius: var(--radius-md);
+      font-size: .88rem;
+      margin-top: 10px;
+      display: none;
+    }
+    .edit-feedback.ok  { background:rgba(39,174,96,.1); color:#1a7a40; border:1px solid rgba(39,174,96,.2); }
+    .edit-feedback.err { background:rgba(231,76,60,.1); color:#b03228; border:1px solid rgba(231,76,60,.2); }
+
+    /* ── Confirm delete modal ── */
+    .confirm-modal {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,.5);
+      backdrop-filter: blur(4px);
+      z-index: 5000;
+      display: none; align-items: center; justify-content: center;
+    }
+    .confirm-modal.aberto { display: flex; animation: fadeIn .2s both; }
+    .confirm-box {
+      background: white;
+      border-radius: var(--radius-xl);
+      padding: 36px;
+      max-width: 360px;
+      width: 90%;
+      text-align: center;
+      animation: fadeUp .3s var(--ease-bounce) both;
+      box-shadow: var(--shadow-lg);
+    }
+    .confirm-box .icon { font-size: 2.5rem; margin-bottom: 12px; }
+    .confirm-box h3 { font-family: var(--font-display); color: var(--text-dark); margin-bottom: 8px; }
+    .confirm-box p  { font-size: .88rem; color: var(--text-muted); margin-bottom: 24px; }
+    .confirm-btns   { display: flex; gap: 10px; }
+    .btn-cancelar-del {
+      flex: 1; padding: 11px; border-radius: var(--radius-md);
+      border: 1.5px solid var(--beige); background: white;
+      font-family: var(--font-body); font-size: .9rem; cursor: pointer;
+      transition: all .2s;
+    }
+    .btn-cancelar-del:hover { background: var(--bg-warm); }
+    .btn-confirmar-del {
+      flex: 1; padding: 11px; border-radius: var(--radius-md);
+      border: none; background: #e74c3c; color: white;
+      font-family: var(--font-body); font-size: .9rem; font-weight: 600;
+      cursor: pointer; transition: all .2s;
+    }
+    .btn-confirmar-del:hover { background: #c0392b; }
+
+    /* ── Empty state ── */
+    .empty-state {
+      text-align: center; padding: 48px 20px; color: var(--text-muted);
+    }
+    .empty-state .icon { font-size: 3rem; margin-bottom: 12px; }
+    .empty-state p { font-size: .9rem; }
+
+    @media (max-width: 768px) {
+      .admin-toolbar { padding: 16px 20px 0; }
+      .catalogo-container { padding: 16px 20px 40px; }
+      .edit-panel { width: 100%; right: -100%; }
+    }
+  </style>
+</head>
+<body>
+  <!-- Menu lateral -->
+  <nav id="menu-lateral" class="menu-lateral">
+    <div class="fechar-menu" onclick="toggleMenu()">✕</div>
+    <a href="catalogo-admin.html"  class="menu-item ativo">CATÁLOGO</a>
+    <a href="meu-perfil-ADM.html"  class="menu-item">MEU PERFIL</a>
+    <a href="adicionar-livro.html" class="menu-item">ADICIONAR LIVROS</a>
+    <a href="emprestimo.html"      class="menu-item">EMPRÉSTIMOS</a>
+    <a href="controle-estoque.html"class="menu-item">CONTROLE DE ESTOQUE</a>
+    <a href="controle-usuario.html"class="menu-item">CONTROLE DE USUÁRIOS</a>
+  </nav>
+
+  <!-- Header -->
+  <header class="header">
+    <div class="menu-hamburguer" onclick="toggleMenu()"><span></span><span></span><span></span></div>
+    <div class="logo-header">
+      <img src="img/logo-capa-e-barra-de-pesquisa.png" alt="Logo" class="logo-img">
+      <span class="logo-text">LER E EDUCAR</span>
+    </div>
+    <input type="text" id="busca" placeholder="Buscar livro..." class="busca">
+    <div class="header-direita">
+      <div class="usuario">Olá, <span id="nome-usuario-logado">Administrador</span></div>
+      <a href="#" class="sair" onclick="Auth.logout()">SAIR</a>
+    </div>
+  </header>
+
+  <!-- Toolbar -->
+  <div class="admin-toolbar">
+    <div class="filter-chips" id="filter-chips">
+      <button class="chip ativo" onclick="filtrarCategoria(null, this)">Todos</button>
+      <button class="chip" onclick="filtrarCategoria('ALFABETIZACAO_LETRAMENTO', this)">Alfabetização</button>
+      <button class="chip" onclick="filtrarCategoria('CIENCIAS_NATUREZA', this)">Ciências</button>
+      <button class="chip" onclick="filtrarCategoria('FABULAS', this)">Fábulas</button>
+      <button class="chip" onclick="filtrarCategoria('CONTOS_DE_FADAS', this)">Contos</button>
+      <button class="chip" onclick="filtrarCategoria('HISTORIA_CULTURA', this)">História</button>
+      <button class="chip" onclick="filtrarCategoria('MATEMATICA', this)">Matemática</button>
+      <button class="chip" onclick="filtrarCategoria('OUTRO', this)">Outros</button>
+    </div>
+    <button class="btn-add" onclick="window.location.href='adicionar-livro.html'">
+      <span class="icon">＋</span> Adicionar livro
+    </button>
+  </div>
+
+  <!-- Catálogo -->
+  <main class="catalogo-container" id="catalogo-main">
+    <p style="color:var(--text-muted);padding:20px 0">Carregando catálogo...</p>
+  </main>
+
+  <!-- Overlay do painel de edição -->
+  <div class="edit-panel-overlay" id="overlay-edit" onclick="fecharEdicao()"></div>
+
+  <!-- Painel lateral de edição -->
+  <div class="edit-panel" id="edit-panel">
+    <div class="edit-header">
+      <h2 id="edit-titulo-header">Editar livro</h2>
+      <button class="btn-fechar-panel" onclick="fecharEdicao()">✕</button>
+    </div>
+    <div class="edit-body">
+      <input type="hidden" id="edit-id">
+
+      <div class="capa-preview" id="edit-capa-preview">Sem capa</div>
+
+      <div class="form-group">
+        <label>Título</label>
+        <input type="text" id="edit-titulo" placeholder="Título do livro">
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Autor</label>
+          <input type="text" id="edit-autor" placeholder="Autor">
+        </div>
+        <div class="form-group">
+          <label>Editora</label>
+          <input type="text" id="edit-editora" placeholder="Editora">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Ano</label>
+          <input type="number" id="edit-ano" min="1900" max="2099" placeholder="Ano">
+        </div>
+        <div class="form-group">
+          <label>ISBN</label>
+          <input type="text" id="edit-isbn" placeholder="ISBN (opcional)">
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Categoria</label>
+        <select id="edit-categoria">
+          <option value="ALFABETIZACAO_LETRAMENTO">Alfabetização e Letramento</option>
+          <option value="CIENCIAS_NATUREZA">Ciências da Natureza</option>
+          <option value="FABULAS">Fábulas</option>
+          <option value="CONTOS_DE_FADAS">Conto de Fadas</option>
+          <option value="HISTORIA_CULTURA">História e Cultura</option>
+          <option value="MATEMATICA">Matemática</option>
+          <option value="OUTRO">Outro</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Séries indicadas</label>
+        <div class="checkbox-series" id="edit-series">
+          <label><input type="checkbox" value="PRIMEIRO_ANO"> 1º Ano</label>
+          <label><input type="checkbox" value="SEGUNDO_ANO"> 2º Ano</label>
+          <label><input type="checkbox" value="TERCEIRO_ANO"> 3º Ano</label>
+          <label><input type="checkbox" value="QUARTO_ANO"> 4º Ano</label>
+          <label><input type="checkbox" value="QUINTO_ANO"> 5º Ano</label>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>URL da capa (opcional)</label>
+        <input type="text" id="edit-capa-url" placeholder="https://..." oninput="previewCapa()">
+      </div>
+      <div id="edit-feedback" class="edit-feedback"></div>
+      <button class="btn-salvar" id="btn-salvar" onclick="salvarEdicao()">Salvar alterações</button>
+    </div>
+  </div>
+
+  <!-- Modal de confirmação de exclusão -->
+  <div class="confirm-modal" id="confirm-modal">
+    <div class="confirm-box">
+      <div class="icon">🗑️</div>
+      <h3>Inativar livro?</h3>
+      <p id="confirm-msg">Este livro será removido do catálogo.</p>
+      <div class="confirm-btns">
+        <button class="btn-cancelar-del" onclick="fecharConfirm()">Cancelar</button>
+        <button class="btn-confirmar-del" id="btn-confirmar-del">Inativar</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/api.js"></script>
+  <script src="js/layout.js"></script>
+  <script src="js/animations.js"></script>
+  <script>
+    Auth.exigirLogin();
+    Auth.exibirNome();
+    initAnimations({ particles: false, parallax: false, cursor: true, tilt: false });
+
+    let todosLivros = [];
+    let categoriaAtiva = null;
+
+    // ── Busca com debounce servidor-side ──
+    const buscaDebounce = debounce(async (q) => {
+      if (!q.trim()) { renderizar(filtrarPorCategoria(todosLivros)); return; }
+      const res = await get('/livros?titulo=' + encodeURIComponent(q));
+      if (res && !res.status) renderizar(res);
+    }, 400);
+    document.getElementById('busca').addEventListener('input', e => buscaDebounce(e.target.value));
+
+    async function carregarCatalogo() {
+      const livros = await get('/livros');
+      if (!livros || livros.status) return;
+      todosLivros = livros;
+      renderizar(livros);
+    }
+
+    function filtrarPorCategoria(lista) {
+      return categoriaAtiva ? lista.filter(l => l.categoria === categoriaAtiva) : lista;
+    }
+
+    function filtrarCategoria(cat, btn) {
+      categoriaAtiva = cat;
+      document.querySelectorAll('.chip').forEach(c => c.classList.remove('ativo'));
+      btn.classList.add('ativo');
+      renderizar(filtrarPorCategoria(todosLivros));
+    }
+
+    function renderizar(livros) {
+      const main = document.getElementById('catalogo-main');
+      if (!livros.length) {
+        main.innerHTML = `<div class="empty-state"><div class="icon">📚</div><p>Nenhum livro encontrado.</p></div>`;
+        return;
+      }
+
+      const grupos = {};
+      livros.forEach(l => {
+        const cat = CATEGORIAS[l.categoria] || l.categoria;
+        if (!grupos[cat]) grupos[cat] = [];
+        grupos[cat].push(l);
+      });
+
+      main.innerHTML = Object.entries(grupos).map(([cat, livs], gi) => `
+        <section class="categoria" style="animation-delay:${gi * .08}s">
+          <h2>${cat} <span class="qt-badge">${livs.length}</span></h2>
+          <div class="livros-grid">
+            ${livs.map(l => `
+              <div class="livro-card" data-id="${l.id}" style="animation:fadeUp .4s ${gi*.06}s both">
+                <div class="capa-livro-box" id="capa-${l.id}">⏳</div>
+                <h3>${l.titulo}</h3>
+                <p class="autor">${l.autor}</p>
+                <span class="${l.totalDisponiveis > 0 ? 'badge-disponivel':'badge-indisponivel'}">
+                  ${l.totalDisponiveis} disponíveis
+                </span>
+                <div class="card-overlay">
+                  <button class="btn-overlay btn-edit" onclick="abrirEdicao(${l.id})">✏️ Editar</button>
+                  <button class="btn-overlay btn-del"  onclick="confirmarDelete(${l.id}, '${l.titulo.replace(/'/g,"\\'")}')">🗑️</button>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        </section>
+      `).join('');
+
+      livros.forEach(l => carregarCapaCard(l));
+    }
+
+    async function carregarCapaCard(livro) {
+      const url = await buscarCapa(livro);
+      const el  = document.getElementById('capa-' + livro.id);
+      if (el) el.innerHTML = capaHtml(url, livro.titulo);
+    }
+
+    // ── EDIÇÃO ──
+    function abrirEdicao(id) {
+      const livro = todosLivros.find(l => l.id === id);
+      if (!livro) return;
+
+      document.getElementById('edit-id').value          = livro.id;
+      document.getElementById('edit-titulo').value      = livro.titulo || '';
+      document.getElementById('edit-autor').value       = livro.autor  || '';
+      document.getElementById('edit-editora').value     = livro.editora || '';
+      document.getElementById('edit-ano').value         = livro.anoPublicacao || '';
+      document.getElementById('edit-isbn').value        = livro.isbn || '';
+      document.getElementById('edit-categoria').value   = livro.categoria || '';
+      document.getElementById('edit-capa-url').value    = livro.imagemCapaUrl || '';
+      document.getElementById('edit-titulo-header').textContent = livro.titulo;
+
+      // Séries
+      document.querySelectorAll('#edit-series input').forEach(cb => {
+        cb.checked = (livro.seriesIndicadas || []).includes(cb.value);
+      });
+
+      // Preview da capa
+      previewCapa(livro.imagemCapaUrl);
+
+      // Busca capa automaticamente
+      buscarCapa(livro).then(url => {
+        if (url && !livro.imagemCapaUrl) previewCapa(url);
+      });
+
+      document.getElementById('edit-feedback').style.display = 'none';
+      document.getElementById('edit-panel').classList.add('aberto');
+      document.getElementById('overlay-edit').classList.add('aberto');
+    }
+
+    function fecharEdicao() {
+      document.getElementById('edit-panel').classList.remove('aberto');
+      document.getElementById('overlay-edit').classList.remove('aberto');
+    }
+
+    function previewCapa(url) {
+      const urlVal = url || document.getElementById('edit-capa-url').value;
+      const prev   = document.getElementById('edit-capa-preview');
+      if (urlVal) {
+        prev.innerHTML = `<img src="${urlVal}" onerror="this.parentNode.textContent='Imagem inválida'">`;
+      } else {
+        prev.textContent = 'Sem capa';
+      }
+    }
+
+    async function salvarEdicao() {
+      const id = parseInt(document.getElementById('edit-id').value);
+      const series = [...document.querySelectorAll('#edit-series input:checked')].map(c => c.value);
+      const fb  = document.getElementById('edit-feedback');
+      const btn = document.getElementById('btn-salvar');
+
+      const dados = {
+        titulo:             document.getElementById('edit-titulo').value.trim(),
+        autor:              document.getElementById('edit-autor').value.trim(),
+        editora:            document.getElementById('edit-editora').value.trim(),
+        anoPublicacao:      parseInt(document.getElementById('edit-ano').value) || null,
+        isbn:               document.getElementById('edit-isbn').value.trim() || null,
+        categoria:          document.getElementById('edit-categoria').value,
+        seriesIndicadas:    series,
+        imagemCapaUrl:      document.getElementById('edit-capa-url').value.trim() || null,
+        quantidadeExemplares: null
+      };
+
+      if (!dados.titulo || !dados.autor || !dados.categoria) {
+        mostrarFb(fb, 'Título, autor e categoria são obrigatórios.', false); return;
+      }
+
+      btn.disabled = true;
+      btn.textContent = 'Salvando...';
+
+      const res = await api('PUT', '/livros/' + id, dados);
+
+      if (res && res.id) {
+        mostrarFb(fb, '✓ Livro atualizado com sucesso!', true);
+        // Atualiza localmente
+        const idx = todosLivros.findIndex(l => l.id === id);
+        if (idx >= 0) todosLivros[idx] = { ...todosLivros[idx], ...res };
+        setTimeout(() => { fecharEdicao(); renderizar(filtrarPorCategoria(todosLivros)); }, 1000);
+      } else {
+        mostrarFb(fb, res?.mensagens?.[0] || 'Erro ao salvar.', false);
+      }
+      btn.disabled = false;
+      btn.textContent = 'Salvar alterações';
+    }
+
+    // ── DELETE ──
+    let idParaDeletar = null;
+
+    function confirmarDelete(id, titulo) {
+      idParaDeletar = id;
+      document.getElementById('confirm-msg').textContent = `"${titulo}" será removido do catálogo.`;
+      document.getElementById('confirm-modal').classList.add('aberto');
+      document.getElementById('btn-confirmar-del').onclick = executarDelete;
+    }
+
+    function fecharConfirm() {
+      document.getElementById('confirm-modal').classList.remove('aberto');
+      idParaDeletar = null;
+    }
+
+    async function executarDelete() {
+      if (!idParaDeletar) return;
+      const res = await del('/livros/' + idParaDeletar);
+      fecharConfirm();
+      if (res !== null) {
+        showToast('Livro inativado com sucesso.', 'ok');
+        todosLivros = todosLivros.filter(l => l.id !== idParaDeletar);
+        renderizar(filtrarPorCategoria(todosLivros));
+      } else {
+        showToast('Erro ao inativar livro.', 'err');
+      }
+    }
+
+    function mostrarFb(el, msg, ok) {
+      el.textContent = msg;
+      el.className   = 'edit-feedback ' + (ok ? 'ok' : 'err');
+      el.style.display = 'block';
+    }
+
+    carregarCatalogo();
+  </script>
+</body>
+</html>

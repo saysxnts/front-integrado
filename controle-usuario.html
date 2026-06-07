@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Controle de Usuários | Ler e Educar</title>
+  <link rel="stylesheet" href="css/design-system.css">
+  <link rel="stylesheet" href="css/layout.css">
+  <style>
+    .page-content { padding: 32px 40px; max-width: 1300px; margin: 0 auto; }
+
+    /* ── Toolbar ── */
+    .page-toolbar {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 28px; flex-wrap: wrap; gap: 14px;
+    }
+    .page-title {
+      font-family: var(--font-display);
+      font-size: 1.6rem; font-weight: 700;
+      color: var(--text-dark);
+    }
+    .filter-status { display: flex; gap: 8px; }
+    .chip-status {
+      padding: 6px 16px;
+      border-radius: 50px;
+      border: 1.5px solid var(--beige);
+      background: white;
+      font-family: var(--font-body);
+      font-size: .78rem; font-weight: 600;
+      cursor: pointer; transition: all .2s;
+    }
+    .chip-status.ativo { background: var(--primary-dark); border-color: var(--primary-dark); color: white; }
+
+    /* ── Grid de cards ── */
+    .inst-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 18px;
+    }
+
+    .inst-card {
+      background: white;
+      border-radius: var(--radius-lg);
+      border: 1px solid rgba(155,123,93,.12);
+      box-shadow: var(--shadow-sm);
+      overflow: hidden;
+      transition: transform .3s var(--ease-bounce), box-shadow .3s;
+      animation: fadeUp .5s var(--ease-smooth) both;
+    }
+    .inst-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-md); }
+
+    .inst-card-header {
+      padding: 18px 20px 14px;
+      border-bottom: 1px solid var(--beige);
+      display: flex; align-items: flex-start; justify-content: space-between; gap: 10px;
+    }
+    .inst-nome {
+      font-family: var(--font-display);
+      font-size: 1rem; font-weight: 700;
+      color: var(--text-dark); line-height: 1.3;
+    }
+    .inst-tipo {
+      font-size: .72rem; color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    .status-badge {
+      display: inline-flex; align-items: center; gap: 4px;
+      padding: 4px 10px; border-radius: 50px;
+      font-size: .72rem; font-weight: 700;
+      letter-spacing: .04em; flex-shrink: 0;
+    }
+    .status-ATIVO     { background:rgba(39,174,96,.12); color:#1a7a40; border:1px solid rgba(39,174,96,.2); }
+    .status-PENDENTE  { background:rgba(243,156,18,.12); color:#8a5e00; border:1px solid rgba(243,156,18,.2); }
+    .status-BLOQUEADO { background:rgba(231,76,60,.12);  color:#b03228; border:1px solid rgba(231,76,60,.2); }
+
+    .inst-card-body { padding: 14px 20px; }
+    .inst-info-row {
+      display: flex; align-items: center; gap: 6px;
+      font-size: .82rem; color: var(--text-mid);
+      margin-bottom: 7px;
+    }
+    .inst-info-row .icon { font-size: .85rem; opacity: .7; width: 16px; }
+    .inst-info-row strong { color: var(--text-dark); }
+
+    .inst-card-footer {
+      padding: 12px 20px;
+      border-top: 1px solid var(--beige);
+      display: flex; gap: 8px; flex-wrap: wrap;
+    }
+
+    .btn-action {
+      display: inline-flex; align-items: center; gap: 5px;
+      padding: 7px 14px;
+      border-radius: 50px;
+      border: none;
+      font-family: var(--font-body);
+      font-size: .78rem; font-weight: 600;
+      cursor: pointer; transition: all .2s;
+    }
+    .btn-aprovar  { background: rgba(39,174,96,.12);  color: #1a7a40; border: 1px solid rgba(39,174,96,.3); }
+    .btn-aprovar:hover  { background: #27ae60; color: white; }
+    .btn-bloquear { background: rgba(243,156,18,.12); color: #8a5e00; border: 1px solid rgba(243,156,18,.3); }
+    .btn-bloquear:hover { background: #f39c12; color: white; }
+    .btn-excluir  { background: rgba(231,76,60,.1);   color: #b03228; border: 1px solid rgba(231,76,60,.2); }
+    .btn-excluir:hover  { background: #e74c3c; color: white; }
+    .btn-detalhe  { background: var(--bg-warm); color: var(--text-mid); border: 1px solid var(--beige); }
+    .btn-detalhe:hover  { background: var(--beige); }
+
+    .inline-feedback {
+      font-size: .8rem; padding: 4px 10px; border-radius: 50px;
+      display: none;
+    }
+    .inline-feedback.ok  { background:rgba(39,174,96,.1); color:#1a7a40; }
+    .inline-feedback.err { background:rgba(231,76,60,.1); color:#b03228; }
+
+    /* ── Empty / Loading ── */
+    .empty-state {
+      grid-column: 1/-1; text-align: center;
+      padding: 60px 20px; color: var(--text-muted);
+    }
+    .empty-state .icon { font-size: 3rem; margin-bottom: 12px; }
+
+    /* ── Painel lateral de detalhes/edição ── */
+    .detail-panel {
+      position: fixed; top: 0; right: -520px;
+      width: 480px; height: 100vh;
+      background: white;
+      box-shadow: -8px 0 40px rgba(0,0,0,.15);
+      z-index: 3000;
+      transition: right .4s var(--ease-snap);
+      overflow-y: auto;
+    }
+    .detail-panel.aberto { right: 0; }
+
+    .panel-overlay {
+      position: fixed; inset: 0;
+      background: rgba(61,43,31,.4); backdrop-filter: blur(3px);
+      z-index: 2999; opacity: 0; pointer-events: none; transition: opacity .4s;
+    }
+    .panel-overlay.aberto { opacity: 1; pointer-events: auto; }
+
+    .panel-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 22px 26px;
+      border-bottom: 1px solid var(--beige);
+      position: sticky; top: 0; background: white; z-index: 1;
+    }
+    .panel-header h2 {
+      font-family: var(--font-display); font-size: 1.1rem; color: var(--text-dark);
+    }
+    .btn-fechar {
+      width: 34px; height: 34px;
+      display: flex; align-items: center; justify-content: center;
+      border-radius: 50%; background: var(--bg-warm); border: none;
+      font-size: 1rem; cursor: pointer; transition: all .2s;
+    }
+    .btn-fechar:hover { background: var(--beige); transform: rotate(90deg); }
+
+    .panel-body { padding: 22px 26px; }
+
+    .detail-section {
+      margin-bottom: 22px;
+      padding-bottom: 18px;
+      border-bottom: 1px solid var(--beige);
+    }
+    .detail-section:last-child { border-bottom: none; }
+    .detail-section h3 {
+      font-family: var(--font-display);
+      font-size: .95rem; font-weight: 700;
+      color: var(--text-dark); margin-bottom: 12px;
+    }
+    .detail-row {
+      display: flex; justify-content: space-between;
+      padding: 7px 0; font-size: .85rem;
+      border-bottom: 1px solid rgba(155,123,93,.08);
+    }
+    .detail-row:last-child { border: none; }
+    .detail-label { color: var(--text-muted); font-weight: 500; }
+    .detail-value { color: var(--text-dark); font-weight: 600; text-align: right; max-width: 220px; }
+
+    .series-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+    .serie-tag {
+      padding: 4px 12px; border-radius: 50px;
+      background: var(--beige); color: var(--text-mid);
+      font-size: .75rem; font-weight: 600;
+    }
+
+    /* ── Confirm modal ── */
+    .confirm-modal {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,.5); backdrop-filter: blur(4px);
+      z-index: 5000; display: none;
+      align-items: center; justify-content: center;
+    }
+    .confirm-modal.aberto { display: flex; animation: fadeIn .2s both; }
+    .confirm-box {
+      background: white; border-radius: var(--radius-xl);
+      padding: 36px; max-width: 360px; width: 90%;
+      text-align: center; animation: fadeUp .3s var(--ease-bounce) both;
+      box-shadow: var(--shadow-lg);
+    }
+    .confirm-box .icon { font-size: 2.5rem; margin-bottom: 10px; }
+    .confirm-box h3 { font-family: var(--font-display); color: var(--text-dark); margin-bottom: 8px; }
+    .confirm-box p  { font-size: .88rem; color: var(--text-muted); margin-bottom: 22px; }
+    .confirm-btns   { display: flex; gap: 10px; }
+    .btn-cancel-c {
+      flex: 1; padding: 11px; border-radius: var(--radius-md);
+      border: 1.5px solid var(--beige); background: white;
+      font-family: var(--font-body); font-size: .9rem; cursor: pointer; transition: all .2s;
+    }
+    .btn-cancel-c:hover { background: var(--bg-warm); }
+    .btn-confirm-c {
+      flex: 1; padding: 11px; border-radius: var(--radius-md);
+      border: none; background: #e74c3c; color: white;
+      font-family: var(--font-body); font-size: .9rem; font-weight: 600;
+      cursor: pointer; transition: all .2s;
+    }
+    .btn-confirm-c:hover { background: #c0392b; }
+
+    @media (max-width: 768px) {
+      .page-content { padding: 20px; }
+      .detail-panel { width: 100%; right: -100%; }
+      .inst-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <nav id="menu-lateral" class="menu-lateral">
+    <div class="fechar-menu" onclick="toggleMenu()">✕</div>
+    <a href="catalogo-admin.html"  class="menu-item">CATÁLOGO</a>
+    <a href="meu-perfil-ADM.html"  class="menu-item">MEU PERFIL</a>
+    <a href="adicionar-livro.html" class="menu-item">ADICIONAR LIVROS</a>
+    <a href="emprestimo.html"      class="menu-item">EMPRÉSTIMOS</a>
+    <a href="controle-estoque.html"class="menu-item">CONTROLE DE ESTOQUE</a>
+    <a href="controle-usuario.html"class="menu-item ativo">CONTROLE DE USUÁRIOS</a>
+  </nav>
+
+  <header class="header">
+    <div class="menu-hamburguer" onclick="toggleMenu()"><span></span><span></span><span></span></div>
+    <div class="logo-header">
+      <img src="img/logo-capa-e-barra-de-pesquisa.png" alt="Logo" class="logo-img">
+      <span class="logo-text">LER E EDUCAR</span>
+    </div>
+    <input type="text" id="busca-inst" placeholder="Buscar instituição..." class="busca" oninput="filtrar()">
+    <div class="header-direita">
+      <div class="usuario">Olá, <span id="nome-usuario-logado">Administrador</span></div>
+      <a href="#" class="sair" onclick="Auth.logout()">SAIR</a>
+    </div>
+  </header>
+
+  <div class="page-content">
+    <div class="page-toolbar">
+      <h1 class="page-title">Controle de Usuários</h1>
+      <div class="filter-status">
+        <button class="chip-status ativo" onclick="filtrarStatus(null, this)">Todos</button>
+        <button class="chip-status" onclick="filtrarStatus('PENDENTE', this)">Pendentes</button>
+        <button class="chip-status" onclick="filtrarStatus('ATIVO', this)">Ativos</button>
+        <button class="chip-status" onclick="filtrarStatus('BLOQUEADO', this)">Bloqueados</button>
+      </div>
+    </div>
+
+    <div class="inst-grid" id="inst-grid">
+      <div class="empty-state"><div class="icon">⏳</div><p>Carregando instituições...</p></div>
+    </div>
+  </div>
+
+  <!-- Overlay e painel de detalhes -->
+  <div class="panel-overlay" id="panel-overlay" onclick="fecharPanel()"></div>
+  <div class="detail-panel" id="detail-panel">
+    <div class="panel-header">
+      <h2 id="panel-titulo">Detalhes da Instituição</h2>
+      <button class="btn-fechar" onclick="fecharPanel()">✕</button>
+    </div>
+    <div class="panel-body" id="panel-body">
+      <!-- conteúdo dinâmico -->
+    </div>
+  </div>
+
+  <!-- Confirm modal -->
+  <div class="confirm-modal" id="confirm-modal">
+    <div class="confirm-box">
+      <div class="icon">⚠️</div>
+      <h3 id="confirm-title">Confirmar</h3>
+      <p id="confirm-msg">Esta ação não pode ser desfeita.</p>
+      <div class="confirm-btns">
+        <button class="btn-cancel-c" onclick="fecharConfirm()">Cancelar</button>
+        <button class="btn-confirm-c" id="btn-confirmar">Confirmar</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/api.js"></script>
+  <script src="js/layout.js"></script>
+  <script src="js/animations.js"></script>
+  <script>
+    Auth.exigirLogin();
+    Auth.exibirNome();
+    initAnimations({ particles: false, parallax: false, cursor: true, tilt: false });
+
+    let todasInst = [];
+    let statusAtivo = null;
+
+    async function carregar() {
+      const inst = await get('/instituicoes');
+      if (!inst || inst.status) {
+        document.getElementById('inst-grid').innerHTML =
+          '<div class="empty-state"><div class="icon">❌</div><p>Erro ao carregar.</p></div>';
+        return;
+      }
+      todasInst = inst;
+      renderizar(inst);
+    }
+
+    function filtrar() {
+      const q = document.getElementById('busca-inst').value.toLowerCase();
+      renderizar(
+        todasInst.filter(i =>
+          (!statusAtivo || i.status === statusAtivo) &&
+          (i.razaoSocial.toLowerCase().includes(q) ||
+           i.cnpj.includes(q) ||
+           i.emailInstitucional?.toLowerCase().includes(q))
+        )
+      );
+    }
+
+    function filtrarStatus(s, btn) {
+      statusAtivo = s;
+      document.querySelectorAll('.chip-status').forEach(c => c.classList.remove('ativo'));
+      btn.classList.add('ativo');
+      filtrar();
+    }
+
+    const TIPO_INST = {
+      ESCOLA_MUNICIPAL: 'Escola Municipal',
+      ESCOLA_ESTADUAL:  'Escola Estadual',
+      COLEGIO_PRIVADO:  'Colégio Privado',
+      CENTRO_RECREACAO_INFANTIL: 'Centro de Recreação',
+      OUTRO: 'Outro'
+    };
+
+    function renderizar(lista) {
+      const grid = document.getElementById('inst-grid');
+      if (!lista.length) {
+        grid.innerHTML = '<div class="empty-state"><div class="icon">🏫</div><p>Nenhuma instituição encontrada.</p></div>';
+        return;
+      }
+      grid.innerHTML = lista.map((i, idx) => {
+        const st = i.status || 'PENDENTE';
+        const podeAprovar  = st === 'PENDENTE';
+        const podeBloq     = st === 'ATIVO';
+        const podeDesbloquear = st === 'BLOQUEADO';
+        return `
+          <div class="inst-card" style="animation-delay:${idx * .05}s" id="card-inst-${i.id}">
+            <div class="inst-card-header">
+              <div>
+                <div class="inst-nome">${i.razaoSocial}</div>
+                <div class="inst-tipo">${TIPO_INST[i.tipo] || i.tipo} · ${i.cidade}/${i.uf}</div>
+              </div>
+              <span class="status-badge status-${st}">${st}</span>
+            </div>
+            <div class="inst-card-body">
+              <div class="inst-info-row"><span class="icon">📄</span> CNPJ: <strong>${formatarCNPJ(i.cnpj)}</strong></div>
+              <div class="inst-info-row"><span class="icon">✉️</span> ${i.emailInstitucional || '-'}</div>
+              <div id="fb-inst-${i.id}" class="inline-feedback"></div>
+            </div>
+            <div class="inst-card-footer">
+              <button class="btn-action btn-detalhe" onclick="abrirDetalhes(${i.id})">🔍 Detalhes</button>
+              ${podeAprovar      ? `<button class="btn-action btn-aprovar"  onclick="aprovar(${i.id})">✓ Aprovar</button>` : ''}
+              ${podeBloq         ? `<button class="btn-action btn-bloquear" onclick="bloquear(${i.id})">⊘ Bloquear</button>` : ''}
+              ${podeDesbloquear  ? `<button class="btn-action btn-aprovar"  onclick="aprovar(${i.id})">↺ Desbloquear</button>` : ''}
+              <button class="btn-action btn-excluir" onclick="confirmarExcluir(${i.id}, '${i.razaoSocial.replace(/'/g,"\\'")}')">🗑️ Excluir</button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    async function abrirDetalhes(id) {
+      const inst = todasInst.find(i => i.id === id);
+      if (!inst) return;
+
+      document.getElementById('panel-titulo').textContent = inst.razaoSocial;
+
+      const series = (inst.series || []).map(s => SERIES[s] || s);
+
+      document.getElementById('panel-body').innerHTML = `
+        <div class="detail-section">
+          <h3>📋 Dados Gerais</h3>
+          <div class="detail-row"><span class="detail-label">Razão Social</span><span class="detail-value">${inst.razaoSocial}</span></div>
+          <div class="detail-row"><span class="detail-label">CNPJ</span><span class="detail-value">${formatarCNPJ(inst.cnpj)}</span></div>
+          <div class="detail-row"><span class="detail-label">Tipo</span><span class="detail-value">${TIPO_INST[inst.tipo] || inst.tipo}</span></div>
+          <div class="detail-row"><span class="detail-label">Status</span><span class="detail-value"><span class="status-badge status-${inst.status}">${inst.status}</span></span></div>
+          <div class="detail-row"><span class="detail-label">E-mail</span><span class="detail-value">${inst.emailInstitucional || '-'}</span></div>
+        </div>
+        <div class="detail-section">
+          <h3>📍 Localização</h3>
+          <div class="detail-row"><span class="detail-label">Cidade/UF</span><span class="detail-value">${inst.cidade}/${inst.uf}</span></div>
+        </div>
+        <div class="detail-section">
+          <h3>📚 Séries Atendidas</h3>
+          <div class="series-tags">
+            ${series.length ? series.map(s => `<span class="serie-tag">${s}</span>`).join('') : '<span style="color:var(--text-muted);font-size:.85rem">Não informado</span>'}
+          </div>
+        </div>
+        <div class="detail-section">
+          <h3>⚡ Ações</h3>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:4px">
+            ${inst.status === 'PENDENTE'  ? `<button class="btn-action btn-aprovar" onclick="aprovar(${inst.id});fecharPanel()">✓ Aprovar cadastro</button>` : ''}
+            ${inst.status === 'ATIVO'     ? `<button class="btn-action btn-bloquear" onclick="bloquear(${inst.id});fecharPanel()">⊘ Bloquear</button>` : ''}
+            ${inst.status === 'BLOQUEADO' ? `<button class="btn-action btn-aprovar" onclick="aprovar(${inst.id});fecharPanel()">↺ Desbloquear</button>` : ''}
+            <button class="btn-action btn-excluir" onclick="confirmarExcluir(${inst.id},'${inst.razaoSocial.replace(/'/g,"\\'")}');fecharPanel()">🗑️ Excluir</button>
+          </div>
+        </div>
+      `;
+
+      document.getElementById('detail-panel').classList.add('aberto');
+      document.getElementById('panel-overlay').classList.add('aberto');
+    }
+
+    function fecharPanel() {
+      document.getElementById('detail-panel').classList.remove('aberto');
+      document.getElementById('panel-overlay').classList.remove('aberto');
+    }
+
+    async function aprovar(id) {
+      const res = await patch('/instituicoes/' + id + '/aprovar');
+      if (res && !res.status) {
+        showToast('Instituição aprovada!', 'ok');
+        const inst = todasInst.find(i => i.id === id);
+        if (inst) inst.status = 'ATIVO';
+        renderizar(filtrarLista());
+      } else {
+        showToast(res?.mensagens?.[0] || 'Erro ao aprovar.', 'err');
+      }
+    }
+
+    async function bloquear(id) {
+      const res = await patch('/instituicoes/' + id + '/bloquear');
+      if (res && !res.status) {
+        showToast('Instituição bloqueada.', 'ok');
+        const inst = todasInst.find(i => i.id === id);
+        if (inst) inst.status = 'BLOQUEADO';
+        renderizar(filtrarLista());
+      } else {
+        showToast(res?.mensagens?.[0] || 'Erro ao bloquear.', 'err');
+      }
+    }
+
+    let idParaExcluir = null;
+    function confirmarExcluir(id, nome) {
+      idParaExcluir = id;
+      document.getElementById('confirm-title').textContent = 'Excluir instituição?';
+      document.getElementById('confirm-msg').textContent = `"${nome}" e todos os seus dados serão removidos.`;
+      document.getElementById('confirm-modal').classList.add('aberto');
+      document.getElementById('btn-confirmar').onclick = executarExclusao;
+    }
+    function fecharConfirm() {
+      document.getElementById('confirm-modal').classList.remove('aberto');
+      idParaExcluir = null;
+    }
+    async function executarExclusao() {
+      if (!idParaExcluir) return;
+      const res = await del('/instituicoes/' + idParaExcluir);
+      fecharConfirm();
+      if (res !== null) {
+        showToast('Instituição excluída com sucesso.', 'ok');
+        todasInst = todasInst.filter(i => i.id !== idParaExcluir);
+        renderizar(filtrarLista());
+      } else {
+        showToast('Erro ao excluir.', 'err');
+      }
+    }
+
+    function filtrarLista() {
+      return statusAtivo ? todasInst.filter(i => i.status === statusAtivo) : todasInst;
+    }
+
+    function formatarCNPJ(cnpj) {
+      if (!cnpj || cnpj.length !== 14) return cnpj || '-';
+      return cnpj.replace(/(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/, '$1.$2.$3/$4-$5');
+    }
+
+    carregar();
+  </script>
+</body>
+</html>

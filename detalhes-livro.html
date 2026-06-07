@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detalhes do Livro - Administrador</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=League+Spartan:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="background"></div>
+    <aside class="sidebar" id="sidebar">
+        <ul>
+            <li><a href="meu-perfil-ADM.html">MEU PERFIL</a></li>
+            <li><a href="adicionar-livro.html">ADICIONAR LIVROS</a></li>
+            <li><a href="emprestimo.html">EMPRÉSTIMO</a></li>
+            <li><a href="devolucao.html">DEVOLUÇÃO</a></li>
+            <li><a href="controle-estoque.html">CONTROLE DE ESTOQUE</a></li>
+            <li><a href="controle-usuario.html">CONTROLE DE USUÁRIO</a></li>
+        </ul>
+    </aside>
+    <main class="container">
+        <header class="navbar">
+            <div class="menu-icon" id="menuBtn"><span></span><span></span><span></span></div>
+            <div class="logo-area"><img src="img/logo-capa-e-barra-de-pesquisa.png" alt=""></div>
+            <div class="search-area"><input type="text" placeholder="Buscar livro"></div>
+            <div class="right-navbar">
+                <a href="#" class="logout">SAIR</a>
+                <div class="admin-info"><p>Olá,</p><span id="adminName"></span></div>
+            </div>
+        </header>
+        <section class="content">
+            <div class="book-flex-layout">
+                <div class="book-cover-frame"><img src="img/capa-historia-de-dois-amores.png" alt="Capa"></div>
+                <div class="book-details-column">
+                    <h2 class="book-main-title" id="bookTitle"></h2>
+                    <div class="book-info-list">
+                        <p><strong>Texto:</strong> <span id="bookAuthor"></span></p>
+                        <p><strong>Ilustração:</strong> <span id="bookIllustration"></span></p>
+                        <p><strong>Editora:</strong> <span id="bookPublisher"></span></p>
+                        <p><strong>Faixa etária:</strong> <span id="bookAge"></span></p>
+                        <p><strong>Ano:</strong> <span id="bookYear"></span></p>
+                        <p><strong>País:</strong> <span id="bookCountry"></span></p>
+                        <p><strong>ISBN:</strong> <span id="bookIsbn"></span></p>
+                        <p><strong>Páginas:</strong> <span id="bookPages"></span></p>
+                    </div>
+                    <div class="book-action-buttons">
+                        <button class="btn-book-action">Remover livro</button>
+                        <button class="btn-book-action">Editar livro</button>
+                    </div>
+                </div>
+            </div>
+            <div class="book-synopsis-box">
+                <p class="book-tags" id="bookTags"></p>
+                <p class="book-text-description" id="bookSynopsis"> <a href="#" class="link-more">Ver Mais</a></p>
+                <div class="back-link-container"><a href="#" class="back-link-btn">Voltar</a></div>
+            </div>
+        </section>
+    </main>
+    <script src="script.js"></script>
+</body>
+</html>
