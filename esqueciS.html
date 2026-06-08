@@ -5,46 +5,36 @@
   <title>Recuperar Senha | Ler e Educar</title>
   <link rel="stylesheet" href="css/design-system.css">
   <link rel="stylesheet" href="css/login.css">
-  <style>
-    .login-box { max-width: 400px; }
-    .back-link { display:inline-flex; align-items:center; gap:6px; color:var(--text-muted); font-size:.84rem; text-decoration:none; margin-bottom:20px; transition:color .2s; }
-    .back-link:hover { color:var(--primary-dark); }
-    .success-state { display:none; text-align:center; }
-    .success-state .s-icon { font-size:3rem; margin-bottom:12px; animation:pulse 2s infinite; }
-    .success-state h3 { font-family:var(--font-display); font-size:1.2rem; color:var(--text-dark); margin-bottom:8px; }
-    .success-state p { font-size:.88rem; color:var(--text-muted); margin-bottom:20px; line-height:1.6; }
-  </style>
 </head>
 <body>
   <div class="bg-parallax"></div>
   <canvas id="particles-canvas"></canvas>
   <a href="login.html" class="sair">← Voltar</a>
 
-  <div class="login-box">
+  <div class="login-box" style="text-align:center">
     <img src="img/logo-tela-de-cadastro.png" class="logo" alt="Logo">
     <h1>LER E EDUCAR</h1>
 
-    <!-- Formulário -->
-    <div id="form-state">
-      <p style="font-size:.88rem;color:var(--text-muted);margin-bottom:20px;line-height:1.6">
-        Informe o e-mail cadastrado e enviaremos as instruções para redefinir sua senha.
+    <div style="font-size:3rem;margin:12px 0;animation:float 3s ease-in-out infinite">🔑</div>
+
+    <h2 style="font-family:var(--font-display);font-size:1.15rem;color:var(--text-dark);margin-bottom:10px">
+      Esqueceu sua senha?
+    </h2>
+    <p style="font-size:.88rem;color:var(--text-muted);line-height:1.65;margin-bottom:24px">
+      A redefinição de senha é feita pelo <strong style="color:var(--text-dark)">administrador do sistema</strong>.<br>
+      Entre em contato e informe o e-mail da sua conta para que a nova senha seja gerada.
+    </p>
+
+    <div style="background:var(--bg-warm);border:1px solid var(--beige);border-radius:var(--radius-lg);padding:16px 20px;margin-bottom:24px;text-align:left">
+      <p style="font-size:.78rem;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--text-muted);margin-bottom:8px">Contato do Administrador</p>
+      <p style="font-size:.88rem;color:var(--text-dark);display:flex;align-items:center;gap:8px">
+        ✉️ <strong>admin@lereducar.com.br</strong>
       </p>
-      <div class="input-group">
-        <label>E-mail cadastrado</label>
-        <input type="email" id="email" placeholder="seu@email.com" autocomplete="email">
-      </div>
-      <div class="erro-login" id="erro" style="margin-top:-4px;margin-bottom:8px"></div>
-      <button class="btn-login" id="btn-enviar" onclick="enviar()">Enviar instruções</button>
-      <a href="login.html" class="cadastro" style="margin-top:16px">← Voltar para o login</a>
     </div>
 
-    <!-- Sucesso -->
-    <div class="success-state" id="success-state">
-      <div class="s-icon">📧</div>
-      <h3>E-mail enviado!</h3>
-      <p>Se o e-mail estiver cadastrado, você receberá as instruções em breve. Verifique também a caixa de spam.</p>
-      <a href="login.html" class="btn-login" style="display:block;text-align:center;text-decoration:none;margin-top:8px">Voltar para o login</a>
-    </div>
+    <a href="login.html" class="btn-login" style="display:block;text-align:center;text-decoration:none;padding:13px">
+      ← Voltar para o login
+    </a>
   </div>
 
   <script src="js/api.js"></script>
@@ -52,21 +42,6 @@
   <script>
     initAnimations({ tilt:false, stagger:false, hamburguer:false, headerScroll:false });
     initParticles(); initParallax('.bg-parallax', 15);
-
-    async function enviar() {
-      const email = document.getElementById('email').value.trim();
-      const erro  = document.getElementById('erro');
-      const btn   = document.getElementById('btn-enviar');
-      if (!email || !email.includes('@')) { erro.style.display='block'; erro.textContent='Informe um e-mail válido.'; return; }
-      erro.style.display='none';
-      btn.disabled=true; btn.innerHTML='<span class="spinner"></span> Enviando...';
-      // Sem endpoint de recuperação de senha no backend — simula envio
-      await new Promise(r => setTimeout(r, 1200));
-      document.getElementById('form-state').style.display='none';
-      document.getElementById('success-state').style.display='block';
-    }
-
-    document.addEventListener('keydown', e => { if(e.key==='Enter') enviar(); });
   </script>
 </body>
 </html>
