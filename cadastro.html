@@ -2,129 +2,617 @@
 <html lang="pt-br">
 <head>
   <meta charset="UTF-8">
-  <title>Cadastro - Ler e Educar</title>
-  <link rel="stylesheet" href="css/cadastro.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cadastrar Instituição | Ler e Educar</title>
+  <link rel="stylesheet" href="css/design-system.css">
   <style>
-    .form-select { width:100%;padding:8px;border-radius:6px;border:1px solid #ccc;margin-bottom:10px;font-size:.95rem; }
-    .checkbox-group { display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px; }
-    .checkbox-group label { display:flex;align-items:center;gap:4px;font-size:.9rem; }
-    .feedback { padding:10px 14px;border-radius:6px;margin:12px auto;max-width:900px;display:none; }
-    .feedback.ok  { background:#d4edda;color:#155724; }
-    .feedback.err { background:#f8d7da;color:#721c24; }
-    .secao-titulo { font-size:1rem;font-weight:bold;margin:10px 0 4px;color:#555; }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { min-height: 100vh; font-family: var(--font-body); background: var(--bg); display: flex; flex-direction: column; }
+
+    /* ── TOPO ── */
+    .top-bar {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 40px; height: 64px;
+      background: white; border-bottom: 1px solid var(--beige);
+      position: sticky; top: 0; z-index: 10;
+    }
+    .top-logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+    .top-logo img { height: 32px; }
+    .top-logo span { font-family: var(--font-display); font-size: 1rem; font-weight: 700; color: var(--primary-darker); }
+    .top-link { font-size: .84rem; color: var(--text-muted); text-decoration: none; font-weight: 500; transition: color .2s; }
+    .top-link:hover { color: var(--primary-dark); }
+
+    /* ── LAYOUT PRINCIPAL ── */
+    .page-wrap {
+      flex: 1; display: flex; align-items: flex-start; justify-content: center;
+      padding: 40px 20px 60px; gap: 48px; max-width: 1100px; margin: 0 auto; width: 100%;
+    }
+
+    /* ── SIDEBAR COM STEPS ── */
+    .sidebar {
+      width: 240px; flex-shrink: 0;
+      position: sticky; top: 84px;
+    }
+    .sidebar-title { font-family: var(--font-display); font-size: 1.3rem; font-weight: 700; color: var(--text-dark); margin-bottom: 6px; }
+    .sidebar-sub { font-size: .82rem; color: var(--text-muted); margin-bottom: 28px; line-height: 1.5; }
+    .steps-nav { display: flex; flex-direction: column; gap: 4px; }
+    .step-item {
+      display: flex; align-items: center; gap: 12px;
+      padding: 10px 14px; border-radius: var(--radius-md);
+      cursor: pointer; transition: background .2s;
+    }
+    .step-item.ativo { background: rgba(155,123,93,.1); }
+    .step-dot {
+      width: 28px; height: 28px; border-radius: 50%; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-size: .78rem; font-weight: 700;
+      border: 2px solid var(--beige); background: white; color: var(--text-muted);
+      transition: all .3s var(--ease-bounce);
+    }
+    .step-item.ativo   .step-dot { border-color: var(--primary-dark); background: var(--primary-dark); color: white; }
+    .step-item.feito   .step-dot { border-color: #27ae60; background: #27ae60; color: white; }
+    .step-item.feito   .step-dot::before { content: '✓'; }
+    .step-item.ativo   .step-dot .step-n,
+    .step-item.feito   .step-dot .step-n { display: none; }
+    .step-label { font-size: .88rem; font-weight: 500; color: var(--text-muted); transition: color .2s; }
+    .step-item.ativo .step-label { color: var(--primary-dark); font-weight: 700; }
+    .step-item.feito .step-label { color: #27ae60; }
+
+    .step-connector { width: 2px; height: 20px; background: var(--beige); margin-left: 26px; border-radius: 1px; transition: background .3s; }
+    .step-connector.feito { background: #27ae60; }
+
+    /* Progress bar */
+    .progress-bar-wrap { height: 4px; background: var(--beige); border-radius: 2px; margin-top: 28px; }
+    .progress-bar { height: 100%; background: linear-gradient(90deg, var(--primary-dark), var(--accent)); border-radius: 2px; transition: width .5s var(--ease-smooth); }
+
+    /* ── FORMULÁRIO ── */
+    .form-container { flex: 1; min-width: 0; }
+    .step-card {
+      background: white; border-radius: var(--radius-xl);
+      padding: 40px; border: 1px solid rgba(155,123,93,.1);
+      box-shadow: var(--shadow-sm); display: none;
+      animation: fadeUp .4s var(--ease-smooth) both;
+    }
+    .step-card.ativo { display: block; }
+
+    .card-header { margin-bottom: 28px; }
+    .card-step-num { font-size: .72rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--primary); margin-bottom: 4px; }
+    .card-title { font-family: var(--font-display); font-size: 1.4rem; font-weight: 700; color: var(--text-dark); margin-bottom: 4px; }
+    .card-sub { font-size: .88rem; color: var(--text-muted); }
+
+    /* Inputs */
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .form-full { grid-column: 1 / -1; }
+    .form-group { display: flex; flex-direction: column; gap: 5px; }
+    .form-group label {
+      font-size: .72rem; font-weight: 700; letter-spacing: .07em;
+      text-transform: uppercase; color: var(--text-muted);
+    }
+    .form-group label .req { color: var(--accent); margin-left: 2px; }
+    .form-group input,
+    .form-group select {
+      padding: 11px 14px; border: 1.5px solid var(--beige);
+      border-radius: var(--radius-md); font-family: var(--font-body);
+      font-size: .92rem; color: var(--text-dark); background: white;
+      outline: none; transition: border-color .2s, box-shadow .2s, transform .15s;
+    }
+    .form-group input:focus,
+    .form-group select:focus {
+      border-color: var(--primary); box-shadow: 0 0 0 3px rgba(155,123,93,.15);
+      transform: translateY(-1px);
+    }
+    .form-group input.erro { border-color: #e74c3c; }
+    .form-group input.ok   { border-color: #27ae60; }
+    .field-error { font-size: .75rem; color: #e74c3c; margin-top: 2px; display: none; }
+    .field-error.vis { display: block; }
+
+    /* CEP row */
+    .cep-row { display: grid; grid-template-columns: 1fr auto; gap: 10px; align-items: end; }
+    .btn-cep {
+      padding: 11px 16px; background: var(--bg-warm); border: 1.5px solid var(--beige);
+      border-radius: var(--radius-md); font-family: var(--font-body); font-size: .82rem;
+      font-weight: 600; color: var(--text-mid); cursor: pointer; white-space: nowrap;
+      transition: all .2s;
+    }
+    .btn-cep:hover { background: var(--beige); border-color: var(--primary); }
+    .btn-cep:disabled { opacity: .6; cursor: not-allowed; }
+
+    /* Séries como pills */
+    .series-pills { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px; }
+    .serie-pill {
+      display: flex; align-items: center; gap: 5px;
+      padding: 8px 16px; border-radius: 50px;
+      border: 1.5px solid var(--beige); background: white;
+      font-size: .83rem; font-weight: 500; color: var(--text-mid);
+      cursor: pointer; transition: all .2s; user-select: none;
+    }
+    .serie-pill input[type="checkbox"] { display: none; }
+    .serie-pill:has(input:checked) {
+      background: var(--primary-dark); border-color: var(--primary-dark); color: white;
+    }
+    .serie-pill:hover { border-color: var(--primary); }
+
+    /* Senha com força */
+    .senha-wrap { position: relative; }
+    .senha-wrap input { width: 100%; padding-right: 44px; }
+    .btn-toggle-senha {
+      position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+      background: none; border: none; cursor: pointer; font-size: 1rem; color: var(--text-muted); padding: 4px;
+    }
+    .strength-bar { display: flex; gap: 4px; margin-top: 6px; }
+    .strength-seg { height: 4px; flex: 1; border-radius: 2px; background: var(--beige); transition: background .3s; }
+    .strength-label { font-size: .72rem; color: var(--text-muted); margin-top: 3px; }
+
+    /* Tipo selector */
+    .tipo-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 4px; }
+    .tipo-option {
+      padding: 10px 8px; border-radius: var(--radius-md); border: 1.5px solid var(--beige);
+      background: white; text-align: center; cursor: pointer; transition: all .2s;
+    }
+    .tipo-option input { display: none; }
+    .tipo-option .tipo-icon { font-size: 1.4rem; display: block; margin-bottom: 4px; }
+    .tipo-option .tipo-name { font-size: .72rem; font-weight: 600; color: var(--text-mid); }
+    .tipo-option:has(input:checked) { background: var(--primary-dark); border-color: var(--primary-dark); }
+    .tipo-option:has(input:checked) .tipo-name { color: white; }
+    .tipo-option:hover { border-color: var(--primary); }
+
+    /* Botões de navegação */
+    .form-nav {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-top: 28px; padding-top: 20px; border-top: 1px solid var(--beige);
+    }
+    .btn-voltar {
+      padding: 11px 24px; border-radius: 50px; border: 1.5px solid var(--beige);
+      background: white; font-family: var(--font-body); font-size: .88rem;
+      font-weight: 600; color: var(--text-mid); cursor: pointer; transition: all .2s;
+    }
+    .btn-voltar:hover { background: var(--bg-warm); border-color: var(--primary); }
+    .btn-proximo {
+      padding: 12px 32px; border-radius: 50px; border: none;
+      background: var(--primary-dark); color: white; font-family: var(--font-body);
+      font-size: .92rem; font-weight: 700; cursor: pointer; transition: all .25s;
+      display: flex; align-items: center; gap: 8px; position: relative; overflow: hidden;
+    }
+    .btn-proximo:hover { background: var(--primary-darker); transform: translateY(-2px); box-shadow: var(--shadow-md); }
+    .btn-proximo:disabled { opacity: .6; cursor: not-allowed; transform: none; }
+
+    /* Feedback */
+    .form-fb {
+      padding: 12px 16px; border-radius: var(--radius-md);
+      font-size: .88rem; margin-top: 14px; display: none;
+    }
+    .form-fb.ok  { background: rgba(39,174,96,.1); color: #1a7a40; border: 1px solid rgba(39,174,96,.2); }
+    .form-fb.err { background: rgba(231,76,60,.1); color: #b03228; border: 1px solid rgba(231,76,60,.2); }
+
+    /* Sucesso */
+    .success-card {
+      background: white; border-radius: var(--radius-xl); padding: 60px 40px;
+      border: 1px solid rgba(155,123,93,.1); box-shadow: var(--shadow-sm);
+      text-align: center; display: none;
+    }
+    .success-icon { font-size: 4rem; margin-bottom: 20px; animation: pulse 2s infinite; }
+    .success-card h2 { font-family: var(--font-display); font-size: 1.6rem; color: var(--text-dark); margin-bottom: 8px; }
+    .success-card p { color: var(--text-muted); margin-bottom: 28px; }
+    .btn-ir-login { display: inline-block; padding: 13px 32px; background: var(--primary-dark); color: white; border-radius: 50px; text-decoration: none; font-weight: 700; font-family: var(--font-body); transition: all .25s; }
+    .btn-ir-login:hover { background: var(--primary-darker); transform: translateY(-2px); box-shadow: var(--shadow-md); }
+
+    @media (max-width: 768px) {
+      .page-wrap { flex-direction: column; padding: 20px; }
+      .sidebar { width: 100%; position: static; }
+      .steps-nav { flex-direction: row; overflow-x: auto; }
+      .step-connector { display: none; }
+      .form-grid { grid-template-columns: 1fr; }
+      .form-full { grid-column: 1; }
+      .tipo-grid { grid-template-columns: repeat(2, 1fr); }
+      .step-card { padding: 24px; }
+    }
   </style>
 </head>
 <body>
-  <a href="index.html" class="sair">SAIR</a>
 
-  <div class="container-cadastro">
-    <div class="logo-area">
-      <img src="img/logo-capa-e-barra-de-pesquisa.png" class="logo">
-      <h1>LER E EDUCAR</h1>
-    </div>
-
-    <!-- COLUNA ESQUERDA - Instituição -->
-    <div class="coluna">
-      <h2>CADASTRAR NOVA INSTITUIÇÃO</h2>
-
-      <input type="text"  id="razaoSocial"       placeholder="Razão Social">
-
-      <select id="tipo" class="form-select">
-        <option value="">Tipo da Instituição</option>
-        <option value="ESCOLA_MUNICIPAL">Escola Municipal</option>
-        <option value="ESCOLA_ESTADUAL">Escola Estadual</option>
-        <option value="COLEGIO_PRIVADO">Colégio Privado</option>
-        <option value="CENTRO_RECREACAO_INFANTIL">Centro de Recreação Infantil</option>
-        <option value="OUTRO">Outro</option>
-      </select>
-
-      <input type="email" id="emailInstitucional" placeholder="E-mail Institucional">
-      <input type="text"  id="telefone"           placeholder="Telefone da Instituição">
-      <input type="text"  id="cnpj"               placeholder="CNPJ (14 dígitos, sem formatação)">
-
-      <p class="secao-titulo">SÉRIES ATENDIDAS:</p>
-      <div class="checkbox-group">
-        <label><input type="checkbox" value="PRIMEIRO_ANO"> 1º Ano</label>
-        <label><input type="checkbox" value="SEGUNDO_ANO"> 2º Ano</label>
-        <label><input type="checkbox" value="TERCEIRO_ANO"> 3º Ano</label>
-        <label><input type="checkbox" value="QUARTO_ANO"> 4º Ano</label>
-        <label><input type="checkbox" value="QUINTO_ANO"> 5º Ano</label>
-      </div>
-
-      <h2 class="titulo-gestor">GESTOR DE ENSINO</h2>
-      <input type="text"  id="nomeGestor"  placeholder="Nome do gestor">
-      <input type="text"  id="cpfGestor"   placeholder="CPF do gestor (11 dígitos)">
-      <input type="text"  id="telefoneGestor" placeholder="Telefone do gestor">
-    </div>
-
-    <!-- COLUNA DIREITA - Endereço + Acesso -->
-    <div class="coluna">
-      <h2>ENDEREÇO</h2>
-      <input type="text" id="cep"        placeholder="CEP (8 dígitos)">
-      <input type="text" id="logradouro" placeholder="Logradouro">
-      <input type="text" id="numero"     placeholder="Número">
-      <input type="text" id="bairro"     placeholder="Bairro">
-      <input type="text" id="cidade"     placeholder="Cidade">
-      <input type="text" id="uf"         placeholder="UF (ex: SP)" maxlength="2">
-
-      <h2 class="titulo-confirmacao">ACESSO DO GESTOR</h2>
-      <input type="email"    id="emailGestor" placeholder="E-mail do gestor">
-      <input type="password" id="senhaGestor" placeholder="Senha do gestor">
-    </div>
+  <div class="top-bar">
+    <a class="top-logo" href="index.html">
+      <img src="img/logo-capa-e-barra-de-pesquisa.png" alt="Logo">
+      <span>LER E EDUCAR</span>
+    </a>
+    <a href="login.html" class="top-link">← Voltar para o login</a>
   </div>
 
-  <div id="feedback" class="feedback"></div>
+  <div class="page-wrap">
 
-  <div class="botao-area">
-    <button class="botao-cadastro" onclick="cadastrar()">Concluir cadastro</button>
+    <!-- Sidebar com steps -->
+    <div class="sidebar">
+      <h1 class="sidebar-title">Cadastrar Instituição</h1>
+      <p class="sidebar-sub">Preencha os dados em 3 etapas para criar sua conta.</p>
+
+      <div class="steps-nav">
+        <div class="step-item ativo" id="nav-1">
+          <div class="step-dot"><span class="step-n">1</span></div>
+          <span class="step-label">Dados da Instituição</span>
+        </div>
+        <div class="step-connector" id="conn-1"></div>
+        <div class="step-item" id="nav-2">
+          <div class="step-dot"><span class="step-n">2</span></div>
+          <span class="step-label">Endereço</span>
+        </div>
+        <div class="step-connector" id="conn-2"></div>
+        <div class="step-item" id="nav-3">
+          <div class="step-dot"><span class="step-n">3</span></div>
+          <span class="step-label">Gestor e Acesso</span>
+        </div>
+      </div>
+
+      <div class="progress-bar-wrap">
+        <div class="progress-bar" id="progress-bar" style="width:33%"></div>
+      </div>
+    </div>
+
+    <!-- Formulário -->
+    <div class="form-container">
+
+      <!-- STEP 1: Dados da Instituição -->
+      <div class="step-card ativo" id="step-1">
+        <div class="card-header">
+          <div class="card-step-num">Etapa 1 de 3</div>
+          <h2 class="card-title">Dados da Instituição</h2>
+          <p class="card-sub">Informações gerais sobre a sua escola ou instituição.</p>
+        </div>
+
+        <div class="form-grid">
+          <div class="form-group form-full">
+            <label>Razão Social <span class="req">*</span></label>
+            <input type="text" id="razaoSocial" placeholder="Nome oficial da instituição">
+            <span class="field-error" id="err-razao">Campo obrigatório</span>
+          </div>
+
+          <div class="form-group form-full">
+            <label>CNPJ <span class="req">*</span></label>
+            <input type="text" id="cnpj" placeholder="00.000.000/0000-00" maxlength="18" oninput="mascaraCNPJ(this)">
+            <span class="field-error" id="err-cnpj">CNPJ deve ter 14 dígitos</span>
+          </div>
+
+          <div class="form-group form-full">
+            <label>Tipo de Instituição <span class="req">*</span></label>
+            <div class="tipo-grid">
+              <label class="tipo-option"><input type="radio" name="tipo" value="ESCOLA_MUNICIPAL"><span class="tipo-icon">🏛️</span><span class="tipo-name">Escola Municipal</span></label>
+              <label class="tipo-option"><input type="radio" name="tipo" value="ESCOLA_ESTADUAL"><span class="tipo-icon">🏫</span><span class="tipo-name">Escola Estadual</span></label>
+              <label class="tipo-option"><input type="radio" name="tipo" value="COLEGIO_PRIVADO"><span class="tipo-icon">🎓</span><span class="tipo-name">Colégio Privado</span></label>
+              <label class="tipo-option"><input type="radio" name="tipo" value="CENTRO_RECREACAO_INFANTIL"><span class="tipo-icon">🛝</span><span class="tipo-name">Centro de Recreação</span></label>
+              <label class="tipo-option"><input type="radio" name="tipo" value="OUTRO"><span class="tipo-icon">📋</span><span class="tipo-name">Outro</span></label>
+            </div>
+            <span class="field-error" id="err-tipo">Selecione o tipo</span>
+          </div>
+
+          <div class="form-group">
+            <label>E-mail Institucional <span class="req">*</span></label>
+            <input type="email" id="emailInstitucional" placeholder="contato@escola.edu.br">
+            <span class="field-error" id="err-email-inst">E-mail inválido</span>
+          </div>
+
+          <div class="form-group">
+            <label>Telefone</label>
+            <input type="text" id="telefone" placeholder="(11) 00000-0000" maxlength="15" oninput="mascaraTel(this)">
+          </div>
+
+          <div class="form-group form-full">
+            <label>Séries Atendidas <span class="req">*</span></label>
+            <div class="series-pills">
+              <label class="serie-pill"><input type="checkbox" value="PRIMEIRO_ANO"> 1º Ano</label>
+              <label class="serie-pill"><input type="checkbox" value="SEGUNDO_ANO"> 2º Ano</label>
+              <label class="serie-pill"><input type="checkbox" value="TERCEIRO_ANO"> 3º Ano</label>
+              <label class="serie-pill"><input type="checkbox" value="QUARTO_ANO"> 4º Ano</label>
+              <label class="serie-pill"><input type="checkbox" value="QUINTO_ANO"> 5º Ano</label>
+            </div>
+            <span class="field-error" id="err-series">Selecione ao menos uma série</span>
+          </div>
+        </div>
+
+        <div class="form-fb" id="fb-1"></div>
+        <div class="form-nav">
+          <span></span>
+          <button class="btn-proximo" onclick="irParaStep(2)">Próximo — Endereço →</button>
+        </div>
+      </div>
+
+      <!-- STEP 2: Endereço -->
+      <div class="step-card" id="step-2">
+        <div class="card-header">
+          <div class="card-step-num">Etapa 2 de 3</div>
+          <h2 class="card-title">Endereço da Instituição</h2>
+          <p class="card-sub">Informe o CEP e preencheremos automaticamente.</p>
+        </div>
+
+        <div class="form-grid">
+          <div class="form-group form-full">
+            <label>CEP <span class="req">*</span></label>
+            <div class="cep-row">
+              <input type="text" id="cep" placeholder="00000-000" maxlength="9" oninput="mascaraCEP(this)">
+              <button class="btn-cep" id="btn-buscar-cep" onclick="buscarCEP()">🔍 Buscar</button>
+            </div>
+            <span class="field-error" id="err-cep">CEP inválido</span>
+          </div>
+
+          <div class="form-group form-full">
+            <label>Logradouro <span class="req">*</span></label>
+            <input type="text" id="logradouro" placeholder="Rua, Avenida...">
+          </div>
+
+          <div class="form-group">
+            <label>Número <span class="req">*</span></label>
+            <input type="text" id="numero" placeholder="Ex: 123">
+          </div>
+
+          <div class="form-group">
+            <label>Bairro <span class="req">*</span></label>
+            <input type="text" id="bairro" placeholder="Bairro">
+          </div>
+
+          <div class="form-group">
+            <label>Cidade <span class="req">*</span></label>
+            <input type="text" id="cidade" placeholder="Cidade">
+          </div>
+
+          <div class="form-group">
+            <label>UF <span class="req">*</span></label>
+            <input type="text" id="uf" placeholder="SP" maxlength="2" style="text-transform:uppercase">
+          </div>
+        </div>
+
+        <div class="form-fb" id="fb-2"></div>
+        <div class="form-nav">
+          <button class="btn-voltar" onclick="irParaStep(1)">← Voltar</button>
+          <button class="btn-proximo" onclick="irParaStep(3)">Próximo — Gestor →</button>
+        </div>
+      </div>
+
+      <!-- STEP 3: Gestor -->
+      <div class="step-card" id="step-3">
+        <div class="card-header">
+          <div class="card-step-num">Etapa 3 de 3</div>
+          <h2 class="card-title">Gestor e Acesso</h2>
+          <p class="card-sub">Dados do gestor responsável e credenciais de acesso ao sistema.</p>
+        </div>
+
+        <div class="form-grid">
+          <div class="form-group form-full">
+            <label>Nome completo do Gestor <span class="req">*</span></label>
+            <input type="text" id="nomeGestor" placeholder="Nome do responsável">
+          </div>
+
+          <div class="form-group">
+            <label>CPF <span class="req">*</span></label>
+            <input type="text" id="cpfGestor" placeholder="000.000.000-00" maxlength="14" oninput="mascaraCPF(this)">
+            <span class="field-error" id="err-cpf">CPF deve ter 11 dígitos</span>
+          </div>
+
+          <div class="form-group">
+            <label>Telefone do Gestor</label>
+            <input type="text" id="telefoneGestor" placeholder="(11) 00000-0000" maxlength="15" oninput="mascaraTel(this)">
+          </div>
+
+          <div class="form-group form-full">
+            <label>E-mail do Gestor <span class="req">*</span> <small style="font-weight:400;text-transform:none;letter-spacing:0">(será o login)</small></label>
+            <input type="email" id="emailGestor" placeholder="gestor@escola.edu.br">
+            <span class="field-error" id="err-email-gestor">E-mail inválido</span>
+          </div>
+
+          <div class="form-group form-full">
+            <label>Senha <span class="req">*</span></label>
+            <div class="senha-wrap">
+              <input type="password" id="senhaGestor" placeholder="Mínimo 8 caracteres" oninput="avaliarSenha(this.value)">
+              <button class="btn-toggle-senha" type="button" onclick="toggleSenha()">👁</button>
+            </div>
+            <div class="strength-bar">
+              <div class="strength-seg" id="seg1"></div>
+              <div class="strength-seg" id="seg2"></div>
+              <div class="strength-seg" id="seg3"></div>
+              <div class="strength-seg" id="seg4"></div>
+            </div>
+            <span class="strength-label" id="strength-label"></span>
+          </div>
+        </div>
+
+        <div class="form-fb" id="fb-3"></div>
+        <div class="form-nav">
+          <button class="btn-voltar" onclick="irParaStep(2)">← Voltar</button>
+          <button class="btn-proximo" id="btn-finalizar" onclick="finalizar()">✓ Concluir cadastro</button>
+        </div>
+      </div>
+
+      <!-- Sucesso -->
+      <div class="success-card" id="success-card">
+        <div class="success-icon">🎉</div>
+        <h2>Cadastro realizado!</h2>
+        <p>Sua instituição foi cadastrada com sucesso.<br>Após aprovação, o gestor poderá fazer login.</p>
+        <a href="login.html" class="btn-ir-login">Ir para o Login</a>
+      </div>
+
+    </div>
   </div>
 
   <script src="js/api.js"></script>
   <script>
-    async function cadastrar() {
-      const series = [...document.querySelectorAll('.checkbox-group input:checked')].map(c => c.value);
+    let stepAtual = 1;
 
-      const dados = {
-        razaoSocial:       document.getElementById('razaoSocial').value.trim(),
-        cnpj:              document.getElementById('cnpj').value.trim(),
-        tipo:              document.getElementById('tipo').value,
-        telefone:          document.getElementById('telefone').value.trim(),
-        emailInstitucional:document.getElementById('emailInstitucional').value.trim(),
-        cep:               document.getElementById('cep').value.trim(),
-        logradouro:        document.getElementById('logradouro').value.trim(),
-        numero:            document.getElementById('numero').value.trim(),
-        bairro:            document.getElementById('bairro').value.trim(),
-        cidade:            document.getElementById('cidade').value.trim(),
-        uf:                document.getElementById('uf').value.trim().toUpperCase(),
-        series,
-        nomeGestor:        document.getElementById('nomeGestor').value.trim(),
-        emailGestor:       document.getElementById('emailGestor').value.trim(),
-        senhaGestor:       document.getElementById('senhaGestor').value.trim(),
-        cpfGestor:         document.getElementById('cpfGestor').value.trim(),
-        telefoneGestor:    document.getElementById('telefoneGestor').value.trim()
-      };
+    // ── Navegação entre steps ──
+    function irParaStep(n) {
+      if (n > stepAtual && !validarStep(stepAtual)) return;
 
-      if (!dados.razaoSocial || !dados.cnpj || !dados.tipo || !dados.emailInstitucional || !series.length) {
-        mostrarFb('Preencha todos os campos obrigatórios e selecione ao menos uma série.', false); return;
+      document.getElementById('step-' + stepAtual).classList.remove('ativo');
+      document.getElementById('nav-' + stepAtual).classList.remove('ativo');
+      if (n > stepAtual) document.getElementById('nav-' + stepAtual).classList.add('feito');
+      if (stepAtual > 1) document.getElementById('conn-' + (stepAtual-1)).classList.toggle('feito', n > stepAtual);
+
+      stepAtual = n;
+      document.getElementById('step-' + stepAtual).classList.add('ativo');
+      document.getElementById('nav-' + stepAtual).classList.add('ativo');
+      document.getElementById('nav-' + stepAtual).classList.remove('feito');
+
+      // Atualizar connectors
+      for (let i = 1; i <= 2; i++) {
+        document.getElementById('conn-' + i).classList.toggle('feito', i < stepAtual);
+      }
+      // Atualizar steps anteriores como feitos
+      for (let i = 1; i <= 3; i++) {
+        if (i < stepAtual) document.getElementById('nav-' + i).classList.add('feito');
+        else if (i > stepAtual) document.getElementById('nav-' + i).classList.remove('feito');
       }
 
-      const res = await post('/instituicoes', dados);
-
-      if (res && res.id) {
-        mostrarFb('✓ Instituição cadastrada! Faça login com o e-mail e senha do gestor.', true);
-        setTimeout(() => window.location.href = 'login.html', 2000);
-      } else {
-        const msgs = res?.mensagens?.join(', ') || 'Erro ao cadastrar. Verifique os dados.';
-        mostrarFb(msgs, false);
-      }
+      const pcts = { 1: '33%', 2: '66%', 3: '100%' };
+      document.getElementById('progress-bar').style.width = pcts[stepAtual];
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
-    function mostrarFb(msg, ok) {
-      const fb = document.getElementById('feedback');
-      fb.textContent = msg;
-      fb.className = 'feedback ' + (ok ? 'ok' : 'err');
-      fb.style.display = 'block';
-      fb.scrollIntoView({ behavior: 'smooth' });
+    // ── Validação por step ──
+    function validarStep(n) {
+      if (n === 1) {
+        const razao = val('razaoSocial'), cnpj = val('cnpj').replace(/\D/g,''), tipo = document.querySelector('input[name="tipo"]:checked')?.value;
+        const email = val('emailInstitucional'), series = getSeries();
+        let ok = true;
+        if (!razao)             { mostrarEr('err-razao', true); ok=false; } else mostrarEr('err-razao', false);
+        if (cnpj.length !== 14) { mostrarEr('err-cnpj', true);  ok=false; } else mostrarEr('err-cnpj', false);
+        if (!tipo)              { mostrarEr('err-tipo', true);   ok=false; } else mostrarEr('err-tipo', false);
+        if (!email || !email.includes('@')) { mostrarEr('err-email-inst', true); ok=false; } else mostrarEr('err-email-inst', false);
+        if (!series.length)     { mostrarEr('err-series', true); ok=false; } else mostrarEr('err-series', false);
+        if (!ok) mostrarFb(1, 'Preencha todos os campos obrigatórios.', false);
+        return ok;
+      }
+      if (n === 2) {
+        const cep = val('cep').replace(/\D/g,''), logr = val('logradouro'), num = val('numero'), bairro = val('bairro'), cidade = val('cidade'), uf = val('uf');
+        if (!cep || cep.length !== 8 || !logr || !num || !bairro || !cidade || !uf) {
+          mostrarFb(2, 'Preencha todos os campos de endereço.', false);
+          return false;
+        }
+        return true;
+      }
+      return true;
+    }
+
+    // ── Finalizar ──
+    async function finalizar() {
+      const nome = val('nomeGestor'), cpf = val('cpfGestor').replace(/\D/g,'');
+      const email = val('emailGestor'), senha = val('senhaGestor');
+      let ok = true;
+      if (!nome)              { ok=false; }
+      if (cpf.length !== 11)  { mostrarEr('err-cpf', true); ok=false; } else mostrarEr('err-cpf', false);
+      if (!email || !email.includes('@')) { mostrarEr('err-email-gestor', true); ok=false; } else mostrarEr('err-email-gestor', false);
+      if (senha.length < 6)   { mostrarFb(3, 'A senha deve ter ao menos 6 caracteres.', false); ok=false; }
+      if (!ok) return;
+
+      const btn = document.getElementById('btn-finalizar');
+      btn.disabled = true; btn.textContent = 'Enviando...';
+
+      const series = getSeries();
+      const dados = {
+        razaoSocial:       val('razaoSocial'),
+        cnpj:              val('cnpj').replace(/\D/g,''),
+        tipo:              document.querySelector('input[name="tipo"]:checked')?.value,
+        telefone:          val('telefone').replace(/\D/g,''),
+        emailInstitucional:val('emailInstitucional'),
+        cep:               val('cep').replace(/\D/g,''),
+        logradouro:        val('logradouro'),
+        numero:            val('numero'),
+        bairro:            val('bairro'),
+        cidade:            val('cidade'),
+        uf:                val('uf').toUpperCase(),
+        series,
+        nomeGestor:        nome,
+        emailGestor:       email,
+        senhaGestor:       senha,
+        cpfGestor:         cpf,
+        telefoneGestor:    val('telefoneGestor').replace(/\D/g,'')
+      };
+
+      const res = await post('/instituicoes', dados);
+      if (res && res.id) {
+        document.getElementById('step-3').classList.remove('ativo');
+        document.getElementById('success-card').style.display = 'block';
+        document.getElementById('progress-bar').style.width = '100%';
+        for (let i=1;i<=3;i++) { document.getElementById('nav-'+i).classList.add('feito'); document.getElementById('nav-'+i).classList.remove('ativo'); }
+      } else {
+        mostrarFb(3, res?.mensagens?.join(', ') || 'Erro ao cadastrar. Verifique os dados.', false);
+      }
+      btn.disabled = false; btn.textContent = '✓ Concluir cadastro';
+    }
+
+    // ── Buscar CEP (ViaCEP) ──
+    async function buscarCEP() {
+      const cep = val('cep').replace(/\D/g,'');
+      if (cep.length !== 8) { mostrarEr('err-cep', true); return; }
+      const btn = document.getElementById('btn-buscar-cep');
+      btn.disabled = true; btn.textContent = '⏳';
+      try {
+        const res = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
+        const data = await res.json();
+        if (data.erro) { mostrarEr('err-cep', true); }
+        else {
+          mostrarEr('err-cep', false);
+          setVal('logradouro', data.logradouro);
+          setVal('bairro',     data.bairro);
+          setVal('cidade',     data.localidade);
+          setVal('uf',         data.uf);
+          document.getElementById('numero').focus();
+        }
+      } catch { mostrarEr('err-cep', true); }
+      btn.disabled = false; btn.textContent = '🔍 Buscar';
+    }
+    // Busca automática ao completar 8 dígitos
+    document.getElementById('cep').addEventListener('input', function() {
+      if (this.value.replace(/\D/g,'').length === 8) buscarCEP();
+    });
+
+    // ── Força da senha ──
+    function avaliarSenha(s) {
+      const cores = ['#e74c3c','#f39c12','#3498db','#27ae60'];
+      const labels = ['Fraca','Regular','Boa','Forte'];
+      let forca = 0;
+      if (s.length >= 6)  forca++;
+      if (s.length >= 10) forca++;
+      if (/[A-Z]/.test(s) && /[0-9]/.test(s)) forca++;
+      if (/[^A-Za-z0-9]/.test(s)) forca++;
+      for (let i=1;i<=4;i++) {
+        const seg = document.getElementById('seg'+i);
+        seg.style.background = i <= forca ? cores[forca-1] : 'var(--beige)';
+      }
+      document.getElementById('strength-label').textContent = s.length ? labels[forca-1]||'' : '';
+    }
+
+    function toggleSenha() {
+      const inp = document.getElementById('senhaGestor');
+      inp.type = inp.type === 'password' ? 'text' : 'password';
+    }
+
+    // ── Máscaras ──
+    function mascaraCNPJ(el) {
+      let v = el.value.replace(/\D/g,'').slice(0,14);
+      v = v.replace(/^(\d{2})(\d)/,'$1.$2').replace(/^(\d{2})\.(\d{3})(\d)/,'$1.$2.$3').replace(/\.(\d{3})(\d)/,'.$1/$2').replace(/(\d{4})(\d)/,'$1-$2');
+      el.value = v;
+    }
+    function mascaraCPF(el) {
+      let v = el.value.replace(/\D/g,'').slice(0,11);
+      v = v.replace(/(\d{3})(\d)/,'$1.$2').replace(/(\d{3})\.(\d{3})(\d)/,'$1.$2.$3').replace(/\.(\d{3})(\d)/,'.$1-$2');
+      el.value = v;
+    }
+    function mascaraCEP(el) {
+      let v = el.value.replace(/\D/g,'').slice(0,8);
+      if (v.length > 5) v = v.slice(0,5)+'-'+v.slice(5);
+      el.value = v;
+    }
+    function mascaraTel(el) {
+      let v = el.value.replace(/\D/g,'').slice(0,11);
+      if (v.length > 2) v = '('+v.slice(0,2)+') '+v.slice(2);
+      if (v.length > 10) v = v.slice(0,10)+'-'+v.slice(10);
+      el.value = v;
+    }
+
+    // ── Helpers ──
+    function val(id) { return document.getElementById(id)?.value?.trim() || ''; }
+    function setVal(id, v) { const el=document.getElementById(id); if(el) el.value=v; }
+    function getSeries() { return [...document.querySelectorAll('.series-pills input:checked')].map(c=>c.value); }
+    function mostrarEr(id, vis) { const el=document.getElementById(id); if(el) el.classList.toggle('vis', vis); }
+    function mostrarFb(step, msg, ok) {
+      const fb = document.getElementById('fb-'+step);
+      fb.textContent = msg; fb.className='form-fb '+(ok?'ok':'err'); fb.style.display='block';
     }
   </script>
 </body>
