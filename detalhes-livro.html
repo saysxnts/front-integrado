@@ -1,62 +1,105 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-br">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Detalhes do Livro - Administrador</title>
-    <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=League+Spartan:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Detalhes do Livro | Ler e Educar</title>
+  <link rel="stylesheet" href="css/design-system.css"><link rel="stylesheet" href="css/layout.css">
+  <style>
+    .page-content{padding:32px 40px 60px;max-width:900px;margin:0 auto;}
+    .page-back{display:inline-flex;align-items:center;gap:6px;color:var(--text-muted);font-size:.85rem;text-decoration:none;margin-bottom:24px;transition:color .2s;}
+    .page-back:hover{color:var(--primary-dark);}
+    .livro-layout{display:grid;grid-template-columns:260px 1fr;gap:36px;align-items:start;}
+    .capa-grande{width:260px;height:370px;border-radius:var(--radius-xl);overflow:hidden;background:var(--bg-warm);display:flex;align-items:center;justify-content:center;font-size:4rem;box-shadow:var(--shadow-lg);animation:fadeUp .5s both;}
+    .capa-grande img{width:100%;height:100%;object-fit:cover;}
+    .livro-info{animation:fadeUp .5s .1s both;}
+    .livro-cat{font-size:.72rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--primary);margin-bottom:8px;}
+    .livro-titulo{font-family:var(--font-display);font-size:1.9rem;font-weight:900;color:var(--text-dark);line-height:1.2;margin-bottom:6px;}
+    .livro-autor{font-size:1rem;color:var(--text-mid);margin-bottom:20px;}
+    .info-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px;}
+    .info-item{background:var(--bg-warm);border-radius:var(--radius-md);padding:12px 16px;}
+    .info-item label{font-size:.68rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--text-muted);display:block;margin-bottom:3px;}
+    .info-item span{font-size:.92rem;font-weight:600;color:var(--text-dark);}
+    .disponibilidade{display:flex;align-items:center;gap:10px;background:rgba(39,174,96,.08);border:1px solid rgba(39,174,96,.2);border-radius:var(--radius-md);padding:14px 18px;margin-bottom:20px;}
+    .disp-num{font-family:var(--font-display);font-size:2rem;font-weight:900;color:#1a7a40;line-height:1;}
+    .disp-label{font-size:.82rem;color:#1a7a40;}
+    .indisponivel{background:rgba(231,76,60,.08);border-color:rgba(231,76,60,.2);}
+    .indisponivel .disp-num,.indisponivel .disp-label{color:#b03228;}
+    .series-badges{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:20px;}
+    .serie-badge{padding:5px 14px;border-radius:50px;background:var(--beige);color:var(--text-mid);font-size:.78rem;font-weight:600;}
+    .acoes{display:flex;gap:10px;flex-wrap:wrap;}
+    .btn-res{padding:12px 28px;border-radius:50px;border:none;background:var(--primary-dark);color:white;font-family:var(--font-body);font-size:.92rem;font-weight:700;cursor:pointer;transition:all .25s;}
+    .btn-res:hover{background:var(--primary-darker);transform:translateY(-2px);box-shadow:var(--shadow-md);}
+    .btn-edit-livro{padding:12px 24px;border-radius:50px;border:1.5px solid var(--beige);background:white;color:var(--text-mid);font-family:var(--font-body);font-size:.88rem;font-weight:600;cursor:pointer;transition:all .2s;text-decoration:none;display:inline-flex;align-items:center;gap:6px;}
+    .btn-edit-livro:hover{background:var(--beige);border-color:var(--primary);}
+    .loading{text-align:center;padding:60px;color:var(--text-muted);}
+    @media(max-width:768px){.page-content{padding:20px;}.livro-layout{grid-template-columns:1fr;}.capa-grande{width:100%;max-width:300px;margin:0 auto;}}
+  </style>
 </head>
 <body>
-    <div class="background"></div>
-    <aside class="sidebar" id="sidebar">
-        <ul>
-            <li><a href="meu-perfil-ADM.html">MEU PERFIL</a></li>
-            <li><a href="adicionar-livro.html">ADICIONAR LIVROS</a></li>
-            <li><a href="emprestimo.html">EMPRÉSTIMO</a></li>
-            <li><a href="devolucao.html">DEVOLUÇÃO</a></li>
-            <li><a href="controle-estoque.html">CONTROLE DE ESTOQUE</a></li>
-            <li><a href="controle-usuario.html">CONTROLE DE USUÁRIO</a></li>
-        </ul>
-    </aside>
-    <main class="container">
-        <header class="navbar">
-            <div class="menu-icon" id="menuBtn"><span></span><span></span><span></span></div>
-            <div class="logo-area"><img src="img/logo-capa-e-barra-de-pesquisa.png" alt=""></div>
-            <div class="search-area"><input type="text" placeholder="Buscar livro"></div>
-            <div class="right-navbar">
-                <a href="#" class="logout">SAIR</a>
-                <div class="admin-info"><p>Olá,</p><span id="adminName"></span></div>
+  <nav id="menu-lateral" class="menu-lateral">
+    <div class="fechar-menu" onclick="toggleMenu()">✕</div>
+    <a href="catalogo-admin.html"  class="menu-item ativo">CATÁLOGO</a>
+    <a href="meu-perfil-ADM.html"  class="menu-item">MEU PERFIL</a>
+    <a href="adicionar-livro.html" class="menu-item">ADICIONAR LIVROS</a>
+    <a href="emprestimo.html"      class="menu-item">EMPRÉSTIMOS</a>
+    <a href="controle-estoque.html"class="menu-item">CONTROLE DE ESTOQUE</a>
+    <a href="controle-usuario.html"class="menu-item">CONTROLE DE USUÁRIOS</a>
+  </nav>
+  <header class="header">
+    <div class="menu-hamburguer" onclick="toggleMenu()"><span></span><span></span><span></span></div>
+    <div class="logo-header"><img src="img/logo-capa-e-barra-de-pesquisa.png" alt="Logo" class="logo-img"><span class="logo-text">LER E EDUCAR</span></div>
+    <input type="text" placeholder="Buscar..." class="busca">
+    <div class="header-direita"><div class="usuario">Olá, <span id="nome-usuario-logado">Admin</span></div><a href="#" class="sair" onclick="Auth.logout()">SAIR</a></div>
+  </header>
+
+  <div class="page-content" id="page-content">
+    <a href="catalogo-admin.html" class="page-back">← Voltar ao catálogo</a>
+    <p class="loading">Carregando livro...</p>
+  </div>
+
+  <script src="js/api.js"></script><script src="js/layout.js"></script><script src="js/animations.js"></script>
+  <script>
+    Auth.exigirLogin(); Auth.exibirNome(); initAnimations({ tilt:false });
+    const ICONS = { ALFABETIZACAO_LETRAMENTO:'🔤',CIENCIAS_NATUREZA:'🌿',FABULAS:'🦊',CONTOS_DE_FADAS:'🏰',HISTORIA_CULTURA:'🌍',MATEMATICA:'🔢',OUTRO:'📖' };
+
+    async function carregar() {
+      const params = new URLSearchParams(location.search);
+      const id = params.get('id');
+      if (!id) { document.getElementById('page-content').innerHTML='<a href="catalogo-admin.html" class="page-back">← Voltar</a><p style="color:var(--text-muted)">ID não informado.</p>'; return; }
+
+      const livro = await get('/livros/' + id);
+      if (!livro||livro.status) { document.getElementById('page-content').innerHTML='<a href="catalogo-admin.html" class="page-back">← Voltar</a><p style="color:var(--text-muted)">Livro não encontrado.</p>'; return; }
+
+      const url = await buscarCapa(livro);
+      const disp = livro.totalDisponiveis;
+
+      document.getElementById('page-content').innerHTML = `
+        <a href="catalogo-admin.html" class="page-back">← Voltar ao catálogo</a>
+        <div class="livro-layout">
+          <div class="capa-grande">${url?`<img src="${url}" alt="Capa de ${livro.titulo}">`:(ICONS[livro.categoria]||'📖')}</div>
+          <div class="livro-info">
+            <div class="livro-cat">${ICONS[livro.categoria]||'📖'} ${CATEGORIAS[livro.categoria]||livro.categoria}</div>
+            <h1 class="livro-titulo">${livro.titulo}</h1>
+            <p class="livro-autor">por ${livro.autor}</p>
+            <div class="${disp>0?'disponibilidade':'disponibilidade indisponivel'}">
+              <div class="disp-num">${disp}</div>
+              <div class="disp-label">${disp>0?'exemplar(es) disponível(is)':'indisponível no momento'}</div>
             </div>
-        </header>
-        <section class="content">
-            <div class="book-flex-layout">
-                <div class="book-cover-frame"><img src="img/capa-historia-de-dois-amores.png" alt="Capa"></div>
-                <div class="book-details-column">
-                    <h2 class="book-main-title" id="bookTitle"></h2>
-                    <div class="book-info-list">
-                        <p><strong>Texto:</strong> <span id="bookAuthor"></span></p>
-                        <p><strong>Ilustração:</strong> <span id="bookIllustration"></span></p>
-                        <p><strong>Editora:</strong> <span id="bookPublisher"></span></p>
-                        <p><strong>Faixa etária:</strong> <span id="bookAge"></span></p>
-                        <p><strong>Ano:</strong> <span id="bookYear"></span></p>
-                        <p><strong>País:</strong> <span id="bookCountry"></span></p>
-                        <p><strong>ISBN:</strong> <span id="bookIsbn"></span></p>
-                        <p><strong>Páginas:</strong> <span id="bookPages"></span></p>
-                    </div>
-                    <div class="book-action-buttons">
-                        <button class="btn-book-action">Remover livro</button>
-                        <button class="btn-book-action">Editar livro</button>
-                    </div>
-                </div>
+            <div class="info-grid">
+              ${livro.editora?`<div class="info-item"><label>Editora</label><span>${livro.editora}</span></div>`:''}
+              ${livro.anoPublicacao?`<div class="info-item"><label>Ano</label><span>${livro.anoPublicacao}</span></div>`:''}
+              ${livro.isbn?`<div class="info-item"><label>ISBN</label><span>${livro.isbn}</span></div>`:''}
             </div>
-            <div class="book-synopsis-box">
-                <p class="book-tags" id="bookTags"></p>
-                <p class="book-text-description" id="bookSynopsis"> <a href="#" class="link-more">Ver Mais</a></p>
-                <div class="back-link-container"><a href="#" class="back-link-btn">Voltar</a></div>
+            ${(livro.seriesIndicadas||[]).length?`
+              <p style="font-size:.72rem;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--text-muted);margin-bottom:8px">Séries indicadas</p>
+              <div class="series-badges">${(livro.seriesIndicadas||[]).map(s=>`<span class="serie-badge">${SERIES[s]||s}</span>`).join('')}</div>
+            `:''}
+            <div class="acoes">
+              <a href="adicionar-livro.html" class="btn-edit-livro">✏️ Editar livro</a>
             </div>
-        </section>
-    </main>
-    <script src="script.js"></script>
-</body>
-</html>
+          </div>
+        </div>`;
+    }
+    carregar();
+  </script>
+</body></html>
