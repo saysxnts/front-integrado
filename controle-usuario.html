@@ -425,7 +425,7 @@
 
     async function aprovar(id) {
       const res = await patch('/instituicoes/' + id + '/aprovar');
-      if (res && !res.status) {
+      if (res && res.id) {
         showToast('Instituição aprovada!', 'ok');
         const inst = todasInst.find(i => i.id === id);
         if (inst) inst.status = 'ATIVO';
@@ -437,7 +437,7 @@
 
     async function bloquear(id) {
       const res = await patch('/instituicoes/' + id + '/bloquear');
-      if (res && !res.status) {
+      if (res && res.id) {
         showToast('Instituição bloqueada.', 'ok');
         const inst = todasInst.find(i => i.id === id);
         if (inst) inst.status = 'BLOQUEADO';
