@@ -2,20 +2,126 @@
 <html lang="pt-br">
 <head>
   <meta charset="UTF-8">
-  <title>Catálogo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Catálogo | Ler e Educar</title>
+  <link rel="stylesheet" href="css/design-system.css">
   <link rel="stylesheet" href="css/layout.css">
-  <link rel="stylesheet" href="css/catalogo.css">
   <style>
-    .badge-disponivel   { background:#27ae60;color:#fff;padding:2px 8px;border-radius:12px;font-size:.8rem; }
-    .badge-indisponivel { background:#e74c3c;color:#fff;padding:2px 8px;border-radius:12px;font-size:.8rem; }
-    .livro-card { cursor:pointer; }
-    .capa-livro-box { width:100%;height:160px;background:#f0f0f0;border-radius:6px;overflow:hidden;display:flex;align-items:center;justify-content:center;margin-bottom:8px; }
-    .modal-capa-box { width:180px;height:250px;background:#f0f0f0;border-radius:6px;overflow:hidden;display:flex;align-items:center;justify-content:center;flex-shrink:0; }
-    .modal-select { width:100%;padding:8px;margin:6px 0;border-radius:6px;border:1px solid #ccc; }
-    .modal-input-qt { width:80px;padding:8px;border-radius:6px;border:1px solid #ccc; }
-    .feedback { padding:8px 12px;border-radius:6px;margin-top:8px;display:none; }
-    .feedback.ok  { background:#d4edda;color:#155724; }
-    .feedback.err { background:#f8d7da;color:#721c24; }
+    .toolbar {
+      display:flex; align-items:center; gap:10px;
+      padding:18px 40px 0; flex-wrap:wrap;
+      position:sticky; top:68px; z-index:50;
+      background:var(--bg); border-bottom:1px solid transparent;
+      transition:border-color .3s, box-shadow .3s;
+    }
+    .toolbar.scrolled { border-color:var(--beige); box-shadow:0 4px 16px rgba(90,63,40,.06); }
+    .filter-chips { display:flex; gap:7px; flex-wrap:wrap; flex:1; padding-bottom:14px; }
+    .chip { padding:6px 15px; border-radius:50px; border:1.5px solid var(--beige); background:white; color:var(--text-mid); font-family:var(--font-body); font-size:.78rem; font-weight:500; cursor:pointer; transition:all .2s; white-space:nowrap; }
+    .chip:hover,.chip.ativo { background:var(--primary-dark); border-color:var(--primary-dark); color:white; transform:translateY(-1px); }
+
+    /* Carrinho FAB */
+    .cart-fab {
+      position:fixed; bottom:28px; right:28px; z-index:500;
+      background:var(--primary-dark); color:white;
+      border-radius:50px; padding:14px 22px;
+      display:flex; align-items:center; gap:10px;
+      box-shadow:var(--shadow-lg); cursor:pointer; border:none;
+      font-family:var(--font-body); font-size:.9rem; font-weight:700;
+      transform:translateY(120px); opacity:0;
+      transition:transform .4s var(--ease-bounce), opacity .3s, background .2s;
+    }
+    .cart-fab.visivel { transform:translateY(0); opacity:1; }
+    .cart-fab:hover { background:var(--primary-darker); transform:translateY(-3px) scale(1.03); box-shadow:0 12px 36px rgba(90,63,40,.35); }
+    .cart-badge { background:var(--accent); color:white; border-radius:50%; width:22px; height:22px; display:flex; align-items:center; justify-content:center; font-size:.72rem; font-weight:900; }
+
+    /* Grid */
+    .catalogo-container { padding:20px 40px 120px; max-width:1440px; margin:0 auto; }
+    .categoria { margin-bottom:48px; }
+    .categoria h2 { font-family:var(--font-display); font-size:1.35rem; font-weight:700; color:var(--text-dark); margin-bottom:16px; padding-bottom:10px; border-bottom:2px solid var(--beige); display:flex; align-items:center; gap:10px; }
+    .categoria h2::before { content:''; width:4px; height:22px; background:linear-gradient(to bottom,var(--primary),var(--accent)); border-radius:2px; flex-shrink:0; }
+    .qt-badge { font-size:.7rem; font-weight:600; background:var(--beige); color:var(--text-muted); padding:2px 8px; border-radius:50px; }
+    .livros-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(170px,1fr)); gap:16px; }
+
+    /* Card */
+    .livro-card { background:white; border-radius:var(--radius-lg); padding:14px; border:1px solid rgba(155,123,93,.1); box-shadow:var(--shadow-sm); cursor:pointer; position:relative; overflow:hidden; transition:transform .3s var(--ease-bounce), box-shadow .3s; }
+    .livro-card::before { content:''; position:absolute; top:-50%; left:-60%; width:60%; height:200%; background:linear-gradient(105deg,transparent 40%,rgba(255,255,255,.35) 50%,transparent 60%); transform:skewX(-20deg); transition:left .55s ease; pointer-events:none; }
+    .livro-card:hover::before { left:130%; }
+    .livro-card:hover { transform:translateY(-7px) scale(1.02); box-shadow:var(--shadow-md); }
+    .livro-card.selecionado { border-color:var(--primary); box-shadow:0 0 0 2px var(--primary),var(--shadow-md); }
+    .livro-card.selecionado::after { content:'✓'; position:absolute; top:10px; right:10px; width:22px; height:22px; border-radius:50%; background:var(--primary-dark); color:white; font-size:.75rem; display:flex; align-items:center; justify-content:center; }
+
+    .capa-livro-box { width:100%; height:165px; background:var(--bg-warm); border-radius:var(--radius-md); overflow:hidden; margin-bottom:10px; display:flex; align-items:center; justify-content:center; font-size:.72rem; color:var(--text-muted); text-align:center; transition:transform .3s var(--ease-bounce); }
+    .livro-card:hover .capa-livro-box { transform:scale(1.04); }
+    .capa-livro-box img { width:100%; height:100%; object-fit:cover; }
+    .capa-skeleton { background:linear-gradient(90deg,var(--bg-warm) 25%,var(--beige) 50%,var(--bg-warm) 75%); background-size:200% 100%; animation:skeleton 1.4s infinite; }
+
+    .livro-card h3 { font-family:var(--font-display); font-size:.85rem; color:var(--text-dark); line-height:1.3; margin-bottom:3px; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+    .livro-card .autor { font-size:.73rem; color:var(--text-muted); margin-bottom:6px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .badge-disp { display:inline-block; padding:2px 8px; border-radius:50px; font-size:.68rem; font-weight:700; background:rgba(39,174,96,.1); color:#1a7a40; border:1px solid rgba(39,174,96,.2); }
+    .badge-indisp { display:inline-block; padding:2px 8px; border-radius:50px; font-size:.68rem; font-weight:700; background:rgba(231,76,60,.08); color:#b03228; border:1px solid rgba(231,76,60,.15); }
+
+    /* Skeleton cards */
+    .skeleton-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(170px,1fr)); gap:16px; margin-bottom:48px; }
+    .skeleton-card { background:white; border-radius:var(--radius-lg); padding:14px; border:1px solid rgba(155,123,93,.08); }
+    .sk-capa { height:165px; border-radius:var(--radius-md); margin-bottom:10px; background:linear-gradient(90deg,var(--bg-warm) 25%,var(--beige) 50%,var(--bg-warm) 75%); background-size:200% 100%; animation:skeleton 1.4s infinite; }
+    .sk-line { height:12px; border-radius:6px; margin-bottom:7px; background:linear-gradient(90deg,var(--bg-warm) 25%,var(--beige) 50%,var(--bg-warm) 75%); background-size:200% 100%; animation:skeleton 1.4s infinite; }
+    .sk-line.short { width:60%; }
+    .sk-head { height:18px; width:40%; border-radius:6px; margin-bottom:16px; background:linear-gradient(90deg,var(--bg-warm) 25%,var(--beige) 50%,var(--bg-warm) 75%); background-size:200% 100%; animation:skeleton 1.4s .1s infinite; }
+
+    /* Modal */
+    .modal { position:fixed; inset:0; background:rgba(61,43,31,.5); backdrop-filter:blur(8px); z-index:2000; display:flex; align-items:center; justify-content:center; padding:20px; animation:fadeIn .2s both; }
+    .modal-box { background:white; border-radius:var(--radius-xl); padding:36px; max-width:700px; width:100%; max-height:90vh; overflow-y:auto; box-shadow:var(--shadow-lg); position:relative; animation:fadeUp .35s var(--ease-bounce) both; }
+    .modal-close { position:absolute; top:16px; right:18px; width:32px; height:32px; border-radius:50%; background:var(--bg-warm); border:none; display:flex; align-items:center; justify-content:center; font-size:.9rem; cursor:pointer; transition:all .2s; }
+    .modal-close:hover { background:var(--beige); transform:rotate(90deg); }
+    .modal-layout { display:flex; gap:28px; }
+    .modal-capa { width:180px; height:255px; border-radius:var(--radius-md); overflow:hidden; background:var(--bg-warm); flex-shrink:0; display:flex; align-items:center; justify-content:center; font-size:2rem; }
+    .modal-capa img { width:100%; height:100%; object-fit:cover; }
+    .modal-info { flex:1; }
+    .modal-titulo { font-family:var(--font-display); font-size:1.3rem; font-weight:700; color:var(--text-dark); margin-bottom:14px; line-height:1.3; }
+    .modal-row { font-size:.88rem; color:var(--text-mid); margin-bottom:7px; }
+    .modal-row strong { color:var(--text-dark); }
+    .series-badges { display:flex; flex-wrap:wrap; gap:5px; margin:10px 0 16px; }
+    .serie-badge { padding:3px 10px; border-radius:50px; background:var(--beige); color:var(--text-mid); font-size:.72rem; font-weight:600; }
+    .modal-form-label { font-size:.72rem; font-weight:700; letter-spacing:.07em; text-transform:uppercase; color:var(--text-muted); display:block; margin-bottom:5px; }
+    .modal-select { width:100%; padding:10px 14px; border:1.5px solid var(--beige); border-radius:var(--radius-md); font-family:var(--font-body); font-size:.9rem; color:var(--text-dark); background:white; outline:none; margin-bottom:12px; transition:border-color .2s; }
+    .modal-select:focus { border-color:var(--primary); box-shadow:0 0 0 3px rgba(155,123,93,.15); }
+    .qty-stepper { display:flex; align-items:center; gap:12px; margin-bottom:16px; }
+    .qty-btn { width:34px; height:34px; border-radius:50%; border:1.5px solid var(--beige); background:white; font-size:1.1rem; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:all .2s; font-weight:700; color:var(--text-dark); }
+    .qty-btn:hover { background:var(--beige); border-color:var(--primary); }
+    .qty-val { font-family:var(--font-display); font-size:1.2rem; font-weight:700; color:var(--text-dark); min-width:30px; text-align:center; }
+    .btn-solicitar { width:100%; padding:13px; background:var(--primary-dark); color:white; border:none; border-radius:50px; font-family:var(--font-body); font-size:.95rem; font-weight:700; cursor:pointer; transition:all .25s; position:relative; overflow:hidden; }
+    .btn-solicitar:hover { background:var(--primary-darker); transform:translateY(-2px); box-shadow:var(--shadow-md); }
+    .btn-solicitar:disabled { opacity:.6; cursor:not-allowed; transform:none; }
+    .btn-add-cart { width:100%; padding:11px; background:transparent; color:var(--primary-dark); border:1.5px solid var(--primary); border-radius:50px; font-family:var(--font-body); font-size:.88rem; font-weight:600; cursor:pointer; transition:all .25s; margin-bottom:8px; }
+    .btn-add-cart:hover { background:var(--beige); }
+    .modal-fb { padding:10px 14px; border-radius:var(--radius-md); margin-top:10px; font-size:.88rem; display:none; }
+    .modal-fb.ok  { background:rgba(39,174,96,.1); color:#1a7a40; border:1px solid rgba(39,174,96,.2); }
+    .modal-fb.err { background:rgba(231,76,60,.1); color:#b03228; border:1px solid rgba(231,76,60,.2); }
+
+    /* Modal carrinho */
+    .cart-modal { position:fixed; inset:0; background:rgba(61,43,31,.5); backdrop-filter:blur(6px); z-index:3000; display:flex; align-items:center; justify-content:center; padding:20px; animation:fadeIn .2s both; }
+    .cart-box { background:white; border-radius:var(--radius-xl); padding:32px; max-width:560px; width:100%; max-height:90vh; overflow-y:auto; box-shadow:var(--shadow-lg); animation:fadeUp .35s var(--ease-bounce) both; }
+    .cart-item { display:flex; align-items:center; gap:12px; padding:12px 0; border-bottom:1px solid var(--beige); }
+    .cart-item:last-of-type { border:none; }
+    .cart-capa { width:48px; height:66px; border-radius:6px; background:var(--bg-warm); overflow:hidden; flex-shrink:0; display:flex; align-items:center; justify-content:center; font-size:1.2rem; }
+    .cart-capa img { width:100%; height:100%; object-fit:cover; }
+    .cart-info { flex:1; }
+    .cart-info strong { font-size:.9rem; color:var(--text-dark); display:block; margin-bottom:2px; }
+    .cart-info span { font-size:.78rem; color:var(--text-muted); }
+    .cart-remove { background:none; border:none; color:var(--text-muted); cursor:pointer; font-size:1.1rem; padding:4px; transition:color .2s; }
+    .cart-remove:hover { color:#e74c3c; }
+    .btn-enviar-tudo { width:100%; padding:14px; background:var(--primary-dark); color:white; border:none; border-radius:50px; font-family:var(--font-body); font-size:1rem; font-weight:700; cursor:pointer; margin-top:16px; transition:all .25s; }
+    .btn-enviar-tudo:hover { background:var(--primary-darker); transform:translateY(-2px); box-shadow:var(--shadow-md); }
+    .btn-enviar-tudo:disabled { opacity:.6; cursor:not-allowed; transform:none; }
+    .empty-state { text-align:center; padding:48px 20px; color:var(--text-muted); }
+    .empty-icon { font-size:3rem; margin-bottom:10px; }
+
+    @media(max-width:768px){
+      .catalogo-container{ padding:16px 20px 100px; }
+      .toolbar{ padding:12px 20px 0; top:60px; }
+      .modal-layout{ flex-direction:column; }
+      .modal-capa{ width:100%; height:200px; }
+    }
   </style>
 </head>
 <body>
@@ -33,32 +139,52 @@
       <img src="img/logo-capa-e-barra-de-pesquisa.png" alt="Logo" class="logo-img">
       <span class="logo-text">LER E EDUCAR</span>
     </div>
-    <input type="text" id="busca" placeholder="Buscar livro..." class="busca">
+    <input type="text" id="busca" placeholder="🔍  Buscar livro ou autor..." class="busca">
     <div class="header-direita">
       <div class="usuario">Olá, <span id="nome-usuario-logado">Gestor</span></div>
       <a href="#" class="sair" onclick="Auth.logout()">SAIR</a>
     </div>
   </header>
 
+  <!-- Filtros -->
+  <div class="toolbar" id="toolbar">
+    <div class="filter-chips">
+      <button class="chip ativo" onclick="filtrarCat(null,this)">Todos</button>
+      <button class="chip" onclick="filtrarCat('ALFABETIZACAO_LETRAMENTO',this)">🔤 Alfabetização</button>
+      <button class="chip" onclick="filtrarCat('CIENCIAS_NATUREZA',this)">🌿 Ciências</button>
+      <button class="chip" onclick="filtrarCat('FABULAS',this)">🦊 Fábulas</button>
+      <button class="chip" onclick="filtrarCat('CONTOS_DE_FADAS',this)">🏰 Contos</button>
+      <button class="chip" onclick="filtrarCat('HISTORIA_CULTURA',this)">🌍 História</button>
+      <button class="chip" onclick="filtrarCat('MATEMATICA',this)">🔢 Matemática</button>
+      <button class="chip" onclick="filtrarCat('OUTRO',this)">📖 Outros</button>
+    </div>
+  </div>
+
+  <!-- Catálogo -->
   <main class="catalogo-container" id="catalogo-main">
-    <p style="padding:20px;color:#888">Carregando catálogo...</p>
+    <!-- Skeletons gerados via JS no DOMContentLoaded -->
   </main>
 
-  <!-- MODAL -->
+  <!-- FAB Carrinho -->
+  <button class="cart-fab" id="cart-fab" onclick="abrirCarrinho()">
+    <span>🛒 Carrinho</span>
+    <span class="cart-badge" id="cart-badge">0</span>
+  </button>
+
+  <!-- Modal do livro -->
   <div id="modal-livro" class="modal" style="display:none">
-    <div class="modal-conteudo">
-      <span class="fechar" onclick="fecharModal()">X</span>
-      <div class="modal-info">
-        <div class="modal-capa-box" id="modal-capa-box">
-          <div style="color:#888;font-size:.8rem;text-align:center">Carregando capa...</div>
-        </div>
-        <div class="modal-texto">
-          <h2 id="modal-titulo"></h2>
-          <p><strong>Autor:</strong> <span id="modal-autor"></span></p>
-          <p><strong>Editora:</strong> <span id="modal-editora"></span></p>
-          <p><strong>Ano:</strong> <span id="modal-ano"></span></p>
-          <p><strong>Disponíveis:</strong> <span id="modal-disponiveis"></span></p>
-          <label><strong>Série atendida:</strong></label>
+    <div class="modal-box">
+      <button class="modal-close" onclick="fecharModal()">✕</button>
+      <div class="modal-layout">
+        <div class="modal-capa" id="modal-capa-box">📖</div>
+        <div class="modal-info">
+          <h2 class="modal-titulo" id="modal-titulo"></h2>
+          <p class="modal-row"><strong>Autor:</strong> <span id="modal-autor"></span></p>
+          <p class="modal-row"><strong>Editora:</strong> <span id="modal-editora"></span></p>
+          <p class="modal-row"><strong>Ano:</strong> <span id="modal-ano"></span></p>
+          <p class="modal-row"><strong>Disponíveis:</strong> <span id="modal-disponiveis"></span></p>
+          <div class="series-badges" id="modal-series"></div>
+          <label class="modal-form-label">Série de destino</label>
           <select id="modal-serie" class="modal-select">
             <option value="">Selecione a série</option>
             <option value="PRIMEIRO_ANO">1º Ano</option>
@@ -67,124 +193,229 @@
             <option value="QUARTO_ANO">4º Ano</option>
             <option value="QUINTO_ANO">5º Ano</option>
           </select>
-          <label><strong>Quantidade:</strong></label>
-          <input type="number" id="modal-qtd" class="modal-input-qt" value="1" min="1">
-          <div id="feedback-reserva" class="feedback"></div>
-          <button class="btn-reserva" onclick="solicitarReserva()">Solicitar reserva</button>
+          <label class="modal-form-label">Quantidade</label>
+          <div class="qty-stepper">
+            <button class="qty-btn" onclick="ajustarQtd(-1)">−</button>
+            <span class="qty-val" id="modal-qtd">1</span>
+            <button class="qty-btn" onclick="ajustarQtd(1)">+</button>
+          </div>
+          <button class="btn-add-cart" onclick="adicionarCarrinho()">+ Adicionar ao carrinho</button>
+          <button class="btn-solicitar" id="btn-solicitar" onclick="solicitarDireto()">Solicitar agora</button>
+          <div class="modal-fb" id="modal-fb"></div>
         </div>
       </div>
     </div>
   </div>
 
+  <!-- Modal Carrinho -->
+  <div id="cart-modal" class="cart-modal" style="display:none">
+    <div class="cart-box">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
+        <h2 style="font-family:var(--font-display);font-size:1.2rem;color:var(--text-dark)">🛒 Carrinho de Reservas</h2>
+        <button onclick="fecharCarrinho()" style="background:var(--bg-warm);border:none;border-radius:50%;width:32px;height:32px;cursor:pointer;font-size:.9rem">✕</button>
+      </div>
+      <div id="cart-items"></div>
+      <div id="cart-fb" class="modal-fb"></div>
+      <button class="btn-enviar-tudo" id="btn-enviar-tudo" onclick="enviarCarrinho()">Enviar todas as reservas</button>
+    </div>
+  </div>
+
   <script src="js/api.js"></script>
   <script src="js/layout.js"></script>
+  <script src="js/animations.js"></script>
   <script>
-    Auth.exigirLogin();
-    Auth.exibirNome();
+    Auth.exigirLogin(); Auth.exibirNome();
+    initAnimations({ tilt: false });
 
-    let todosLivros = [];
-    let livroAtual  = null;
+    let todosLivros = [], catAtiva = null, livroAtual = null, qtdAtual = 1, carrinho = [];
 
+    // Gerar skeletons via JS
+    function mostrarSkeletons() {
+      const grid = Array(4).fill('<div class="skeleton-card"><div class="sk-capa"></div><div class="sk-line"></div><div class="sk-line short"></div></div>').join('');
+      document.getElementById('catalogo-main').innerHTML =
+        Array(2).fill(`<div><div class="sk-head"></div><div class="skeleton-grid">${grid}</div></div>`).join('');
+    }
+
+    // Busca com debounce
     const buscaDebounce = debounce(async (q) => {
-      if (!q.trim()) { renderizarCatalogo(todosLivros); return; }
+      if (!q.trim()) { renderizar(filtrar(todosLivros)); return; }
       const res = await get('/livros?titulo=' + encodeURIComponent(q));
-      if (res && !res.status) renderizarCatalogo(res);
+      if (res && !res.status) renderizar(res);
     }, 400);
-
     document.getElementById('busca').addEventListener('input', e => buscaDebounce(e.target.value));
 
+    // Toolbar sticky
+    window.addEventListener('scroll', () =>
+      document.getElementById('toolbar').classList.toggle('scrolled', scrollY > 80), { passive:true });
+
     async function carregarCatalogo() {
+      mostrarSkeletons();
       const livros = await get('/livros');
       if (!livros || livros.status) return;
       todosLivros = livros;
-      renderizarCatalogo(livros);
+      renderizar(livros);
     }
 
-    function renderizarCatalogo(livros) {
-      const main = document.getElementById('catalogo-main');
-      if (!livros.length) { main.innerHTML = '<p style="padding:20px;color:#888">Nenhum livro encontrado.</p>'; return; }
+    function filtrar(lista) {
+      return catAtiva ? lista.filter(l => l.categoria === catAtiva) : lista;
+    }
 
+    function filtrarCat(cat, btn) {
+      catAtiva = cat;
+      document.querySelectorAll('.chip').forEach(c => c.classList.remove('ativo'));
+      btn.classList.add('ativo');
+      renderizar(filtrar(todosLivros));
+    }
+
+    function renderizar(livros) {
+      const main = document.getElementById('catalogo-main');
+      if (!livros.length) {
+        main.innerHTML = '<div class="empty-state"><div class="empty-icon">📚</div><p>Nenhum livro encontrado.</p></div>';
+        return;
+      }
       const grupos = {};
       livros.forEach(l => {
         const cat = CATEGORIAS[l.categoria] || l.categoria;
         if (!grupos[cat]) grupos[cat] = [];
         grupos[cat].push(l);
       });
-
-      main.innerHTML = Object.entries(grupos).map(([cat, livs]) => `
-        <section class="categoria">
-          <h2>${cat}</h2>
-          <div class="livros-grid-wrapper">
-            <div class="livros-grid">
-              ${livs.map(l => `
-                <div class="livro-card" onclick='abrirModal(${JSON.stringify(l).replace(/'/g,"&#39;")})' data-id="${l.id}">
-                  <div class="capa-livro-box" id="capa-card-${l.id}">
-                    <div style="color:#aaa;font-size:.75rem;text-align:center">⏳</div>
-                  </div>
-                  <h3>${l.titulo}</h3>
-                  <p style="font-size:.82rem;color:#666">${l.autor}</p>
-                  <span class="${l.totalDisponiveis > 0 ? 'badge-disponivel':'badge-indisponivel'}">
-                    ${l.totalDisponiveis > 0 ? l.totalDisponiveis + ' disponíveis' : 'Indisponível'}
-                  </span>
-                </div>
-              `).join('')}
-            </div>
+      main.innerHTML = Object.entries(grupos).map(([cat, livs], gi) => `
+        <section class="categoria" style="animation:fadeUp .5s ${gi*.07}s var(--ease-smooth) both">
+          <h2>${cat} <span class="qt-badge">${livs.length}</span></h2>
+          <div class="livros-grid">
+            ${livs.map(l => `
+              <div class="livro-card ${carrinho.find(c=>c.livro.id===l.id)?'selecionado':''}"
+                   id="card-${l.id}" onclick='abrirModal(${JSON.stringify(l).replace(/'/g,"&#39;")})'>
+                <div class="capa-livro-box capa-skeleton" id="capa-${l.id}"></div>
+                <h3>${l.titulo}</h3>
+                <p class="autor">${l.autor}</p>
+                <span class="${l.totalDisponiveis>0?'badge-disp':'badge-indisp'}">
+                  ${l.totalDisponiveis>0 ? l.totalDisponiveis+' disponíveis' : 'Indisponível'}
+                </span>
+              </div>`).join('')}
           </div>
-        </section>
-      `).join('');
+        </section>`).join('');
 
-      // Carregar capas em paralelo sem bloquear a UI
-      livros.forEach(l => carregarCapaCard(l));
+      livros.forEach(l => carregarCapa(l));
+      setTimeout(() => initTilt('.livro-card'), 100);
     }
 
-    async function carregarCapaCard(livro) {
+    async function carregarCapa(livro) {
       const url = await buscarCapa(livro);
-      const el  = document.getElementById('capa-card-' + livro.id);
-      if (el) el.innerHTML = capaHtml(url, livro.titulo);
+      const el  = document.getElementById('capa-' + livro.id);
+      if (!el) return;
+      el.classList.remove('capa-skeleton');
+      el.innerHTML = url
+        ? `<img src="${url}" alt="${livro.titulo}">`
+        : `<div style="font-size:2rem;display:flex;align-items:center;justify-content:center;height:100%">📖</div>`;
     }
 
-    async function abrirModal(livro) {
-      livroAtual = livro;
+    // Modal
+    function abrirModal(livro) {
+      livroAtual = livro; qtdAtual = 1;
       document.getElementById('modal-titulo').textContent      = livro.titulo;
       document.getElementById('modal-autor').textContent       = livro.autor;
       document.getElementById('modal-editora').textContent     = livro.editora || '-';
       document.getElementById('modal-ano').textContent         = livro.anoPublicacao || '-';
       document.getElementById('modal-disponiveis').textContent = livro.totalDisponiveis;
-      document.getElementById('modal-serie').value = '';
-      document.getElementById('modal-qtd').value   = 1;
-      document.getElementById('feedback-reserva').style.display = 'none';
-      document.getElementById('modal-capa-box').innerHTML = '<div style="color:#888;font-size:.8rem">Carregando...</div>';
-      document.getElementById('modal-livro').style.display = 'flex';
-
-      const url = await buscarCapa(livro);
-      document.getElementById('modal-capa-box').innerHTML = capaHtml(url, livro.titulo, 'width:180px;height:250px');
+      document.getElementById('modal-qtd').textContent         = 1;
+      document.getElementById('modal-serie').value             = '';
+      document.getElementById('modal-fb').style.display        = 'none';
+      document.getElementById('modal-series').innerHTML        =
+        (livro.seriesIndicadas||[]).map(s=>`<span class="serie-badge">${SERIES[s]||s}</span>`).join('');
+      document.getElementById('modal-capa-box').innerHTML      = '⏳';
+      document.getElementById('modal-livro').style.display     = 'flex';
+      buscarCapa(livro).then(url => {
+        const el = document.getElementById('modal-capa-box');
+        if (el) el.innerHTML = url ? `<img src="${url}">` : '📖';
+      });
     }
 
-    function fecharModal() {
-      document.getElementById('modal-livro').style.display = 'none';
-      livroAtual = null;
-    }
+    function fecharModal() { document.getElementById('modal-livro').style.display='none'; livroAtual=null; }
+    function ajustarQtd(d) { qtdAtual=Math.max(1,qtdAtual+d); document.getElementById('modal-qtd').textContent=qtdAtual; }
 
-    async function solicitarReserva() {
+    async function solicitarDireto() {
       const serie = document.getElementById('modal-serie').value;
-      const qtd   = parseInt(document.getElementById('modal-qtd').value);
-      if (!serie) { mostrarFeedback('Selecione a série.', false); return; }
-      if (!qtd || qtd < 1) { mostrarFeedback('Quantidade inválida.', false); return; }
-      const res = await post('/emprestimos', { itens: [{ idLivro: livroAtual.id, serie, quantidade: qtd }] });
-      if (res && res.id) {
-        mostrarFeedback('Reserva solicitada com sucesso!', true);
-        setTimeout(fecharModal, 1500);
-      } else {
-        mostrarFeedback(res?.mensagens?.[0] || 'Erro ao solicitar.', false);
-      }
+      if (!serie) { mostrarFb('Selecione a série.', false); return; }
+      const btn = document.getElementById('btn-solicitar');
+      btn.disabled=true; btn.textContent='Enviando...';
+      const res = await post('/emprestimos', { itens:[{ idLivro:livroAtual.id, serie, quantidade:qtdAtual }] });
+      if (res&&res.id) { mostrarFb('✓ Reserva solicitada!', true); setTimeout(fecharModal, 1400); }
+      else mostrarFb(res?.mensagens?.[0]||'Erro ao solicitar.', false);
+      btn.disabled=false; btn.textContent='Solicitar agora';
     }
 
-    function mostrarFeedback(msg, ok) {
-      const fb = document.getElementById('feedback-reserva');
-      fb.textContent = msg;
-      fb.className = 'feedback ' + (ok ? 'ok' : 'err');
-      fb.style.display = 'block';
+    function adicionarCarrinho() {
+      const serie = document.getElementById('modal-serie').value;
+      if (!serie) { mostrarFb('Selecione a série antes de adicionar.', false); return; }
+      const idx = carrinho.findIndex(c=>c.livro.id===livroAtual.id&&c.serie===serie);
+      if (idx>=0) carrinho[idx].quantidade+=qtdAtual;
+      else carrinho.push({ livro:livroAtual, serie, quantidade:qtdAtual });
+      atualizarFab();
+      mostrarFb('✓ Adicionado ao carrinho!', true);
+      const card=document.getElementById('card-'+livroAtual.id);
+      if (card) card.classList.add('selecionado');
     }
+
+    function atualizarFab() {
+      document.getElementById('cart-badge').textContent = carrinho.length;
+      document.getElementById('cart-fab').classList.toggle('visivel', carrinho.length>0);
+    }
+
+    function abrirCarrinho() {
+      const el = document.getElementById('cart-items');
+      if (!carrinho.length) {
+        el.innerHTML='<div class="empty-state"><div class="empty-icon">🛒</div><p>Carrinho vazio.</p></div>';
+      } else {
+        el.innerHTML = carrinho.map((c,i)=>`
+          <div class="cart-item">
+            <div class="cart-capa" id="ccapa-${i}">📖</div>
+            <div class="cart-info">
+              <strong>${c.livro.titulo}</strong>
+              <span>${SERIES[c.serie]||c.serie} · ${c.quantidade} exemplar(es)</span>
+            </div>
+            <button class="cart-remove" onclick="removerCarrinho(${i})">✕</button>
+          </div>`).join('');
+        carrinho.forEach((c,i) => buscarCapa(c.livro).then(url=>{
+          const el=document.getElementById('ccapa-'+i);
+          if(el&&url) el.innerHTML=`<img src="${url}">`;
+        }));
+      }
+      document.getElementById('cart-fb').style.display='none';
+      document.getElementById('cart-modal').style.display='flex';
+    }
+
+    function fecharCarrinho() { document.getElementById('cart-modal').style.display='none'; }
+
+    function removerCarrinho(i) {
+      const id=carrinho[i].livro.id; carrinho.splice(i,1); atualizarFab(); abrirCarrinho();
+      if (!carrinho.find(c=>c.livro.id===id)) { const card=document.getElementById('card-'+id); if(card) card.classList.remove('selecionado'); }
+    }
+
+    async function enviarCarrinho() {
+      const btn=document.getElementById('btn-enviar-tudo'), fb=document.getElementById('cart-fb');
+      if (!carrinho.length) return;
+      btn.disabled=true; btn.textContent='Enviando...';
+      const res = await post('/emprestimos', { itens: carrinho.map(c=>({ idLivro:c.livro.id, serie:c.serie, quantidade:c.quantidade })) });
+      fb.style.display='block';
+      if (res&&res.id) {
+        fb.className='modal-fb ok'; fb.textContent=`✓ ${carrinho.length} livro(s) solicitado(s)! Protocolo #${res.id}`;
+        carrinho=[]; atualizarFab();
+        document.querySelectorAll('.livro-card.selecionado').forEach(c=>c.classList.remove('selecionado'));
+        setTimeout(fecharCarrinho, 1800);
+      } else {
+        fb.className='modal-fb err'; fb.textContent=res?.mensagens?.[0]||'Erro ao enviar.';
+      }
+      btn.disabled=false; btn.textContent='Enviar todas as reservas';
+    }
+
+    function mostrarFb(msg, ok) {
+      const fb=document.getElementById('modal-fb');
+      fb.textContent=msg; fb.className='modal-fb '+(ok?'ok':'err'); fb.style.display='block';
+    }
+
+    document.getElementById('modal-livro').addEventListener('click', e=>{ if(e.target===e.currentTarget) fecharModal(); });
+    document.getElementById('cart-modal').addEventListener('click',  e=>{ if(e.target===e.currentTarget) fecharCarrinho(); });
 
     carregarCatalogo();
   </script>
