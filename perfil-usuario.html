@@ -1,15 +1,23 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-  <meta charset="UTF-8">
-  <title>Meu Perfil - Ler e Educar</title>
-  <link rel="stylesheet" href="css/layout.css">
-  <link rel="stylesheet" href="css/perfil-usuario.css">
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Meu Perfil | Ler e Educar</title>
+  <link rel="stylesheet" href="css/design-system.css"><link rel="stylesheet" href="css/layout.css">
   <style>
-    .stat-box { display:flex;gap:16px;margin:16px 0;flex-wrap:wrap; }
-    .stat { background:#f0f4ff;border-radius:10px;padding:14px 24px;text-align:center;min-width:120px; }
-    .stat strong { display:block;font-size:1.6rem;color:#2c3e50; }
-    .stat span   { font-size:.85rem;color:#666; }
+    .page-content { padding:32px 40px; max-width:900px; margin:0 auto; }
+    .perfil-hero { display:flex; align-items:center; gap:24px; background:white; border-radius:var(--radius-xl); padding:32px; border:1px solid rgba(155,123,93,.1); box-shadow:var(--shadow-md); margin-bottom:28px; animation:fadeUp .5s both; }
+    .avatar { width:72px; height:72px; border-radius:50%; background:linear-gradient(135deg,var(--primary-dark),var(--primary)); display:flex; align-items:center; justify-content:center; font-family:var(--font-display); font-size:1.8rem; font-weight:900; color:white; flex-shrink:0; box-shadow:0 4px 16px rgba(155,123,93,.25); }
+    .hero-info h1 { font-family:var(--font-display); font-size:1.4rem; font-weight:700; color:var(--text-dark); margin-bottom:2px; }
+    .hero-info .inst { font-size:.9rem; color:var(--text-muted); margin-bottom:8px; }
+    .hero-badge { display:inline-block; padding:4px 14px; border-radius:50px; background:rgba(155,123,93,.1); color:var(--primary-dark); font-size:.75rem; font-weight:700; border:1px solid rgba(155,123,93,.2); }
+    .stats-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:14px; margin-bottom:28px; }
+    .stat-card { background:white; border-radius:var(--radius-lg); padding:20px 16px; border:1px solid rgba(155,123,93,.1); box-shadow:var(--shadow-sm); text-align:center; animation:fadeUp .5s both; transition:transform .3s var(--ease-bounce),box-shadow .3s; }
+    .stat-card:hover { transform:translateY(-4px); box-shadow:var(--shadow-md); }
+    .stat-num { font-family:var(--font-display); font-size:2rem; font-weight:900; color:var(--primary-dark); line-height:1; margin-bottom:4px; }
+    .stat-label { font-size:.78rem; color:var(--text-muted); }
+    .stat-icon { font-size:1.4rem; margin-bottom:6px; }
+    @media(max-width:768px){ .page-content{padding:20px;} .perfil-hero{flex-direction:column;text-align:center;} .stats-grid{grid-template-columns:1fr 1fr;} }
   </style>
 </head>
 <body>
@@ -20,75 +28,55 @@
     <a href="reservas.html"       class="menu-item">MINHAS RESERVAS</a>
     <a href="devolutivas.html"    class="menu-item">DEVOLUÇÕES</a>
   </nav>
-
   <header class="header">
     <div class="menu-hamburguer" onclick="toggleMenu()"><span></span><span></span><span></span></div>
-    <div class="logo-header">
-      <img src="img/logo-capa-e-barra-de-pesquisa.png" alt="Logo" class="logo-img">
-      <span class="logo-text">LER E EDUCAR</span>
-    </div>
-    <input type="text" placeholder="Buscar livro..." class="busca">
-    <div class="header-direita">
-      <div class="usuario">Olá, <span id="nome-usuario-logado">Gestor</span></div>
-      <a href="#" class="sair" onclick="Auth.logout()">SAIR</a>
-    </div>
+    <div class="logo-header"><img src="img/logo-capa-e-barra-de-pesquisa.png" alt="Logo" class="logo-img"><span class="logo-text">LER E EDUCAR</span></div>
+    <input type="text" placeholder="Buscar..." class="busca">
+    <div class="header-direita"><div class="usuario">Olá, <span id="nome-usuario-logado">Gestor</span></div><a href="#" class="sair" onclick="Auth.logout()">SAIR</a></div>
   </header>
-
-  <main class="fundo-canva fundo-perfil">
-    <div class="perfil-container">
-      <h1 class="perfil-titulo" id="titulo-perfil">MEU PERFIL</h1>
-      <p class="perfil-sub">Meus dados</p>
-
-      <form class="perfil-formulario">
-        <div class="campo-grupo">
-          <label>Nome completo</label>
-          <input type="text" id="campo-nome" disabled>
-        </div>
-        <div class="campo-grupo">
-          <label>Instituição</label>
-          <input type="text" id="campo-inst" disabled>
-        </div>
-        <div class="campo-grupo">
-          <label>Tipo de usuário</label>
-          <input type="text" id="campo-tipo" disabled>
-        </div>
-      </form>
-
-      <div class="stat-box" id="stats">
-        <div class="stat"><strong id="qt-pendente">-</strong><span>Solicitações</span></div>
-        <div class="stat"><strong id="qt-ativo">-</strong><span>Reservas ativas</span></div>
-        <div class="stat"><strong id="qt-devolvido">-</strong><span>Devolvidos</span></div>
+  <div class="page-content">
+    <div class="perfil-hero">
+      <div class="avatar" id="avatar-letra">G</div>
+      <div class="hero-info">
+        <h1 id="hero-nome">Carregando...</h1>
+        <p class="inst" id="hero-inst">Carregando instituição...</p>
+        <span class="hero-badge">Gestor Escolar</span>
       </div>
     </div>
-  </main>
-
-  <script src="js/api.js"></script>
-  <script src="js/layout.js"></script>
+    <div class="stats-grid">
+      <div class="stat-card" style="animation-delay:.05s"><div class="stat-icon">⏳</div><div class="stat-num" id="qt-pend">-</div><div class="stat-label">Solicitações</div></div>
+      <div class="stat-card" style="animation-delay:.10s"><div class="stat-icon">✅</div><div class="stat-num" id="qt-ativ">-</div><div class="stat-label">Ativas</div></div>
+      <div class="stat-card" style="animation-delay:.15s"><div class="stat-icon">📦</div><div class="stat-num" id="qt-dev">-</div><div class="stat-label">Devolvidas</div></div>
+    </div>
+  </div>
+  <script src="js/api.js"></script><script src="js/layout.js"></script><script src="js/animations.js"></script>
   <script>
-    Auth.exigirLogin();
-    Auth.exibirNome();
+    Auth.exigirLogin(); Auth.exibirNome();
+    initAnimations({ tilt:false });
 
     async function carregar() {
-      document.getElementById('campo-nome').value = Auth.nome() || '-';
-      document.getElementById('campo-tipo').value = Auth.isAdmin() ? 'Administrador' : 'Gestor Escolar';
+      const nome = Auth.nome() || 'Gestor';
+      const inst = Auth.nomeInstituicao();
 
-      const emprestimos = await get('/emprestimos/meus');
-      if (emprestimos && !emprestimos.status) {
-        // Pegar nome da instituição do primeiro empréstimo
-        const primeiro = emprestimos.find(e => e.nomeInstituicao);
-        document.getElementById('campo-inst').value = primeiro?.nomeInstituicao || '-';
-        document.getElementById('titulo-perfil').textContent = 'MEU PERFIL — ' + (primeiro?.nomeInstituicao || Auth.nome());
+      document.getElementById('hero-nome').textContent = nome;
+      document.getElementById('avatar-letra').textContent = nome[0].toUpperCase();
 
-        const pendentes  = emprestimos.filter(e => e.status === 'PENDENTE').length;
-        const ativos     = emprestimos.filter(e => e.status === 'APROVADO').length;
-        const devolvidos = emprestimos.filter(e => e.status === 'DEVOLVIDO').length;
+      // Instituição vem do localStorage (salva no login)
+      document.getElementById('hero-inst').textContent = inst || 'Faça login novamente para ver a instituição';
 
-        document.getElementById('qt-pendente').textContent  = pendentes;
-        document.getElementById('qt-ativo').textContent     = ativos;
-        document.getElementById('qt-devolvido').textContent = devolvidos;
+      // Estatísticas de empréstimos
+      const empr = await get('/emprestimos/meus');
+      if (empr && !empr.status) {
+        document.getElementById('qt-pend').textContent = empr.filter(e=>e.status==='PENDENTE').length;
+        document.getElementById('qt-ativ').textContent = empr.filter(e=>e.status==='APROVADO').length;
+        document.getElementById('qt-dev').textContent  = empr.filter(e=>e.status==='DEVOLVIDO').length;
+        // Fallback se não veio no login
+        if (!inst) {
+          const primeiro = empr.find(e=>e.nomeInstituicao);
+          if (primeiro) document.getElementById('hero-inst').textContent = primeiro.nomeInstituicao;
+        }
       }
     }
-
     carregar();
   </script>
 </body>
