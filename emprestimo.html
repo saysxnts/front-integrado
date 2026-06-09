@@ -391,7 +391,7 @@
       const res = await patch('/emprestimos/' + id + '/aprovar');
       const fb = document.getElementById('fbi-' + id);
       fb.style.display = 'inline';
-      if (res && !res.status) {
+      if (res && res.id) {
         fb.className = 'fb-inline fbi-ok'; fb.textContent = '✓ Aprovado!';
         setTimeout(carregar, 1000);
       } else {
