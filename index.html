@@ -337,20 +337,22 @@
 
     // Buscar stats reais da API
     async function carregarStats() {
-      const [livros, inst] = await Promise.all([
-        fetch('https://ler-e-educar-api.onrender.com/api/livros').then(r=>r.json()).catch(()=>[]),
-        fetch('https://ler-e-educar-api.onrender.com/api/instituicoes').then(r=>r.json()).catch(()=>[])
-      ]);
+      try {
+        const res  = await fetch('https://ler-e-educar-api.onrender.com/api/stats');
+        const data = await res.json();
 
-      if (Array.isArray(livros)) {
-        const n = livros.length;
-        animarContador('s-livros', n);
-        animarContador('qt-livros-hero', n, ' livros');
-      }
-      if (Array.isArray(inst)) {
-        const n = inst.length;
-        animarContador('s-inst', n);
-        animarContador('qt-inst-hero', n + ' escolas');
+        if (data.totalLivros !== undefined) {
+          animarContador('s-livros', data.totalLivros);
+          animarContador('qt-livros-hero', data.totalLivros, ' livros');
+        }
+        if (data.totalInstituicoes !== undefined) {
+          animarContador('s-inst', data.totalInstituicoes);
+          animarContador('qt-inst-hero', data.totalInstituicoes + ' escolas');
+        }
+      } catch (e) {
+        // API pode estar acordando (Render free tier) — tenta novamente em 5s
+        console.warn('Stats indisponível, tentando novamente...', e);
+        setTimeout(carregarStats, 5000);
       }
     }
 
