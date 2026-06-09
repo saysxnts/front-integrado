@@ -4,15 +4,19 @@ const API_BASE = 'https://ler-e-educar-api.onrender.com/api';
 // ─── AUTH ────────────────────────────────────────────────────────
 const Auth = {
   salvar(dados) {
-    localStorage.setItem('token',     dados.token);
-    localStorage.setItem('tipo',      dados.tipoUsuario);
-    localStorage.setItem('nome',      dados.nome);
-    localStorage.setItem('idUsuario', dados.idUsuario);
+    localStorage.setItem('token',           dados.token);
+    localStorage.setItem('tipo',            dados.tipoUsuario);
+    localStorage.setItem('nome',            dados.nome);
+    localStorage.setItem('idUsuario',       dados.idUsuario);
+    localStorage.setItem('nomeInstituicao', dados.nomeInstituicao || '');
+    localStorage.setItem('idInstituicao',   dados.idInstituicao   || '');
   },
-  token()  { return localStorage.getItem('token'); },
-  tipo()   { return localStorage.getItem('tipo'); },
-  nome()   { return localStorage.getItem('nome'); },
-  isAdmin(){ return Auth.tipo() === 'ADMINISTRADOR'; },
+  token()          { return localStorage.getItem('token'); },
+  tipo()           { return localStorage.getItem('tipo'); },
+  nome()           { return localStorage.getItem('nome'); },
+  nomeInstituicao(){ return localStorage.getItem('nomeInstituicao') || ''; },
+  idInstituicao()  { return localStorage.getItem('idInstituicao')   || ''; },
+  isAdmin()        { return Auth.tipo() === 'ADMINISTRADOR'; },
   logout() { localStorage.clear(); window.location.href = 'index.html'; },
   exigirLogin() { if (!Auth.token()) window.location.href = 'login.html'; },
   exibirNome() {
