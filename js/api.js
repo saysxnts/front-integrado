@@ -79,32 +79,10 @@ function debounce(fn, ms = 400) {
 }
 
 // ─── CAPAS DE LIVROS ─────────────────────────────────────────────
-// Estratégia em cascata com throttle para evitar rate limiting:
-//   1. URL salva no banco (instantâneo)
-//   2. Open Library por ISBN
-//   3. Open Library por título (evita 429 do Google Books)
-//   4. Google Books como último recurso (com fila throttlada)
+// Estratégia: Open Library por ISBN → Open Library por título
+// Google Books REMOVIDO (rate limit 429)
 // ─────────────────────────────────────────────────────────────────
 const CAPA_CACHE = {};
-
-// Fila de requisições ao Google Books para evitar 429
-const _gbQueue = [];
-let _gbRunning = false;
-async function _gbEnqueue(fn) {
-  return new Promise((resolve) => {
-    _gbQueue.push(() => fn().then(resolve));
-    if (!_gbRunning) _gbDrain();
-  });
-}
-async function _gbDrain() {
-  _gbRunning = true;
-  while (_gbQueue.length) {
-    const task = _gbQueue.shift();
-    await task();
-    await new Promise(r => setTimeout(r, 400)); // 400ms entre requests
-  }
-  _gbRunning = false;
-}
 
 async function buscarCapa(livro) {
   const chave = livro.id || livro.titulo;
@@ -112,48 +90,41 @@ async function buscarCapa(livro) {
 
   let url = null;
 
-  // 1. URL salva no banco
+  // 1. URL salva no banco — usa direto
   if (livro.imagemCapaUrl) {
     CAPA_CACHE[chave] = livro.imagemCapaUrl;
     return livro.imagemCapaUrl;
   }
 
-  // 2. Open Library por ISBN (sem rate limit, rápido)
+  // 2. Open Library por ISBN
   if (livro.isbn) {
     const isbn = livro.isbn.replace(/[^0-9X]/gi, '');
     const candidato = `https://covers.openlibrary.org/b/isbn/${isbn}-M.jpg`;
-    if (await checarImagemDimensao(candidato)) url = candidato;
+    if (await imagemExiste(candidato)) url = candidato;
   }
 
-  // 3. Open Library por título (gratuito, sem rate limit)
+  // 3. Open Library por título — cover_i > 0 GARANTE que existe
   if (!url) url = await buscarCapaOpenLibrary(livro.titulo);
-
-  // 4. Google Books via fila throttlada (último recurso)
-  if (!url) {
-    url = await _gbEnqueue(() => buscarCapaGoogleBooks(livro.titulo, livro.autor));
-  }
 
   CAPA_CACHE[chave] = url;
   return url;
 }
 
-// Open Library por título — sem rate limit, ótima cobertura
-// Nota: se cover_i > 0, a capa EXISTE — não precisamos verificar dimensões
+// Open Library por título — confia no cover_i sem verificar imagem
 async function buscarCapaOpenLibrary(titulo) {
   try {
-    const q = encodeURIComponent(titulo);
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), 6000);
     const res = await fetch(
-      `https://openlibrary.org/search.json?title=${q}&limit=5&fields=cover_i,title`,
+      `https://openlibrary.org/search.json?title=${encodeURIComponent(titulo)}&limit=5&fields=cover_i`,
       { signal: controller.signal }
     );
     clearTimeout(timer);
     if (!res.ok) return null;
     const data = await res.json();
     for (const doc of (data.docs || [])) {
+      // cover_i > 0 = capa existe no Open Library, retorna direto
       if (doc.cover_i && doc.cover_i > 0) {
-        // cover_i > 0 garante que a capa existe — retorna direto sem verificação
         return `https://covers.openlibrary.org/b/id/${doc.cover_i}-M.jpg`;
       }
     }
@@ -161,36 +132,15 @@ async function buscarCapaOpenLibrary(titulo) {
   return null;
 }
 
-// Google Books — com throttle via fila, evita 429
-async function buscarCapaGoogleBooks(titulo, autor) {
-  try {
-    const q = encodeURIComponent(titulo + (autor ? ' ' + autor : ''));
-    const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), 6000);
-    const res = await fetch(
-      `https://www.googleapis.com/books/v1/volumes?q=${q}&maxResults=3&printType=books`,
-      { signal: controller.signal }
-    );
-    clearTimeout(timer);
-    if (!res.ok) return null;
-    const data = await res.json();
-    for (const item of (data.items || [])) {
-      const thumb = item?.volumeInfo?.imageLinks?.thumbnail;
-      if (thumb) return thumb.replace('http://', 'https://').replace('zoom=1', 'zoom=2');
-    }
-  } catch { }
-  return null;
-}
-
-// Verifica se imagem é real (> 1x1px)
-function checarImagemDimensao(url) {
+// Verifica se URL de imagem existe (para ISBN que pode retornar 1x1)
+function imagemExiste(url) {
   return new Promise(resolve => {
     const img = new Image();
     let done = false;
     const fim = (r) => { if (!done) { done = true; resolve(r); } };
     img.onload  = () => fim(img.naturalWidth > 1 && img.naturalHeight > 1);
     img.onerror = () => fim(false);
-    setTimeout(() => fim(false), 6000);
+    setTimeout(() => fim(false), 5000);
     img.src = url;
   });
 }
