@@ -80,14 +80,7 @@
     <div class="logo-header"><img src="img/logo-capa-e-barra-de-pesquisa.png" alt="Logo" class="logo-img"><span class="logo-text">LER E EDUCAR</span></div>
     <input type="text" placeholder="Buscar..." class="busca">
     <div class="header-direita">
-      <!-- SINO DE NOTIFICAÇÕES -->
-      <div class="notif-wrap">
-        <button class="notif-btn" id="notif-btn" title="Notificações">🔔
-          <span class="notif-badge" id="notif-badge">0</span>
-        </button>
-        <div class="notif-painel" id="notif-painel"></div>
-      </div>
-      <div class="usuario">Olá, <span id="nome-usuario-logado">Gestor</span></div>
+<div class="usuario">Olá, <span id="nome-usuario-logado">Gestor</span></div>
       <a href="#" class="sair" onclick="Auth.logout()">SAIR</a>
     </div>
   </header>
@@ -102,11 +95,10 @@
   <script src="js/api.js"></script>
   <script src="js/layout.js"></script>
   <script src="js/animations.js"></script>
-  <script src="js/notifications.js"></script>
   <script>
     Auth.exigirLogin(); Auth.exibirNome();
     initAnimations({ tilt:false });
-    Notificacoes.init();
+
 
     // ── Tracker de logística por status ──
     // PENDENTE       → passo 1 ativo
