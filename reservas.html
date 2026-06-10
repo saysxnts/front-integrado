@@ -1,31 +1,72 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-  <meta charset="UTF-8">
-  <title>Minhas Reservas - Ler e Educar</title>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Minhas Reservas | Ler e Educar</title>
+  <link rel="stylesheet" href="css/design-system.css">
   <link rel="stylesheet" href="css/layout.css">
-  <link rel="stylesheet" href="css/reservas.css">
   <style>
-    .badge-pendente  { background:#f39c12;color:#fff;padding:2px 8px;border-radius:12px;font-size:.8rem; }
-    .badge-ativa     { background:#27ae60;color:#fff;padding:2px 8px;border-radius:12px;font-size:.8rem; }
-    .badge-devolvido { background:#7f8c8d;color:#fff;padding:2px 8px;border-radius:12px;font-size:.8rem; }
-    .sem-dados       { color:#888;font-style:italic;padding:12px 0; }
+    .page-content { padding:32px 40px 60px; max-width:960px; margin:0 auto; }
+    .page-title { font-family:var(--font-display); font-size:1.6rem; font-weight:700; color:var(--text-dark); margin-bottom:28px; }
+    .secao { margin-bottom:36px; }
+    .secao-titulo { font-family:var(--font-display); font-size:1.05rem; font-weight:700; color:var(--text-dark); margin-bottom:14px; padding-bottom:10px; border-bottom:2px solid var(--beige); display:flex; align-items:center; gap:10px; }
+    .secao-titulo::before { content:''; width:4px; height:18px; background:linear-gradient(to bottom,var(--primary),var(--accent)); border-radius:2px; }
+
+    .reserva-card { background:white; border-radius:var(--radius-lg); border:1px solid rgba(155,123,93,.1); box-shadow:var(--shadow-sm); overflow:hidden; margin-bottom:14px; transition:transform .3s var(--ease-bounce),box-shadow .3s; animation:fadeUp .4s both; }
+    .reserva-card:hover { transform:translateY(-3px); box-shadow:var(--shadow-md); }
+    .card-header { display:flex; align-items:center; justify-content:space-between; padding:14px 20px; background:var(--bg-warm); border-bottom:1px solid var(--beige); }
+    .proto-num { font-family:var(--font-display); font-size:.95rem; font-weight:700; color:var(--text-dark); }
+    .card-meta { font-size:.78rem; color:var(--text-muted); }
+    .status-badge { padding:4px 12px; border-radius:50px; font-size:.72rem; font-weight:700; }
+    .s-PENDENTE { background:rgba(243,156,18,.12); color:#8a5e00; border:1px solid rgba(243,156,18,.25); }
+    .s-APROVADO { background:rgba(39,174,96,.12);  color:#1a7a40; border:1px solid rgba(39,174,96,.2); }
+    .s-DEVOLVIDO{ background:rgba(127,140,141,.12); color:#5a6464; border:1px solid rgba(127,140,141,.2); }
+
+    .card-body { padding:14px 20px; }
+    .itens-lista { list-style:none; display:flex; flex-direction:column; gap:5px; margin-bottom:14px; }
+    .item-emp { display:flex; align-items:center; gap:8px; padding:7px 12px; background:var(--bg-warm); border-radius:var(--radius-md); font-size:.83rem; }
+    .item-emp .tit { font-weight:600; color:var(--text-dark); flex:1; }
+    .item-emp .serie { font-size:.73rem; background:var(--beige); padding:2px 8px; border-radius:50px; color:var(--text-muted); flex-shrink:0; }
+
+    /* ── Tracker de logística ── */
+    .logistica-tracker {
+      padding: 16px 20px; border-top: 1px solid var(--beige);
+      background: var(--bg);
+    }
+    .tracker-label { font-size:.7rem; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--text-muted); margin-bottom:12px; }
+    .tracker-steps {
+      display: flex; align-items: center; gap: 0;
+    }
+    .t-step {
+      display: flex; flex-direction: column; align-items: center; gap: 4px;
+      flex: 1; position: relative;
+    }
+    .t-dot {
+      width: 28px; height: 28px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: .75rem; font-weight: 700; z-index: 1;
+      transition: all .3s;
+    }
+    .t-dot.done    { background: var(--primary-dark); color: white; }
+    .t-dot.active  { background: white; border: 2px solid var(--primary-dark); color: var(--primary-dark); box-shadow: 0 0 0 4px rgba(155,123,93,.15); }
+    .t-dot.pending { background: var(--beige); color: var(--text-muted); border: 2px solid transparent; }
+    .t-name { font-size:.68rem; color: var(--text-muted); text-align: center; line-height: 1.2; max-width: 60px; font-weight: 500; }
+    .t-name.done   { color: var(--primary-dark); font-weight: 700; }
+    .t-name.active { color: var(--text-dark); font-weight: 700; }
+
+    .t-line {
+      flex: 1; height: 2px; margin-top: -16px;
+      background: var(--beige); position: relative; z-index: 0;
+      transition: background .4s;
+    }
+    .t-line.done { background: var(--primary-dark); }
+
+    .sem-dados { padding:28px; text-align:center; color:var(--text-muted); font-size:.88rem; }
+
+    @media(max-width:768px){ .page-content{padding:20px;} .tracker-steps{ gap:0; } .t-name{ font-size:.62rem; max-width:50px; } }
   </style>
 </head>
 <body>
-  <header class="header">
-    <div class="menu-hamburguer" onclick="toggleMenu()"><span></span><span></span><span></span></div>
-    <div class="logo-header">
-      <img src="img/logo-capa-e-barra-de-pesquisa.png" alt="Logo" class="logo-img">
-      <span class="logo-text">LER E EDUCAR</span>
-    </div>
-    <input type="text" placeholder="Buscar livro..." class="busca">
-    <div class="header-direita">
-      <div class="usuario">Olá, <span id="nome-usuario-logado">Gestor</span></div>
-      <a href="#" class="sair" onclick="Auth.logout()">SAIR</a>
-    </div>
-  </header>
-
   <nav id="menu-lateral" class="menu-lateral">
     <div class="fechar-menu" onclick="toggleMenu()">✕</div>
     <a href="catalogo.html"       class="menu-item">CATÁLOGO</a>
@@ -34,76 +75,121 @@
     <a href="devolutivas.html"    class="menu-item">DEVOLUÇÕES</a>
   </nav>
 
-  <main class="reservas-bg fundo-canva">
-    <div class="reservas-container">
-      <h1 class="reservas-titulo">MINHAS RESERVAS</h1>
-
-      <section class="bloco-reserva">
-        <h2>SOLICITAÇÕES:</h2>
-        <div id="lista-pendentes"><p class="sem-dados">Carregando...</p></div>
-      </section>
-
-      <section class="bloco-reserva">
-        <h2>RESERVAS:</h2>
-        <div id="lista-ativas"><p class="sem-dados">Carregando...</p></div>
-      </section>
+  <header class="header">
+    <div class="menu-hamburguer" onclick="toggleMenu()"><span></span><span></span><span></span></div>
+    <div class="logo-header"><img src="img/logo-capa-e-barra-de-pesquisa.png" alt="Logo" class="logo-img"><span class="logo-text">LER E EDUCAR</span></div>
+    <input type="text" placeholder="Buscar..." class="busca">
+    <div class="header-direita">
+      <!-- SINO DE NOTIFICAÇÕES -->
+      <div class="notif-wrap">
+        <button class="notif-btn" id="notif-btn" title="Notificações">🔔
+          <span class="notif-badge" id="notif-badge">0</span>
+        </button>
+        <div class="notif-painel" id="notif-painel"></div>
+      </div>
+      <div class="usuario">Olá, <span id="nome-usuario-logado">Gestor</span></div>
+      <a href="#" class="sair" onclick="Auth.logout()">SAIR</a>
     </div>
-  </main>
+  </header>
+
+  <div class="page-content">
+    <h1 class="page-title">Minhas Reservas</h1>
+    <div class="secao"><div class="secao-titulo">Solicitações Pendentes</div><div id="lista-pend"><p class="sem-dados">Carregando...</p></div></div>
+    <div class="secao"><div class="secao-titulo">Reservas Ativas</div><div id="lista-ativ"><p class="sem-dados">Carregando...</p></div></div>
+    <div class="secao"><div class="secao-titulo">Histórico</div><div id="lista-hist"><p class="sem-dados">Carregando...</p></div></div>
+  </div>
 
   <script src="js/api.js"></script>
   <script src="js/layout.js"></script>
+  <script src="js/animations.js"></script>
+  <script src="js/notifications.js"></script>
   <script>
-    Auth.exigirLogin();
-    Auth.exibirNome();
+    Auth.exigirLogin(); Auth.exibirNome();
+    initAnimations({ tilt:false });
+    Notificacoes.init();
+
+    // ── Tracker de logística por status ──
+    // PENDENTE       → passo 1 ativo
+    // APROVADO       → passo 2 ativo (em envio)
+    // APROVADO+uso   → passo 3 ativo (entregue/em uso)
+    // DEVOLVIDO      → passo 4 concluído
+    function trackerHtml(e) {
+      // Determina etapa atual
+      // PENDENTE = etapa 1, APROVADO sem confirmar = etapa 2,
+      // APROVADO com vencimento futuro (confirou uso) = etapa 3, DEVOLVIDO = etapa 4
+      let etapa = 1;
+      if (e.status === 'APROVADO')  etapa = 2;
+      if (e.status === 'DEVOLVIDO') etapa = 4;
+
+      const passos = [
+        { label: 'Solicitado',   icon: '📋' },
+        { label: 'Aprovado',     icon: '✓' },
+        { label: 'Em trânsito',  icon: '📦' },
+        { label: 'Entregue',     icon: '🏫' },
+      ];
+
+      const steps = passos.map((p, i) => {
+        const num = i + 1;
+        const cls = num < etapa ? 'done' : num === etapa ? 'active' : 'pending';
+        return `
+          <div class="t-step">
+            <div class="t-dot ${cls}">${num < etapa ? '✓' : p.icon}</div>
+            <div class="t-name ${cls}">${p.label}</div>
+          </div>
+          ${i < passos.length - 1 ? `<div class="t-line ${num < etapa ? 'done' : ''}"></div>` : ''}`;
+      }).join('');
+
+      const statusMsg = {
+        1: 'Aguardando aprovação do administrador.',
+        2: 'Aprovado! Os livros serão enviados em breve.',
+        3: 'Livros em trânsito para sua instituição.',
+        4: 'Devolução registrada. Obrigado!'
+      };
+
+      return `
+        <div class="logistica-tracker">
+          <div class="tracker-label">📍 Acompanhar logística</div>
+          <div class="tracker-steps">${steps}</div>
+          <p style="font-size:.75rem;color:var(--text-muted);margin-top:10px;text-align:center">${statusMsg[etapa]}</p>
+        </div>`;
+    }
+
+    function itensHtml(itens) {
+      return (itens||[]).map(it=>`
+        <li class="item-emp">
+          <span>📖</span>
+          <span class="tit">${it.tituloLivro}</span>
+          <span class="serie">${SERIES[it.serieDestino]||it.serieDestino} · ${it.quantidade}x</span>
+        </li>`).join('');
+    }
+
+    function cardHtml(e, i, mostrarTracker=true) {
+      return `
+        <div class="reserva-card" style="animation-delay:${i*.06}s">
+          <div class="card-header">
+            <div><span class="proto-num">Protocolo #${e.id}</span> <span class="card-meta">${formatarData(e.dataEmissao)}</span></div>
+            <span class="status-badge s-${e.status}">${{PENDENTE:'Pendente',APROVADO:'Ativo',DEVOLVIDO:'Devolvido'}[e.status]||e.status}</span>
+          </div>
+          <div class="card-body">
+            <ul class="itens-lista">${itensHtml(e.itens)}</ul>
+            ${e.dataVencimento&&e.status==='APROVADO'?`<p style="font-size:.78rem;color:var(--text-muted)">Vencimento: <strong style="color:var(--text-dark)">${formatarData(e.dataVencimento)}</strong></p>`:''}
+          </div>
+          ${mostrarTracker ? trackerHtml(e) : ''}
+        </div>`;
+    }
 
     async function carregar() {
-      const emprestimos = await get('/emprestimos/meus');
-      if (!emprestimos || emprestimos.status) return;
+      const empr = await get('/emprestimos/meus');
+      if (!empr || empr.status) return;
 
-      const pendentes = emprestimos.filter(e => e.status === 'PENDENTE');
-      const ativos    = emprestimos.filter(e => e.status === 'APROVADO');
+      const pend = empr.filter(e=>e.status==='PENDENTE');
+      const ativ = empr.filter(e=>e.status==='APROVADO');
+      const hist = empr.filter(e=>e.status==='DEVOLVIDO');
 
-      renderPendentes(pendentes);
-      renderAtivos(ativos);
-    }
-
-    function renderPendentes(lista) {
-      const el = document.getElementById('lista-pendentes');
-      if (!lista.length) { el.innerHTML = '<p class="sem-dados">Nenhuma solicitação pendente.</p>'; return; }
-      el.innerHTML = lista.map(e => `
-        <div class="item-livro">
-          <div class="capa-placeholder" style="width:80px;height:110px;flex-shrink:0">Capa</div>
-          <div class="detalhes-livro">
-            <h3 class="titulo-livro">Protocolo #${e.id}</h3>
-            <p>Solicitado em: ${formatarData(e.dataCriacao)}</p>
-            <div class="acoes-livro">
-              <p class="status-livro">STATUS: <span class="badge-pendente">Pendente</span></p>
-            </div>
-          </div>
-        </div>
-      `).join('');
-    }
-
-    function renderAtivos(lista) {
-      const el = document.getElementById('lista-ativas');
-      if (!lista.length) { el.innerHTML = '<p class="sem-dados">Nenhuma reserva ativa.</p>'; return; }
-      el.innerHTML = lista.map(e => `
-        <div class="item-livro">
-          <div class="capa-placeholder" style="width:80px;height:110px;flex-shrink:0">Capa</div>
-          <div class="detalhes-livro">
-            <h3 class="titulo-livro">Protocolo #${e.id}</h3>
-            <p>Aprovado em: ${formatarData(e.dataCriacao)}</p>
-            <div class="acoes-livro">
-              <p class="status-livro">STATUS: <span class="badge-ativa">Ativa</span></p>
-            </div>
-          </div>
-        </div>
-      `).join('');
-    }
-
-    function formatarData(iso) {
-      if (!iso) return '-';
-      return new Date(iso).toLocaleDateString('pt-BR');
+      const el = id => document.getElementById(id);
+      el('lista-pend').innerHTML = pend.length ? pend.map((e,i)=>cardHtml(e,i)).join('') : '<p class="sem-dados">Nenhuma solicitação pendente.</p>';
+      el('lista-ativ').innerHTML = ativ.length ? ativ.map((e,i)=>cardHtml(e,i)).join('') : '<p class="sem-dados">Nenhuma reserva ativa.</p>';
+      el('lista-hist').innerHTML = hist.length ? hist.map((e,i)=>cardHtml(e,i,false)).join('') : '<p class="sem-dados">Nenhuma devolução registrada.</p>';
     }
 
     carregar();

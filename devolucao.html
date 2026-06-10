@@ -13,43 +13,46 @@
     .secao-titulo::before{content:'';width:4px;height:18px;background:linear-gradient(to bottom,var(--primary),var(--accent));border-radius:2px;}
     .protocolo-card{background:white;border-radius:var(--radius-lg);border:1px solid rgba(155,123,93,.1);box-shadow:var(--shadow-sm);overflow:hidden;margin-bottom:12px;transition:transform .3s var(--ease-bounce),box-shadow .3s;animation:fadeUp .4s both;}
     .protocolo-card:hover{transform:translateY(-3px);box-shadow:var(--shadow-md);}
-    .card-header{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;background:var(--bg-warm);border-bottom:1px solid var(--beige);}
+    .card-header{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;background:var(--bg-warm);border-bottom:1px solid var(--beige);flex-wrap:wrap;gap:8px;}
     .proto-num{font-family:var(--font-display);font-size:.95rem;font-weight:700;color:var(--text-dark);}
     .card-meta{font-size:.78rem;color:var(--text-muted);}
     .badge-ap{padding:4px 12px;border-radius:50px;font-size:.72rem;font-weight:700;background:rgba(39,174,96,.12);color:#1a7a40;border:1px solid rgba(39,174,96,.2);}
+    .badge-dev{padding:4px 12px;border-radius:50px;font-size:.72rem;font-weight:700;background:rgba(127,140,141,.12);color:#5a6464;border:1px solid rgba(127,140,141,.2);}
     .card-body{padding:14px 20px;}
-    .escola-info{font-size:.88rem;color:var(--text-mid);margin-bottom:10px;}
-    .escola-info strong{color:var(--text-dark);}
-    .itens-lista{list-style:none;display:flex;flex-direction:column;gap:6px;}
-    .item-emp{display:flex;align-items:center;gap:10px;padding:7px 12px;background:var(--bg-warm);border-radius:var(--radius-md);font-size:.84rem;color:var(--text-mid);}
-    .item-emp .tit{font-weight:600;color:var(--text-dark);}
-    .item-emp .serie{margin-left:auto;font-size:.73rem;background:var(--beige);padding:2px 8px;border-radius:50px;}
+    .gestor-row{display:flex;align-items:center;gap:6px;font-size:.82rem;color:var(--text-muted);margin-bottom:10px;}
+    .gestor-row strong{color:var(--text-dark);}
+    .itens-lista{list-style:none;display:flex;flex-direction:column;gap:5px;}
+    .item-emp{display:flex;align-items:center;gap:8px;padding:7px 12px;background:var(--bg-warm);border-radius:var(--radius-md);font-size:.83rem;}
+    .item-emp .tit{font-weight:600;color:var(--text-dark);flex:1;}
+    .item-emp .serie{font-size:.73rem;background:var(--beige);padding:2px 8px;border-radius:50px;}
     .card-footer{padding:12px 20px;border-top:1px solid var(--beige);display:flex;gap:10px;align-items:center;flex-wrap:wrap;}
     .btn-devolver{padding:9px 22px;border-radius:50px;border:none;background:var(--primary-dark);color:white;font-family:var(--font-body);font-size:.84rem;font-weight:600;cursor:pointer;transition:all .25s;}
-    .btn-devolver:hover{background:var(--primary-darker);transform:translateY(-1px);box-shadow:var(--shadow-sm);}
-    .btn-devolver:disabled{opacity:.6;cursor:not-allowed;transform:none;}
-    .venc{font-size:.8rem;color:var(--text-muted);}
-    .sem-dados{padding:36px;text-align:center;color:var(--text-muted);font-size:.9rem;}
-    /* Modal de devolução */
+    .btn-devolver:hover{background:var(--primary-darker);transform:translateY(-1px);}
+    .venc-info{font-size:.8rem;color:var(--text-muted);}
+    .sem-dados{padding:28px;text-align:center;color:var(--text-muted);font-size:.88rem;}
+
+    /* Modal */
     .modal{position:fixed;inset:0;background:rgba(61,43,31,.5);backdrop-filter:blur(8px);z-index:2000;display:flex;align-items:center;justify-content:center;padding:20px;animation:fadeIn .2s both;}
-    .modal-box{background:white;border-radius:var(--radius-xl);padding:36px;max-width:480px;width:100%;max-height:90vh;overflow-y:auto;box-shadow:var(--shadow-lg);position:relative;animation:fadeUp .35s var(--ease-bounce) both;}
-    .modal-close{position:absolute;top:16px;right:18px;width:32px;height:32px;border-radius:50%;background:var(--bg-warm);border:none;font-size:.9rem;cursor:pointer;transition:all .2s;}
+    .modal-box{background:white;border-radius:var(--radius-xl);padding:36px;max-width:480px;width:100%;box-shadow:var(--shadow-lg);position:relative;animation:fadeUp .35s var(--ease-bounce) both;}
+    .modal-close{position:absolute;top:16px;right:18px;width:32px;height:32px;border-radius:50%;background:var(--bg-warm);border:none;font-size:.9rem;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;}
     .modal-close:hover{background:var(--beige);transform:rotate(90deg);}
-    .modal-title{font-family:var(--font-display);font-size:1.2rem;font-weight:700;color:var(--text-dark);margin-bottom:16px;}
-    .estado-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:8px 0 16px;}
-    .estado-opt{padding:10px 6px;border-radius:var(--radius-md);border:1.5px solid var(--beige);background:white;text-align:center;cursor:pointer;transition:all .2s;}
+    .modal-title{font-family:var(--font-display);font-size:1.2rem;font-weight:700;color:var(--text-dark);margin-bottom:6px;}
+    .modal-sub{font-size:.82rem;color:var(--text-muted);margin-bottom:18px;line-height:1.5;}
+    .modal-note{font-size:.8rem;color:var(--text-muted);background:var(--bg-warm);padding:10px 14px;border-radius:var(--radius-md);margin-bottom:16px;line-height:1.5;}
+    .estado-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:16px;}
+    .estado-opt{padding:12px 6px;border-radius:var(--radius-md);border:1.5px solid var(--beige);background:white;text-align:center;cursor:pointer;transition:all .2s;}
     .estado-opt input{display:none;}
     .estado-opt .ei{font-size:1.4rem;display:block;margin-bottom:4px;}
     .estado-opt .en{font-size:.72rem;font-weight:600;color:var(--text-muted);}
     .estado-opt:has(input:checked){background:var(--primary-dark);border-color:var(--primary-dark);}
     .estado-opt:has(input:checked) .en{color:white;}
-    .modal-note{font-size:.8rem;color:var(--text-muted);background:var(--bg-warm);padding:10px 14px;border-radius:var(--radius-md);margin-bottom:14px;line-height:1.5;}
     .btn-confirmar-dev{width:100%;padding:13px;background:var(--primary-dark);color:white;border:none;border-radius:50px;font-family:var(--font-body);font-size:.95rem;font-weight:700;cursor:pointer;transition:all .25s;}
     .btn-confirmar-dev:hover{background:var(--primary-darker);transform:translateY(-2px);}
     .btn-confirmar-dev:disabled{opacity:.6;cursor:not-allowed;transform:none;}
     .modal-fb{padding:10px 14px;border-radius:var(--radius-md);margin-top:10px;font-size:.88rem;display:none;}
     .modal-fb.ok{background:rgba(39,174,96,.1);color:#1a7a40;border:1px solid rgba(39,174,96,.2);}
     .modal-fb.err{background:rgba(231,76,60,.1);color:#b03228;border:1px solid rgba(231,76,60,.2);}
+
     @media(max-width:768px){.page-content{padding:20px;}}
   </style>
 </head>
@@ -67,7 +70,10 @@
     <div class="menu-hamburguer" onclick="toggleMenu()"><span></span><span></span><span></span></div>
     <div class="logo-header"><img src="img/logo-capa-e-barra-de-pesquisa.png" alt="Logo" class="logo-img"><span class="logo-text">LER E EDUCAR</span></div>
     <input type="text" placeholder="Buscar..." class="busca">
-    <div class="header-direita"><div class="usuario">Olá, <span id="nome-usuario-logado">Admin</span></div><a href="#" class="sair" onclick="Auth.logout()">SAIR</a></div>
+    <div class="header-direita">
+      <div class="usuario">Olá, <span id="nome-usuario-logado">Admin</span></div>
+      <a href="#" class="sair" onclick="Auth.logout()">SAIR</a>
+    </div>
   </header>
 
   <div class="page-content">
@@ -77,12 +83,13 @@
     <div class="secao"><div class="secao-titulo">Devoluções Registradas</div><div id="lista-devolvidos"><p class="sem-dados">Carregando...</p></div></div>
   </div>
 
-  <!-- Modal de devolução -->
+  <!-- Modal -->
   <div id="modal-dev" class="modal" style="display:none">
     <div class="modal-box">
       <button class="modal-close" onclick="fecharModal()">✕</button>
-      <h2 class="modal-title" id="modal-dev-titulo">Registrar Devolução</h2>
-      <p class="modal-note">📦 Informe a condição geral dos exemplares ao receber o pacote devolvido. Essa informação atualiza o estado dos livros no acervo.</p>
+      <h2 class="modal-title" id="modal-titulo">Registrar Devolução</h2>
+      <p class="modal-sub" id="modal-info"></p>
+      <p class="modal-note">📦 Informe a condição geral dos exemplares ao receber o pacote.</p>
       <label style="font-size:.72rem;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--text-muted);display:block;margin-bottom:4px">Estado dos exemplares</label>
       <div class="estado-grid">
         <label class="estado-opt"><input type="radio" name="estado" value="BOM" checked><span class="ei">📗</span><span class="en">Bom</span></label>
@@ -96,88 +103,95 @@
 
   <script src="js/api.js"></script><script src="js/layout.js"></script><script src="js/animations.js"></script>
   <script>
-    Auth.exigirLogin(); Auth.exibirNome(); initAnimations({ tilt:false });
-    let empAtual=null;
+    Auth.exigirLogin(); Auth.exibirNome();
+    initAnimations({ tilt:false });
+
+    // Guarda empréstimos por ID — evita passar JSON no onclick
+    const emprestimosMap = {};
+    let idAtual = null;
 
     async function carregar() {
       const empr = await get('/emprestimos');
-      if (!empr||empr.status) return;
-      renderAprova(empr.filter(e=>e.status==='APROVADO'));
-      renderDevolvidos(empr.filter(e=>e.status==='DEVOLVIDO'));
+      if (!empr || empr.status) return;
+      empr.forEach(e => emprestimosMap[e.id] = e);
+      renderAprova(empr.filter(e => e.status === 'APROVADO'));
+      renderDevolvidos(empr.filter(e => e.status === 'DEVOLVIDO'));
     }
 
     function itensHtml(itens) {
-      return (itens||[]).map(it=>`<li class="item-emp"><span>📖</span><span class="tit">${it.tituloLivro}</span><span class="serie">${SERIES[it.serieDestino]||it.serieDestino} · ${it.quantidade}x</span></li>`).join('');
+      return (itens||[]).map(it => `
+        <li class="item-emp"><span>📖</span><span class="tit">${it.tituloLivro}</span><span class="serie">${SERIES[it.serieDestino]||it.serieDestino} · ${it.quantidade}x</span></li>`
+      ).join('');
     }
 
     function renderAprova(lista) {
-      const el=document.getElementById('lista-aprova');
-      if(!lista.length){el.innerHTML='<p class="sem-dados">Nenhum empréstimo ativo aguardando devolução.</p>';return;}
-      el.innerHTML=lista.map((e,i)=>`
+      const el = document.getElementById('lista-aprova');
+      if (!lista.length) { el.innerHTML='<p class="sem-dados">Nenhum empréstimo ativo aguardando devolução.</p>'; return; }
+      el.innerHTML = lista.map((e,i) => `
         <div class="protocolo-card" style="animation-delay:${i*.06}s">
           <div class="card-header">
             <div><span class="proto-num">Protocolo #${e.id}</span> <span class="card-meta">${e.nomeInstituicao||''}</span></div>
             <span class="badge-ap">Ativo</span>
           </div>
           <div class="card-body">
-            <p class="escola-info">👤 <strong>${e.nomeGestor||'-'}</strong></p>
+            <div class="gestor-row">👤 <strong>${e.nomeGestor||'-'}</strong></div>
             <ul class="itens-lista">${itensHtml(e.itens)}</ul>
           </div>
           <div class="card-footer">
-            ${e.dataVencimento?`<span class="venc">Vence: ${formatarData(e.dataVencimento)}</span>`:''}
-            <button class="btn-devolver" onclick="abrirModal(${JSON.stringify(e).replace(/'/g,"&#39;")})">📦 Registrar devolução</button>
+            ${e.dataVencimento ? `<span class="venc-info">Vence: ${formatarData(e.dataVencimento)}</span>` : ''}
+            <button class="btn-devolver" onclick="abrirModal(${e.id})">📦 Registrar devolução</button>
           </div>
         </div>`).join('');
     }
 
     function renderDevolvidos(lista) {
-      const el=document.getElementById('lista-devolvidos');
-      if(!lista.length){el.innerHTML='<p class="sem-dados">Nenhuma devolução registrada.</p>';return;}
-      el.innerHTML=lista.map((e,i)=>`
+      const el = document.getElementById('lista-devolvidos');
+      if (!lista.length) { el.innerHTML='<p class="sem-dados">Nenhuma devolução registrada.</p>'; return; }
+      el.innerHTML = lista.map((e,i) => `
         <div class="protocolo-card" style="animation-delay:${i*.06}s;opacity:.75">
           <div class="card-header">
             <div><span class="proto-num">Protocolo #${e.id}</span> <span class="card-meta">${e.nomeInstituicao||''}</span></div>
-            <span style="padding:4px 12px;border-radius:50px;font-size:.72rem;font-weight:700;background:rgba(127,140,141,.12);color:#5a6464;border:1px solid rgba(127,140,141,.2)">Devolvido</span>
+            <span class="badge-dev">Devolvido</span>
           </div>
           <div class="card-body"><ul class="itens-lista">${itensHtml(e.itens)}</ul></div>
         </div>`).join('');
     }
 
-    function abrirModal(e) {
-      empAtual=e;
-      document.getElementById('modal-dev-titulo').textContent=`Devolução — Protocolo #${e.id}`;
-      document.getElementById('modal-fb').style.display='none';
-      document.querySelector('input[name="estado"][value="BOM"]').checked=true;
-      document.getElementById('modal-dev').style.display='flex';
+    function abrirModal(id) {
+      const e = emprestimosMap[id];
+      if (!e) { showToast('Empréstimo não encontrado.','err'); return; }
+      idAtual = id;
+      document.getElementById('modal-titulo').textContent = `Devolução — Protocolo #${id}`;
+      document.getElementById('modal-info').textContent = `${e.nomeInstituicao||''} · ${e.nomeGestor||''}`;
+      document.getElementById('modal-fb').style.display = 'none';
+      document.querySelector('input[name="estado"][value="BOM"]').checked = true;
+      document.getElementById('modal-dev').style.display = 'flex';
     }
-    function fecharModal(){document.getElementById('modal-dev').style.display='none'; empAtual=null;}
+    function fecharModal() { document.getElementById('modal-dev').style.display = 'none'; idAtual = null; }
 
     async function confirmarDevolucao() {
-      if(!empAtual) return;
-      const estado=document.querySelector('input[name="estado"]:checked')?.value||'BOM';
-      const btn=document.getElementById('btn-confirmar-dev');
-      const fb=document.getElementById('modal-fb');
-      btn.disabled=true; btn.textContent='Registrando...';
+      if (!idAtual) return;
+      const estado = document.querySelector('input[name="estado"]:checked')?.value || 'BOM';
+      const btn = document.getElementById('btn-confirmar-dev');
+      const fb  = document.getElementById('modal-fb');
+      btn.disabled = true; btn.textContent = 'Registrando...';
 
-      // Monta payload simplificado — sem IDs de exemplar específicos
-      // O sistema registrará usando todos os exemplares do protocolo
-      const body = { idProtocolo: empAtual.id, exemplares: [], estadoGeralDevolucao: estado };
-      const res = await post('/emprestimos/devolucao', body);
+      const res = await post('/emprestimos/devolucao', { idProtocolo: idAtual, exemplares: [] });
 
-      fb.style.display='block';
-      if(res && !res.status) {
-        fb.className='modal-fb ok'; fb.textContent='✓ Devolução registrada com sucesso!';
-        setTimeout(()=>{ fecharModal(); carregar(); },1200);
+      fb.style.display = 'block';
+      if (res && res.id) {
+        fb.className = 'modal-fb ok'; fb.textContent = '✓ Devolução registrada com sucesso!';
+        showToast('Devolução registrada!', 'ok');
+        setTimeout(() => { fecharModal(); carregar(); }, 1200);
       } else {
-        // Endpoint pode exigir exemplares — informar ao admin
-        fb.className='modal-fb err';
-        fb.textContent='Para registrar com exemplares específicos, use o Swagger em /swagger-ui.html';
-        showToast('Use /swagger-ui.html para devolução detalhada.','err',5000);
+        fb.className = 'modal-fb err';
+        fb.textContent = res?.mensagens?.[0] || 'Erro ao registrar. Tente via Swagger com exemplares específicos.';
       }
-      btn.disabled=false; btn.textContent='✓ Confirmar devolução';
+      btn.disabled = false; btn.textContent = '✓ Confirmar devolução';
     }
 
-    document.getElementById('modal-dev').addEventListener('click',e=>{if(e.target===e.currentTarget)fecharModal();});
+    document.getElementById('modal-dev').addEventListener('click', e => { if(e.target===e.currentTarget) fecharModal(); });
     carregar();
   </script>
-</body></html>
+</body>
+</html>

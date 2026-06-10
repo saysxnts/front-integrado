@@ -1,24 +1,50 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-  <meta charset="UTF-8">
-  <title>Devoluções - Ler e Educar</title>
-  <link rel="stylesheet" href="css/layout.css">
-  <link rel="stylesheet" href="css/tela-devolucao.css">
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Devoluções | Ler e Educar</title>
+  <link rel="stylesheet" href="css/design-system.css"><link rel="stylesheet" href="css/layout.css">
   <style>
-    .badge-aprovado  { background:#27ae60;color:#fff;padding:2px 8px;border-radius:12px;font-size:.8rem; }
-    .badge-devolvido { background:#7f8c8d;color:#fff;padding:2px 8px;border-radius:12px;font-size:.8rem; }
-    .sem-dados       { color:#888;font-style:italic;padding:12px 0; }
-    .item-devolucao  { display:flex;align-items:flex-start;gap:16px;padding:14px 0;border-bottom:1px solid #eee; }
-    .info-devolucao  { flex:1; }
-    .info-devolucao h3 { margin:0 0 6px; }
-    .info-devolucao p  { margin:3px 0;font-size:.9rem;color:#666; }
-    .btn-devolutiva  { background:#27ae60;color:#fff;border:none;padding:8px 16px;border-radius:6px;cursor:pointer;margin-top:8px; }
-    .btn-devolutiva:disabled { opacity:.6;cursor:not-allowed; }
-    .itens-lista     { margin:6px 0;font-size:.88rem;color:#444; }
-    .feedback-item   { padding:6px 10px;border-radius:5px;margin-top:6px;font-size:.88rem;display:none; }
-    .feedback-ok  { background:#d4edda;color:#155724; }
-    .feedback-err { background:#f8d7da;color:#721c24; }
+    .page-content{padding:32px 40px 60px;max-width:900px;margin:0 auto;}
+    .page-title{font-family:var(--font-display);font-size:1.6rem;font-weight:700;color:var(--text-dark);margin-bottom:28px;}
+    .secao{margin-bottom:36px;}
+    .secao-titulo{font-family:var(--font-display);font-size:1.05rem;font-weight:700;color:var(--text-dark);margin-bottom:6px;padding-bottom:10px;border-bottom:2px solid var(--beige);display:flex;align-items:center;gap:10px;}
+    .secao-titulo::before{content:'';width:4px;height:18px;background:linear-gradient(to bottom,var(--primary),var(--accent));border-radius:2px;}
+    .secao-sub{font-size:.82rem;color:var(--text-muted);margin-bottom:16px;}
+
+    .emp-card{background:white;border-radius:var(--radius-lg);border:1px solid rgba(155,123,93,.1);box-shadow:var(--shadow-sm);overflow:hidden;margin-bottom:14px;animation:fadeUp .4s both;transition:transform .3s var(--ease-bounce),box-shadow .3s;}
+    .emp-card:hover{transform:translateY(-2px);box-shadow:var(--shadow-md);}
+    .card-head{display:flex;align-items:center;justify-content:space-between;padding:12px 20px;background:var(--bg-warm);border-bottom:1px solid var(--beige);flex-wrap:wrap;gap:8px;}
+    .proto-num{font-family:var(--font-display);font-size:.95rem;font-weight:700;color:var(--text-dark);}
+    .card-meta{font-size:.78rem;color:var(--text-muted);}
+    .badge-ap{padding:3px 10px;border-radius:50px;font-size:.72rem;font-weight:700;background:rgba(39,174,96,.12);color:#1a7a40;border:1px solid rgba(39,174,96,.2);}
+    .badge-dev{padding:3px 10px;border-radius:50px;font-size:.72rem;font-weight:700;background:rgba(127,140,141,.12);color:#5a6464;border:1px solid rgba(127,140,141,.2);}
+
+    .card-body{padding:14px 20px;}
+    .itens-lista{list-style:none;display:flex;flex-direction:column;gap:5px;margin-bottom:12px;}
+    .item-emp{display:flex;align-items:center;gap:8px;padding:7px 12px;background:var(--bg-warm);border-radius:var(--radius-md);font-size:.83rem;}
+    .item-emp .tit{font-weight:600;color:var(--text-dark);flex:1;}
+    .item-emp .serie{font-size:.73rem;background:var(--beige);padding:2px 8px;border-radius:50px;flex-shrink:0;}
+
+    /* Barra de vencimento */
+    .venc-wrap{margin-bottom:12px;}
+    .venc-label{font-size:.75rem;color:var(--text-muted);display:flex;justify-content:space-between;margin-bottom:4px;}
+    .venc-track{height:6px;background:var(--beige);border-radius:3px;overflow:hidden;}
+    .venc-fill{height:100%;border-radius:3px;transition:width .6s;}
+    .vf-ok{background:linear-gradient(90deg,#27ae60,#2ecc71);}
+    .vf-warn{background:linear-gradient(90deg,#f39c12,#f1c40f);}
+    .vf-over{background:linear-gradient(90deg,#e74c3c,#c0392b);}
+
+    .btn-confirmar{width:100%;padding:12px;background:var(--primary-dark);color:white;border:none;border-radius:50px;font-family:var(--font-body);font-size:.9rem;font-weight:700;cursor:pointer;transition:all .25s;}
+    .btn-confirmar:hover{background:var(--primary-darker);transform:translateY(-1px);box-shadow:var(--shadow-sm);}
+    .btn-confirmar:disabled{opacity:.6;cursor:not-allowed;transform:none;}
+    .btn-confirmado{background:#27ae60;cursor:default;}
+    .fb-card{padding:10px 14px;border-radius:var(--radius-md);margin-top:8px;font-size:.85rem;display:none;}
+    .fb-ok{background:rgba(39,174,96,.1);color:#1a7a40;border:1px solid rgba(39,174,96,.2);}
+    .fb-err{background:rgba(231,76,60,.1);color:#b03228;border:1px solid rgba(231,76,60,.2);}
+    .sem-dados{color:var(--text-muted);font-size:.88rem;padding:16px 0;}
+
+    @media(max-width:768px){.page-content{padding:20px;}}
   </style>
 </head>
 <body>
@@ -29,112 +55,120 @@
     <a href="reservas.html"       class="menu-item">MINHAS RESERVAS</a>
     <a href="devolutivas.html"    class="menu-item ativo">DEVOLUÇÕES</a>
   </nav>
-
   <header class="header">
     <div class="menu-hamburguer" onclick="toggleMenu()"><span></span><span></span><span></span></div>
-    <div class="logo-header">
-      <img src="img/logo-capa-e-barra-de-pesquisa.png" alt="Logo" class="logo-img">
-      <span class="logo-text">LER E EDUCAR</span>
-    </div>
-    <input type="text" placeholder="Buscar livro..." class="busca">
+    <div class="logo-header"><img src="img/logo-capa-e-barra-de-pesquisa.png" alt="Logo" class="logo-img"><span class="logo-text">LER E EDUCAR</span></div>
+    <input type="text" placeholder="Buscar..." class="busca">
     <div class="header-direita">
       <div class="usuario">Olá, <span id="nome-usuario-logado">Gestor</span></div>
       <a href="#" class="sair" onclick="Auth.logout()">SAIR</a>
     </div>
   </header>
 
-  <main class="devolucoes-bg">
-    <div class="devolucoes-container">
-      <h1 class="devolucoes-titulo">DEVOLUÇÕES</h1>
+  <div class="page-content">
+    <h1 class="page-title">Devoluções</h1>
 
-      <section>
-        <h2 style="margin-bottom:12px">EMPRÉSTIMOS ATIVOS — Confirmar Uso</h2>
-        <p style="font-size:.85rem;color:#666;margin-bottom:12px">Confirme o uso a cada 90 dias para renovar automaticamente.</p>
-        <div id="lista-ativos"><p class="sem-dados">Carregando...</p></div>
-      </section>
-
-      <section style="margin-top:32px">
-        <h2 style="margin-bottom:12px">HISTÓRICO DE DEVOLUÇÕES</h2>
-        <div id="lista-devolvidos"><p class="sem-dados">Carregando...</p></div>
-      </section>
+    <div class="secao">
+      <div class="secao-titulo">Empréstimos Ativos</div>
+      <p class="secao-sub">Confirme o uso a cada 90 dias para renovar automaticamente.</p>
+      <div id="lista-ativos"><p class="sem-dados">Carregando...</p></div>
     </div>
-  </main>
 
-  <script src="js/api.js"></script>
-  <script src="js/layout.js"></script>
+    <div class="secao">
+      <div class="secao-titulo">Histórico de Devoluções</div>
+      <div id="lista-devolvidos"><p class="sem-dados">Carregando...</p></div>
+    </div>
+  </div>
+
+  <script src="js/api.js"></script><script src="js/layout.js"></script><script src="js/animations.js"></script>
   <script>
-    Auth.exigirLogin();
-    Auth.exibirNome();
+    Auth.exigirLogin(); Auth.exibirNome();
+    initAnimations({ tilt:false });
 
     async function carregar() {
-      const emprestimos = await get('/emprestimos/meus');
-      if (!emprestimos || emprestimos.status) return;
-
-      const ativos     = emprestimos.filter(e => e.status === 'APROVADO');
-      const devolvidos = emprestimos.filter(e => e.status === 'DEVOLVIDO');
-
-      renderAtivos(ativos);
-      renderDevolvidos(devolvidos);
+      const empr = await get('/emprestimos/meus');
+      if (!empr || empr.status) return;
+      renderAtivos(empr.filter(e => e.status === 'APROVADO'));
+      renderDevolvidos(empr.filter(e => e.status === 'DEVOLVIDO'));
     }
 
-    function renderItens(itens) {
-      if (!itens?.length) return '';
-      return `<ul class="itens-lista">${itens.map(it =>
-        `<li>${it.tituloLivro} — ${SERIES[it.serieDestino] || it.serieDestino} — Qt: ${it.quantidade}</li>`
-      ).join('')}</ul>`;
+    function itensHtml(itens) {
+      return (itens||[]).map(it => `
+        <li class="item-emp">
+          <span>📖</span>
+          <span class="tit">${it.tituloLivro}</span>
+          <span class="serie">${SERIES[it.serieDestino]||it.serieDestino} · ${it.quantidade}x</span>
+        </li>`).join('');
+    }
+
+    function vencimentoHtml(dataVenc) {
+      if (!dataVenc) return '';
+      const hoje = new Date(), venc = new Date(dataVenc);
+      const dias = Math.ceil((venc - hoje) / 86400000);
+      const pct  = Math.max(0, Math.min(100, (dias/90)*100));
+      const cls  = dias < 0 ? 'vf-over' : dias < 15 ? 'vf-warn' : 'vf-ok';
+      const msg  = dias < 0 ? `Vencido há ${Math.abs(dias)} dias` : dias === 0 ? 'Vence hoje!' : `${dias} dias restantes`;
+      return `<div class="venc-wrap">
+        <div class="venc-label"><span>Vencimento: ${formatarData(dataVenc)}</span><span>${msg}</span></div>
+        <div class="venc-track"><div class="venc-fill ${cls}" style="width:${pct}%"></div></div>
+      </div>`;
     }
 
     function renderAtivos(lista) {
       const el = document.getElementById('lista-ativos');
-      if (!lista.length) { el.innerHTML = '<p class="sem-dados">Nenhum empréstimo ativo.</p>'; return; }
-      el.innerHTML = lista.map(e => `
-        <div class="item-devolucao">
-          <div class="capa-livro" style="width:70px;height:95px;background:#ddd;display:flex;align-items:center;justify-content:center;font-size:.7rem;text-align:center;flex-shrink:0">Capa</div>
-          <div class="info-devolucao">
-            <h3>Protocolo #${e.id} — ${e.nomeInstituicao || ''}</h3>
-            ${renderItens(e.itens)}
-            <p>Aprovado em: ${formatarData(e.dataEmissao)}</p>
-            ${e.dataVencimento ? `<p>Vencimento: ${formatarData(e.dataVencimento)}</p>` : ''}
-            <span class="badge-aprovado">Ativo</span>
-            <div id="fb-${e.id}" class="feedback-item"></div>
-            <button class="btn-devolutiva" onclick="confirmarUso(${e.id}, this)">CONFIRMAR USO (renovar 90 dias)</button>
+      if (!lista.length) { el.innerHTML='<p class="sem-dados">Nenhum empréstimo ativo no momento.</p>'; return; }
+      el.innerHTML = lista.map((e,i) => `
+        <div class="emp-card" style="animation-delay:${i*.06}s">
+          <div class="card-head">
+            <div><span class="proto-num">Protocolo #${e.id}</span> <span class="card-meta">· ${e.nomeInstituicao||''}</span></div>
+            <span class="badge-ap">Ativo</span>
           </div>
-        </div>
-      `).join('');
+          <div class="card-body">
+            <ul class="itens-lista">${itensHtml(e.itens)}</ul>
+            ${vencimentoHtml(e.dataVencimento)}
+            <div class="fb-card" id="fb-${e.id}"></div>
+            <button class="btn-confirmar" id="btn-${e.id}" onclick="confirmarUso(${e.id})">
+              ↺ Confirmar uso (renovar 90 dias)
+            </button>
+          </div>
+        </div>`).join('');
     }
 
     function renderDevolvidos(lista) {
       const el = document.getElementById('lista-devolvidos');
-      if (!lista.length) { el.innerHTML = '<p class="sem-dados">Nenhuma devolução registrada.</p>'; return; }
-      el.innerHTML = lista.map(e => `
-        <div class="item-devolucao">
-          <div class="capa-livro" style="width:70px;height:95px;background:#ddd;display:flex;align-items:center;justify-content:center;font-size:.7rem;text-align:center;flex-shrink:0">Capa</div>
-          <div class="info-devolucao">
-            <h3>Protocolo #${e.id}</h3>
-            ${renderItens(e.itens)}
-            <p>Devolvido em: ${formatarData(e.dataEmissao)}</p>
-            <span class="badge-devolvido">Devolvido</span>
+      if (!lista.length) { el.innerHTML='<p class="sem-dados">Nenhuma devolução registrada.</p>'; return; }
+      el.innerHTML = lista.map((e,i) => `
+        <div class="emp-card" style="animation-delay:${i*.06}s;opacity:.8">
+          <div class="card-head">
+            <div><span class="proto-num">Protocolo #${e.id}</span></div>
+            <span class="badge-dev">Devolvido</span>
           </div>
-        </div>
-      `).join('');
+          <div class="card-body">
+            <ul class="itens-lista">${itensHtml(e.itens)}</ul>
+          </div>
+        </div>`).join('');
     }
 
-    async function confirmarUso(id, btn) {
-      btn.disabled = true;
-      btn.textContent = 'Confirmando...';
+    async function confirmarUso(id) {
+      const btn = document.getElementById('btn-' + id);
+      const fb  = document.getElementById('fb-'  + id);
+      btn.disabled = true; btn.textContent = 'Confirmando...';
+
       const res = await patch('/emprestimos/' + id + '/confirmar-uso');
-      const fb = document.getElementById('fb-' + id);
-      if (res && !res.status) {
-        fb.className = 'feedback-item feedback-ok';
-        fb.textContent = '✓ Uso confirmado! Renovado por mais 90 dias.';
+
+      // ✅ Checa por res.id — ProtocoloResponse sempre tem id quando sucesso
+      // ❌ NÃO usar !res.status pois status="APROVADO" é truthy e causaria falso erro
+      if (res && res.id) {
+        btn.textContent = '✓ Renovado por mais 90 dias!';
+        btn.classList.add('btn-confirmado');
+        fb.className = 'fb-card fb-ok';
+        fb.textContent = '✓ Uso confirmado! Novo vencimento: ' + formatarData(res.dataVencimento);
         fb.style.display = 'block';
-        btn.textContent = '✓ Confirmado';
       } else {
-        fb.className = 'feedback-item feedback-err';
-        fb.textContent = res?.mensagens?.[0] || 'Erro ao confirmar uso.';
+        btn.disabled = false; btn.textContent = '↺ Confirmar uso (renovar 90 dias)';
+        fb.className = 'fb-card fb-err';
+        fb.textContent = res?.mensagens?.[0] || 'Erro ao confirmar. Tente novamente.';
         fb.style.display = 'block';
-        btn.disabled = false;
-        btn.textContent = 'CONFIRMAR USO (renovar 90 dias)';
       }
     }
 

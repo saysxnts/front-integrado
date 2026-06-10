@@ -138,6 +138,7 @@ async function buscarCapa(livro) {
 }
 
 // Open Library por título — sem rate limit, ótima cobertura
+// Nota: se cover_i > 0, a capa EXISTE — não precisamos verificar dimensões
 async function buscarCapaOpenLibrary(titulo) {
   try {
     const q = encodeURIComponent(titulo);
@@ -152,8 +153,8 @@ async function buscarCapaOpenLibrary(titulo) {
     const data = await res.json();
     for (const doc of (data.docs || [])) {
       if (doc.cover_i && doc.cover_i > 0) {
-        const url = `https://covers.openlibrary.org/b/id/${doc.cover_i}-M.jpg`;
-        if (await checarImagemDimensao(url)) return url;
+        // cover_i > 0 garante que a capa existe — retorna direto sem verificação
+        return `https://covers.openlibrary.org/b/id/${doc.cover_i}-M.jpg`;
       }
     }
   } catch { }
