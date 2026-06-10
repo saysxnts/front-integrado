@@ -4,15 +4,19 @@ const API_BASE = 'https://ler-e-educar-api.onrender.com/api';
 // ─── AUTH ────────────────────────────────────────────────────────
 const Auth = {
   salvar(dados) {
-    localStorage.setItem('token',     dados.token);
-    localStorage.setItem('tipo',      dados.tipoUsuario);
-    localStorage.setItem('nome',      dados.nome);
-    localStorage.setItem('idUsuario', dados.idUsuario);
+    localStorage.setItem('token',           dados.token);
+    localStorage.setItem('tipo',            dados.tipoUsuario);
+    localStorage.setItem('nome',            dados.nome);
+    localStorage.setItem('idUsuario',       dados.idUsuario);
+    localStorage.setItem('nomeInstituicao', dados.nomeInstituicao || '');
+    localStorage.setItem('idInstituicao',   dados.idInstituicao   || '');
   },
-  token()  { return localStorage.getItem('token'); },
-  tipo()   { return localStorage.getItem('tipo'); },
-  nome()   { return localStorage.getItem('nome'); },
-  isAdmin(){ return Auth.tipo() === 'ADMINISTRADOR'; },
+  token()          { return localStorage.getItem('token'); },
+  tipo()           { return localStorage.getItem('tipo'); },
+  nome()           { return localStorage.getItem('nome'); },
+  nomeInstituicao(){ return localStorage.getItem('nomeInstituicao') || ''; },
+  idInstituicao()  { return localStorage.getItem('idInstituicao')   || ''; },
+  isAdmin()        { return Auth.tipo() === 'ADMINISTRADOR'; },
   logout() { localStorage.clear(); window.location.href = 'index.html'; },
   exigirLogin() { if (!Auth.token()) window.location.href = 'login.html'; },
   exibirNome() {
@@ -75,13 +79,32 @@ function debounce(fn, ms = 400) {
 }
 
 // ─── CAPAS DE LIVROS ─────────────────────────────────────────────
-// Estratégia em cascata:
-//   1. URL salva no banco
+// Estratégia em cascata com throttle para evitar rate limiting:
+//   1. URL salva no banco (instantâneo)
 //   2. Open Library por ISBN
-//   3. Google Books API (melhor para livros em português)
-//   4. Open Library por título
+//   3. Open Library por título (evita 429 do Google Books)
+//   4. Google Books como último recurso (com fila throttlada)
 // ─────────────────────────────────────────────────────────────────
 const CAPA_CACHE = {};
+
+// Fila de requisições ao Google Books para evitar 429
+const _gbQueue = [];
+let _gbRunning = false;
+async function _gbEnqueue(fn) {
+  return new Promise((resolve) => {
+    _gbQueue.push(() => fn().then(resolve));
+    if (!_gbRunning) _gbDrain();
+  });
+}
+async function _gbDrain() {
+  _gbRunning = true;
+  while (_gbQueue.length) {
+    const task = _gbQueue.shift();
+    await task();
+    await new Promise(r => setTimeout(r, 400)); // 400ms entre requests
+  }
+  _gbRunning = false;
+}
 
 async function buscarCapa(livro) {
   const chave = livro.id || livro.titulo;
@@ -95,34 +118,55 @@ async function buscarCapa(livro) {
     return livro.imagemCapaUrl;
   }
 
-  // 2. Open Library por ISBN (rápido, preciso quando existe)
-  if (livro.isbn && !url) {
+  // 2. Open Library por ISBN (sem rate limit, rápido)
+  if (livro.isbn) {
     const isbn = livro.isbn.replace(/[^0-9X]/gi, '');
     const candidato = `https://covers.openlibrary.org/b/isbn/${isbn}-M.jpg`;
-    const ok = await checarImagemDimensao(candidato);
-    if (ok) url = candidato;
+    if (await checarImagemDimensao(candidato)) url = candidato;
   }
 
-  // 3. Google Books API (excelente para livros em português)
-  if (!url) {
-    url = await buscarCapaGoogleBooks(livro.titulo, livro.autor);
-  }
+  // 3. Open Library por título (gratuito, sem rate limit)
+  if (!url) url = await buscarCapaOpenLibrary(livro.titulo);
 
-  // 4. Open Library por título (fallback)
+  // 4. Google Books via fila throttlada (último recurso)
   if (!url) {
-    url = await buscarCapaOpenLibrary(livro.titulo);
+    url = await _gbEnqueue(() => buscarCapaGoogleBooks(livro.titulo, livro.autor));
   }
 
   CAPA_CACHE[chave] = url;
   return url;
 }
 
-// Google Books — sem chave, gratuito, ótimo para pt-BR
+// Open Library por título — sem rate limit, ótima cobertura
+// Nota: se cover_i > 0, a capa EXISTE — não precisamos verificar dimensões
+async function buscarCapaOpenLibrary(titulo) {
+  try {
+    const q = encodeURIComponent(titulo);
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 6000);
+    const res = await fetch(
+      `https://openlibrary.org/search.json?title=${q}&limit=5&fields=cover_i,title`,
+      { signal: controller.signal }
+    );
+    clearTimeout(timer);
+    if (!res.ok) return null;
+    const data = await res.json();
+    for (const doc of (data.docs || [])) {
+      if (doc.cover_i && doc.cover_i > 0) {
+        // cover_i > 0 garante que a capa existe — retorna direto sem verificação
+        return `https://covers.openlibrary.org/b/id/${doc.cover_i}-M.jpg`;
+      }
+    }
+  } catch { }
+  return null;
+}
+
+// Google Books — com throttle via fila, evita 429
 async function buscarCapaGoogleBooks(titulo, autor) {
   try {
     const q = encodeURIComponent(titulo + (autor ? ' ' + autor : ''));
     const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), 5000);
+    const timer = setTimeout(() => controller.abort(), 6000);
     const res = await fetch(
       `https://www.googleapis.com/books/v1/volumes?q=${q}&maxResults=3&printType=books`,
       { signal: controller.signal }
@@ -132,45 +176,18 @@ async function buscarCapaGoogleBooks(titulo, autor) {
     const data = await res.json();
     for (const item of (data.items || [])) {
       const thumb = item?.volumeInfo?.imageLinks?.thumbnail;
-      if (thumb) {
-        // Converte para HTTPS e aumenta zoom para melhor qualidade
-        return thumb.replace('http://', 'https://').replace('zoom=1', 'zoom=2');
-      }
+      if (thumb) return thumb.replace('http://', 'https://').replace('zoom=1', 'zoom=2');
     }
-  } catch { /* timeout ou erro de rede */ }
+  } catch { }
   return null;
 }
 
-// Open Library por título
-async function buscarCapaOpenLibrary(titulo) {
-  try {
-    const q = encodeURIComponent(titulo);
-    const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), 5000);
-    const res = await fetch(
-      `https://openlibrary.org/search.json?title=${q}&limit=5&fields=cover_i`,
-      { signal: controller.signal }
-    );
-    clearTimeout(timer);
-    if (!res.ok) return null;
-    const data = await res.json();
-    for (const doc of (data.docs || [])) {
-      if (doc.cover_i) {
-        const url = `https://covers.openlibrary.org/b/id/${doc.cover_i}-M.jpg`;
-        const ok = await checarImagemDimensao(url);
-        if (ok) return url;
-      }
-    }
-  } catch { /* timeout ou erro de rede */ }
-  return null;
-}
-
-// Verifica se imagem é real (> 1x1px) — sem AbortSignal para máxima compatibilidade
+// Verifica se imagem é real (> 1x1px)
 function checarImagemDimensao(url) {
   return new Promise(resolve => {
     const img = new Image();
-    let finalizado = false;
-    const fim = (r) => { if (!finalizado) { finalizado = true; resolve(r); } };
+    let done = false;
+    const fim = (r) => { if (!done) { done = true; resolve(r); } };
     img.onload  = () => fim(img.naturalWidth > 1 && img.naturalHeight > 1);
     img.onerror = () => fim(false);
     setTimeout(() => fim(false), 6000);
