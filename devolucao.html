@@ -30,8 +30,6 @@
     .btn-devolver:hover{background:var(--primary-darker);transform:translateY(-1px);}
     .venc-info{font-size:.8rem;color:var(--text-muted);}
     .sem-dados{padding:28px;text-align:center;color:var(--text-muted);font-size:.88rem;}
-
-    /* Modal */
     .modal{position:fixed;inset:0;background:rgba(61,43,31,.5);backdrop-filter:blur(8px);z-index:2000;display:flex;align-items:center;justify-content:center;padding:20px;animation:fadeIn .2s both;}
     .modal-box{background:white;border-radius:var(--radius-xl);padding:36px;max-width:480px;width:100%;box-shadow:var(--shadow-lg);position:relative;animation:fadeUp .35s var(--ease-bounce) both;}
     .modal-close{position:absolute;top:16px;right:18px;width:32px;height:32px;border-radius:50%;background:var(--bg-warm);border:none;font-size:.9rem;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;}
@@ -52,13 +50,13 @@
     .modal-fb{padding:10px 14px;border-radius:var(--radius-md);margin-top:10px;font-size:.88rem;display:none;}
     .modal-fb.ok{background:rgba(39,174,96,.1);color:#1a7a40;border:1px solid rgba(39,174,96,.2);}
     .modal-fb.err{background:rgba(231,76,60,.1);color:#b03228;border:1px solid rgba(231,76,60,.2);}
-
     @media(max-width:768px){.page-content{padding:20px;}}
   </style>
 </head>
 <body>
   <nav id="menu-lateral" class="menu-lateral">
     <div class="fechar-menu" onclick="toggleMenu()">✕</div>
+    <a href="dashboard.html"       class="menu-item">📊 DASHBOARD BI</a>
     <a href="catalogo-admin.html"  class="menu-item">CATÁLOGO</a>
     <a href="meu-perfil-ADM.html"  class="menu-item">MEU PERFIL</a>
     <a href="adicionar-livro.html" class="menu-item">ADICIONAR LIVROS</a>
@@ -70,20 +68,14 @@
     <div class="menu-hamburguer" onclick="toggleMenu()"><span></span><span></span><span></span></div>
     <div class="logo-header"><img src="img/logo-capa-e-barra-de-pesquisa.png" alt="Logo" class="logo-img"><span class="logo-text">LER E EDUCAR</span></div>
     <input type="text" placeholder="Buscar..." class="busca">
-    <div class="header-direita">
-      <div class="usuario">Olá, <span id="nome-usuario-logado">Admin</span></div>
-      <a href="#" class="sair" onclick="Auth.logout()">SAIR</a>
-    </div>
+    <div class="header-direita"><div class="usuario">Olá, <span id="nome-usuario-logado">Admin</span></div><a href="#" class="sair" onclick="Auth.logout()">SAIR</a></div>
   </header>
-
   <div class="page-content">
     <h1 class="page-title">Registrar Devoluções</h1>
     <p class="page-sub">Selecione o empréstimo e informe as condições dos exemplares devolvidos.</p>
     <div class="secao"><div class="secao-titulo">Empréstimos para Devolução</div><div id="lista-aprova"><p class="sem-dados">Carregando...</p></div></div>
     <div class="secao"><div class="secao-titulo">Devoluções Registradas</div><div id="lista-devolvidos"><p class="sem-dados">Carregando...</p></div></div>
   </div>
-
-  <!-- Modal -->
   <div id="modal-dev" class="modal" style="display:none">
     <div class="modal-box">
       <button class="modal-close" onclick="fecharModal()">✕</button>
@@ -100,97 +92,57 @@
       <button class="btn-confirmar-dev" id="btn-confirmar-dev" onclick="confirmarDevolucao()">✓ Confirmar devolução</button>
     </div>
   </div>
-
   <script src="js/api.js"></script><script src="js/layout.js"></script><script src="js/animations.js"></script>
   <script>
-    Auth.exigirLogin(); Auth.exibirNome();
-    initAnimations({ tilt:false });
-
-    // Guarda empréstimos por ID — evita passar JSON no onclick
-    const emprestimosMap = {};
-    let idAtual = null;
-
+    Auth.exigirLogin(); Auth.exibirNome(); initAnimations({ tilt:false });
+    const emprestimosMap = {}; let idAtual = null;
     async function carregar() {
-      const empr = await get('/emprestimos');
-      if (!empr || empr.status) return;
-      empr.forEach(e => emprestimosMap[e.id] = e);
-      renderAprova(empr.filter(e => e.status === 'APROVADO'));
-      renderDevolvidos(empr.filter(e => e.status === 'DEVOLVIDO'));
+      const empr=await get('/emprestimos');
+      if(!empr||empr.status) return;
+      empr.forEach(e=>emprestimosMap[e.id]=e);
+      renderAprova(empr.filter(e=>e.status==='APROVADO'));
+      renderDevolvidos(empr.filter(e=>e.status==='DEVOLVIDO'));
     }
-
-    function itensHtml(itens) {
-      return (itens||[]).map(it => `
-        <li class="item-emp"><span>📖</span><span class="tit">${it.tituloLivro}</span><span class="serie">${SERIES[it.serieDestino]||it.serieDestino} · ${it.quantidade}x</span></li>`
-      ).join('');
-    }
-
-    function renderAprova(lista) {
-      const el = document.getElementById('lista-aprova');
-      if (!lista.length) { el.innerHTML='<p class="sem-dados">Nenhum empréstimo ativo aguardando devolução.</p>'; return; }
-      el.innerHTML = lista.map((e,i) => `
+    function itensHtml(itens){return(itens||[]).map(it=>`<li class="item-emp"><span>📖</span><span class="tit">${it.tituloLivro}</span><span class="serie">${SERIES[it.serieDestino]||it.serieDestino} · ${it.quantidade}x</span></li>`).join('');}
+    function renderAprova(lista){
+      const el=document.getElementById('lista-aprova');
+      if(!lista.length){el.innerHTML='<p class="sem-dados">Nenhum empréstimo ativo aguardando devolução.</p>';return;}
+      el.innerHTML=lista.map((e,i)=>`
         <div class="protocolo-card" style="animation-delay:${i*.06}s">
-          <div class="card-header">
-            <div><span class="proto-num">Protocolo #${e.id}</span> <span class="card-meta">${e.nomeInstituicao||''}</span></div>
-            <span class="badge-ap">Ativo</span>
-          </div>
-          <div class="card-body">
-            <div class="gestor-row">👤 <strong>${e.nomeGestor||'-'}</strong></div>
-            <ul class="itens-lista">${itensHtml(e.itens)}</ul>
-          </div>
-          <div class="card-footer">
-            ${e.dataVencimento ? `<span class="venc-info">Vence: ${formatarData(e.dataVencimento)}</span>` : ''}
-            <button class="btn-devolver" onclick="abrirModal(${e.id})">📦 Registrar devolução</button>
-          </div>
+          <div class="card-header"><div><span class="proto-num">Protocolo #${e.id}</span> <span class="card-meta">${e.nomeInstituicao||''}</span></div><span class="badge-ap">Ativo</span></div>
+          <div class="card-body"><div class="gestor-row">👤 <strong>${e.nomeGestor||'-'}</strong></div><ul class="itens-lista">${itensHtml(e.itens)}</ul></div>
+          <div class="card-footer">${e.dataVencimento?`<span class="venc-info">Vence: ${formatarData(e.dataVencimento)}</span>`:''}<button class="btn-devolver" onclick="abrirModal(${e.id})">📦 Registrar devolução</button></div>
         </div>`).join('');
     }
-
-    function renderDevolvidos(lista) {
-      const el = document.getElementById('lista-devolvidos');
-      if (!lista.length) { el.innerHTML='<p class="sem-dados">Nenhuma devolução registrada.</p>'; return; }
-      el.innerHTML = lista.map((e,i) => `
+    function renderDevolvidos(lista){
+      const el=document.getElementById('lista-devolvidos');
+      if(!lista.length){el.innerHTML='<p class="sem-dados">Nenhuma devolução registrada.</p>';return;}
+      el.innerHTML=lista.map((e,i)=>`
         <div class="protocolo-card" style="animation-delay:${i*.06}s;opacity:.75">
-          <div class="card-header">
-            <div><span class="proto-num">Protocolo #${e.id}</span> <span class="card-meta">${e.nomeInstituicao||''}</span></div>
-            <span class="badge-dev">Devolvido</span>
-          </div>
+          <div class="card-header"><div><span class="proto-num">Protocolo #${e.id}</span> <span class="card-meta">${e.nomeInstituicao||''}</span></div><span class="badge-dev">Devolvido</span></div>
           <div class="card-body"><ul class="itens-lista">${itensHtml(e.itens)}</ul></div>
         </div>`).join('');
     }
-
-    function abrirModal(id) {
-      const e = emprestimosMap[id];
-      if (!e) { showToast('Empréstimo não encontrado.','err'); return; }
-      idAtual = id;
-      document.getElementById('modal-titulo').textContent = `Devolução — Protocolo #${id}`;
-      document.getElementById('modal-info').textContent = `${e.nomeInstituicao||''} · ${e.nomeGestor||''}`;
-      document.getElementById('modal-fb').style.display = 'none';
-      document.querySelector('input[name="estado"][value="BOM"]').checked = true;
-      document.getElementById('modal-dev').style.display = 'flex';
+    function abrirModal(id){
+      const e=emprestimosMap[id];if(!e){showToast('Empréstimo não encontrado.','err');return;}
+      idAtual=id;document.getElementById('modal-titulo').textContent=`Devolução — Protocolo #${id}`;
+      document.getElementById('modal-info').textContent=`${e.nomeInstituicao||''} · ${e.nomeGestor||''}`;
+      document.getElementById('modal-fb').style.display='none';
+      document.querySelector('input[name="estado"][value="BOM"]').checked=true;
+      document.getElementById('modal-dev').style.display='flex';
     }
-    function fecharModal() { document.getElementById('modal-dev').style.display = 'none'; idAtual = null; }
-
-    async function confirmarDevolucao() {
-      if (!idAtual) return;
-      const estado = document.querySelector('input[name="estado"]:checked')?.value || 'BOM';
-      const btn = document.getElementById('btn-confirmar-dev');
-      const fb  = document.getElementById('modal-fb');
-      btn.disabled = true; btn.textContent = 'Registrando...';
-
-      const res = await post('/emprestimos/devolucao', { idProtocolo: idAtual, exemplares: [] });
-
-      fb.style.display = 'block';
-      if (res && res.id) {
-        fb.className = 'modal-fb ok'; fb.textContent = '✓ Devolução registrada com sucesso!';
-        showToast('Devolução registrada!', 'ok');
-        setTimeout(() => { fecharModal(); carregar(); }, 1200);
-      } else {
-        fb.className = 'modal-fb err';
-        fb.textContent = res?.mensagens?.[0] || 'Erro ao registrar. Tente via Swagger com exemplares específicos.';
-      }
-      btn.disabled = false; btn.textContent = '✓ Confirmar devolução';
+    function fecharModal(){document.getElementById('modal-dev').style.display='none';idAtual=null;}
+    async function confirmarDevolucao(){
+      if(!idAtual) return;
+      const btn=document.getElementById('btn-confirmar-dev'),fb=document.getElementById('modal-fb');
+      btn.disabled=true;btn.textContent='Registrando...';
+      const res=await post('/emprestimos/devolucao',{idProtocolo:idAtual,exemplares:[]});
+      fb.style.display='block';
+      if(res&&res.id){fb.className='modal-fb ok';fb.textContent='✓ Devolução registrada com sucesso!';showToast('Devolução registrada!','ok');setTimeout(()=>{fecharModal();carregar();},1200);}
+      else{fb.className='modal-fb err';fb.textContent=res?.mensagens?.[0]||'Erro ao registrar.';}
+      btn.disabled=false;btn.textContent='✓ Confirmar devolução';
     }
-
-    document.getElementById('modal-dev').addEventListener('click', e => { if(e.target===e.currentTarget) fecharModal(); });
+    document.getElementById('modal-dev').addEventListener('click',e=>{if(e.target===e.currentTarget)fecharModal();});
     carregar();
   </script>
 </body>

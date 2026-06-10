@@ -1,157 +1,51 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Controle de Estoque | Ler e Educar</title>
-  <link rel="stylesheet" href="css/design-system.css">
-  <link rel="stylesheet" href="css/layout.css">
+  <link rel="stylesheet" href="css/design-system.css"><link rel="stylesheet" href="css/layout.css">
   <style>
     .page-wrap { padding: 28px 40px 60px; max-width: 1200px; margin: 0 auto; }
-
-    /* ── Stats topo ── */
-    .stats-row {
-      display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px;
-      margin-bottom: 28px;
-    }
-    .stat-card {
-      background: white; border-radius: var(--radius-lg); padding: 18px 20px;
-      border: 1px solid rgba(155,123,93,.1); box-shadow: var(--shadow-sm);
-      display: flex; align-items: center; gap: 14px;
-      animation: fadeUp .4s both;
-      transition: transform .25s var(--ease-bounce), box-shadow .25s;
-    }
+    .stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 28px; }
+    .stat-card { background: white; border-radius: var(--radius-lg); padding: 18px 20px; border: 1px solid rgba(155,123,93,.1); box-shadow: var(--shadow-sm); display: flex; align-items: center; gap: 14px; animation: fadeUp .4s both; transition: transform .25s var(--ease-bounce), box-shadow .25s; }
     .stat-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-md); }
-    .stat-icon {
-      width: 44px; height: 44px; border-radius: 50%;
-      display: flex; align-items: center; justify-content: center; font-size: 1.3rem; flex-shrink: 0;
-    }
-    .si-total { background: rgba(155,123,93,.12); }
-    .si-ok    { background: rgba(39,174,96,.12); }
-    .si-low   { background: rgba(243,156,18,.12); }
-    .si-out   { background: rgba(231,76,60,.12); }
+    .stat-icon { width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.3rem; flex-shrink: 0; }
+    .si-total { background: rgba(155,123,93,.12); } .si-ok { background: rgba(39,174,96,.12); } .si-low { background: rgba(243,156,18,.12); } .si-out { background: rgba(231,76,60,.12); }
     .stat-info strong { display: block; font-family: var(--font-display); font-size: 1.6rem; font-weight: 900; color: var(--text-dark); line-height: 1; }
-    .stat-info span   { font-size: .74rem; color: var(--text-muted); font-weight: 500; }
-
-    /* ── Toolbar ── */
-    .page-toolbar {
-      display: flex; align-items: center; gap: 12px; margin-bottom: 24px; flex-wrap: wrap;
-    }
+    .stat-info span { font-size: .74rem; color: var(--text-muted); font-weight: 500; }
+    .page-toolbar { display: flex; align-items: center; gap: 12px; margin-bottom: 24px; flex-wrap: wrap; }
     .filter-chips { display: flex; gap: 8px; flex-wrap: wrap; }
-    .chip {
-      padding: 7px 16px; border-radius: 50px; border: 1.5px solid var(--beige);
-      background: white; color: var(--text-mid); font-family: var(--font-body);
-      font-size: .78rem; font-weight: 500; cursor: pointer; transition: all .2s;
-    }
-    .chip:hover, .chip.ativo {
-      background: var(--primary-dark); border-color: var(--primary-dark);
-      color: white; transform: translateY(-1px);
-    }
-    .busca-inline {
-      flex: 1; min-width: 200px; padding: 9px 16px; border-radius: 50px;
-      border: 1.5px solid var(--beige); background: white;
-      font-family: var(--font-body); font-size: .88rem; outline: none;
-      transition: border-color .2s, box-shadow .2s;
-    }
+    .chip { padding: 7px 16px; border-radius: 50px; border: 1.5px solid var(--beige); background: white; color: var(--text-mid); font-family: var(--font-body); font-size: .78rem; font-weight: 500; cursor: pointer; transition: all .2s; }
+    .chip:hover, .chip.ativo { background: var(--primary-dark); border-color: var(--primary-dark); color: white; transform: translateY(-1px); }
+    .busca-inline { flex: 1; min-width: 200px; padding: 9px 16px; border-radius: 50px; border: 1.5px solid var(--beige); background: white; font-family: var(--font-body); font-size: .88rem; outline: none; transition: border-color .2s, box-shadow .2s; }
     .busca-inline:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(155,123,93,.12); }
-
-    /* ── Grid de cards ── */
-    .estoque-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-      gap: 18px;
-    }
-
-    .estoque-card {
-      background: white; border-radius: var(--radius-lg);
-      border: 1px solid rgba(155,123,93,.1); box-shadow: var(--shadow-sm);
-      overflow: hidden; animation: fadeUp .4s both;
-      transition: transform .3s var(--ease-bounce), box-shadow .3s;
-      display: flex; flex-direction: column;
-    }
+    .estoque-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 18px; }
+    .estoque-card { background: white; border-radius: var(--radius-lg); border: 1px solid rgba(155,123,93,.1); box-shadow: var(--shadow-sm); overflow: hidden; animation: fadeUp .4s both; transition: transform .3s var(--ease-bounce), box-shadow .3s; display: flex; flex-direction: column; }
     .estoque-card:hover { transform: translateY(-5px); box-shadow: var(--shadow-md); }
-
-    /* Capa */
-    .card-capa {
-      width: 100%; height: 200px;
-      background: var(--bg-warm);
-      display: flex; align-items: center; justify-content: center;
-      overflow: hidden; position: relative; flex-shrink: 0;
-    }
+    .card-capa { width: 100%; height: 200px; background: var(--bg-warm); display: flex; align-items: center; justify-content: center; overflow: hidden; position: relative; flex-shrink: 0; }
     .card-capa img { width: 100%; height: 100%; object-fit: cover; }
-    .card-capa .sk-capa {
-      width: 100%; height: 100%;
-      background: linear-gradient(90deg, var(--bg-warm) 25%, var(--beige) 50%, var(--bg-warm) 75%);
-      background-size: 200% 100%; animation: skeleton 1.4s infinite;
-    }
-    .card-capa .no-cover {
-      font-size: 3rem; opacity: .4;
-    }
-
-    /* Badge de estoque sobreposto à capa */
-    .estoque-overlay {
-      position: absolute; top: 10px; right: 10px;
-      padding: 4px 10px; border-radius: 50px;
-      font-size: .68rem; font-weight: 800; letter-spacing: .04em;
-      box-shadow: 0 2px 8px rgba(0,0,0,.15);
-    }
-    .ov-ok  { background: #27ae60; color: white; }
-    .ov-low { background: #e67e22; color: white; }
-    .ov-out { background: #e74c3c; color: white; }
-
-    /* Info do card */
+    .card-capa .sk-capa { width: 100%; height: 100%; background: linear-gradient(90deg, var(--bg-warm) 25%, var(--beige) 50%, var(--bg-warm) 75%); background-size: 200% 100%; animation: skeleton 1.4s infinite; }
+    .card-capa .no-cover { font-size: 3rem; opacity: .4; }
+    .estoque-overlay { position: absolute; top: 10px; right: 10px; padding: 4px 10px; border-radius: 50px; font-size: .68rem; font-weight: 800; letter-spacing: .04em; box-shadow: 0 2px 8px rgba(0,0,0,.15); }
+    .ov-ok  { background: #27ae60; color: white; } .ov-low { background: #e67e22; color: white; } .ov-out { background: #e74c3c; color: white; }
     .card-info { padding: 14px 16px; flex: 1; }
-    .card-titulo {
-      font-family: var(--font-display); font-size: .95rem; font-weight: 700;
-      color: var(--text-dark); line-height: 1.3; margin-bottom: 3px;
-      display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
-    }
-    .card-autor {
-      font-size: .75rem; color: var(--text-muted); margin-bottom: 10px;
-      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-    }
-    .card-cat {
-      font-size: .7rem; font-weight: 600; letter-spacing: .05em;
-      color: var(--primary); margin-bottom: 10px; text-transform: uppercase;
-    }
-
-    /* Barra de disponibilidade */
-    .disp-row {
-      display: flex; align-items: center; justify-content: space-between;
-      margin-bottom: 5px; font-size: .78rem;
-    }
-    .disp-row .label { color: var(--text-muted); }
-    .disp-row .num   { font-weight: 700; color: var(--text-dark); }
-    .disp-track {
-      height: 5px; background: var(--beige); border-radius: 3px; overflow: hidden;
-    }
-    .disp-fill {
-      height: 100%; border-radius: 3px;
-      transition: width .7s var(--ease-smooth);
-    }
-    .df-ok  { background: linear-gradient(90deg, #27ae60, #2ecc71); }
-    .df-low { background: linear-gradient(90deg, #e67e22, #f1c40f); }
-    .df-out { background: #e74c3c; }
-
-    /* Empty state */
-    .empty-state {
-      grid-column: 1/-1; text-align: center; padding: 60px 20px; color: var(--text-muted);
-    }
+    .card-titulo { font-family: var(--font-display); font-size: .95rem; font-weight: 700; color: var(--text-dark); line-height: 1.3; margin-bottom: 3px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+    .card-autor { font-size: .75rem; color: var(--text-muted); margin-bottom: 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .card-cat { font-size: .7rem; font-weight: 600; letter-spacing: .05em; color: var(--primary); margin-bottom: 10px; text-transform: uppercase; }
+    .disp-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 5px; font-size: .78rem; }
+    .disp-row .label { color: var(--text-muted); } .disp-row .num { font-weight: 700; color: var(--text-dark); }
+    .disp-track { height: 5px; background: var(--beige); border-radius: 3px; overflow: hidden; }
+    .disp-fill { height: 100%; border-radius: 3px; transition: width .7s var(--ease-smooth); }
+    .df-ok  { background: linear-gradient(90deg, #27ae60, #2ecc71); } .df-low { background: linear-gradient(90deg, #e67e22, #f1c40f); } .df-out { background: #e74c3c; }
+    .empty-state { grid-column: 1/-1; text-align: center; padding: 60px 20px; color: var(--text-muted); }
     .empty-state .icon { font-size: 3rem; margin-bottom: 12px; }
-
-    @media (max-width: 768px) {
-      .page-wrap { padding: 16px 20px 60px; }
-      .stats-row { grid-template-columns: 1fr 1fr; }
-      .estoque-grid { grid-template-columns: 1fr 1fr; }
-    }
-    @media (max-width: 480px) {
-      .estoque-grid { grid-template-columns: 1fr; }
-    }
+    @media (max-width: 768px) { .page-wrap { padding: 16px 20px 60px; } .stats-row { grid-template-columns: 1fr 1fr; } .estoque-grid { grid-template-columns: 1fr 1fr; } }
   </style>
 </head>
 <body>
   <nav id="menu-lateral" class="menu-lateral">
     <div class="fechar-menu" onclick="toggleMenu()">✕</div>
+    <a href="dashboard.html"       class="menu-item">📊 DASHBOARD BI</a>
     <a href="catalogo-admin.html"  class="menu-item">CATÁLOGO</a>
     <a href="meu-perfil-ADM.html"  class="menu-item">MEU PERFIL</a>
     <a href="adicionar-livro.html" class="menu-item">ADICIONAR LIVROS</a>
@@ -159,43 +53,19 @@
     <a href="controle-estoque.html"class="menu-item ativo">CONTROLE DE ESTOQUE</a>
     <a href="controle-usuario.html"class="menu-item">CONTROLE DE USUÁRIOS</a>
   </nav>
-
   <header class="header">
     <div class="menu-hamburguer" onclick="toggleMenu()"><span></span><span></span><span></span></div>
-    <div class="logo-header">
-      <img src="img/logo-capa-e-barra-de-pesquisa.png" alt="Logo" class="logo-img">
-      <span class="logo-text">LER E EDUCAR</span>
-    </div>
+    <div class="logo-header"><img src="img/logo-capa-e-barra-de-pesquisa.png" alt="Logo" class="logo-img"><span class="logo-text">LER E EDUCAR</span></div>
     <input type="text" placeholder="Buscar..." class="busca">
-    <div class="header-direita">
-      <div class="usuario">Olá, <span id="nome-usuario-logado">Administrador</span></div>
-      <a href="#" class="sair" onclick="Auth.logout()">SAIR</a>
-    </div>
+    <div class="header-direita"><div class="usuario">Olá, <span id="nome-usuario-logado">Administrador</span></div><a href="#" class="sair" onclick="Auth.logout()">SAIR</a></div>
   </header>
-
   <div class="page-wrap">
-
-    <!-- Stats -->
     <div class="stats-row">
-      <div class="stat-card" style="animation-delay:.05s">
-        <div class="stat-icon si-total">📚</div>
-        <div class="stat-info"><strong id="s-total">-</strong><span>Títulos no acervo</span></div>
-      </div>
-      <div class="stat-card" style="animation-delay:.10s">
-        <div class="stat-icon si-ok">🟢</div>
-        <div class="stat-info"><strong id="s-ok">-</strong><span>Em estoque</span></div>
-      </div>
-      <div class="stat-card" style="animation-delay:.15s">
-        <div class="stat-icon si-low">🟡</div>
-        <div class="stat-info"><strong id="s-low">-</strong><span>Estoque baixo (≤3)</span></div>
-      </div>
-      <div class="stat-card" style="animation-delay:.20s">
-        <div class="stat-icon si-out">🔴</div>
-        <div class="stat-info"><strong id="s-out">-</strong><span>Sem estoque</span></div>
-      </div>
+      <div class="stat-card" style="animation-delay:.05s"><div class="stat-icon si-total">📚</div><div class="stat-info"><strong id="s-total">-</strong><span>Títulos no acervo</span></div></div>
+      <div class="stat-card" style="animation-delay:.10s"><div class="stat-icon si-ok">🟢</div><div class="stat-info"><strong id="s-ok">-</strong><span>Em estoque</span></div></div>
+      <div class="stat-card" style="animation-delay:.15s"><div class="stat-icon si-low">🟡</div><div class="stat-info"><strong id="s-low">-</strong><span>Estoque baixo (≤3)</span></div></div>
+      <div class="stat-card" style="animation-delay:.20s"><div class="stat-icon si-out">🔴</div><div class="stat-info"><strong id="s-out">-</strong><span>Sem estoque</span></div></div>
     </div>
-
-    <!-- Toolbar -->
     <div class="page-toolbar">
       <div class="filter-chips">
         <button class="chip ativo" onclick="setFiltro(null,this)">Todos</button>
@@ -203,118 +73,68 @@
         <button class="chip" onclick="setFiltro('low',this)">🟡 Estoque baixo</button>
         <button class="chip" onclick="setFiltro('out',this)">🔴 Sem estoque</button>
       </div>
-      <input type="text" class="busca-inline" id="busca-estoque"
-             placeholder="🔍 Buscar por título ou autor..."
-             oninput="filtrar()">
+      <input type="text" class="busca-inline" id="busca-estoque" placeholder="🔍 Buscar por título ou autor..." oninput="filtrar()">
     </div>
-
-    <!-- Grid -->
-    <div class="estoque-grid" id="grid">
-      <div class="empty-state"><div class="icon">⏳</div><p>Carregando estoque...</p></div>
-    </div>
+    <div class="estoque-grid" id="grid"><div class="empty-state"><div class="icon">⏳</div><p>Carregando estoque...</p></div></div>
   </div>
-
-  <script src="js/api.js"></script>
-  <script src="js/layout.js"></script>
-  <script src="js/animations.js"></script>
+  <script src="js/api.js"></script><script src="js/layout.js"></script><script src="js/animations.js"></script>
   <script>
-    Auth.exigirLogin(); Auth.exibirNome();
-    initAnimations({ tilt: false });
-
+    Auth.exigirLogin(); Auth.exibirNome(); initAnimations({ tilt: false });
     let todos = [], filtroAtivo = null;
-
-    function getNivel(d) {
-      if (d === 0)   return 'out';
-      if (d <= 3)    return 'low';
-      return 'ok';
-    }
-    const NIVEL_LABEL = { ok: 'Em estoque', low: 'Estoque baixo', out: 'Sem estoque' };
-    const NIVEL_OV    = { ok: 'ov-ok',      low: 'ov-low',        out: 'ov-out' };
-    const NIVEL_FILL  = { ok: 'df-ok',      low: 'df-low',        out: 'df-out' };
-
+    function getNivel(d) { if(d===0) return 'out'; if(d<=3) return 'low'; return 'ok'; }
+    const NIVEL_LABEL={ok:'Em estoque',low:'Estoque baixo',out:'Sem estoque'};
+    const NIVEL_OV={ok:'ov-ok',low:'ov-low',out:'ov-out'};
+    const NIVEL_FILL={ok:'df-ok',low:'df-low',out:'df-out'};
     async function carregar() {
-      const livros = await get('/livros');
-      if (!livros || livros.status) return;
-      todos = livros;
-      atualizarStats(livros);
-      renderizar(livros);
+      const livros=await get('/livros');
+      if(!livros||livros.status) return;
+      todos=livros; atualizarStats(livros); renderizar(livros);
     }
-
     function atualizarStats(livros) {
-      const ok  = livros.filter(l => getNivel(l.totalDisponiveis) === 'ok').length;
-      const low = livros.filter(l => getNivel(l.totalDisponiveis) === 'low').length;
-      const out = livros.filter(l => getNivel(l.totalDisponiveis) === 'out').length;
-      document.getElementById('s-total').textContent = livros.length;
-      document.getElementById('s-ok').textContent    = ok;
-      document.getElementById('s-low').textContent   = low;
-      document.getElementById('s-out').textContent   = out;
+      const ok=livros.filter(l=>getNivel(l.totalDisponiveis)==='ok').length;
+      const low=livros.filter(l=>getNivel(l.totalDisponiveis)==='low').length;
+      const out=livros.filter(l=>getNivel(l.totalDisponiveis)==='out').length;
+      document.getElementById('s-total').textContent=livros.length;
+      document.getElementById('s-ok').textContent=ok;
+      document.getElementById('s-low').textContent=low;
+      document.getElementById('s-out').textContent=out;
     }
-
     function filtrar() {
-      const q = document.getElementById('busca-estoque').value.toLowerCase();
-      renderizar(todos.filter(l => {
-        const nivel = getNivel(l.totalDisponiveis);
-        const ok = !filtroAtivo || nivel === filtroAtivo;
-        const match = !q || l.titulo.toLowerCase().includes(q) || l.autor.toLowerCase().includes(q);
-        return ok && match;
+      const q=document.getElementById('busca-estoque').value.toLowerCase();
+      renderizar(todos.filter(l=>{
+        const nivel=getNivel(l.totalDisponiveis);
+        const ok=!filtroAtivo||nivel===filtroAtivo;
+        const match=!q||l.titulo.toLowerCase().includes(q)||l.autor.toLowerCase().includes(q);
+        return ok&&match;
       }));
     }
-
-    function setFiltro(f, btn) {
-      filtroAtivo = f;
-      document.querySelectorAll('.chip').forEach(c => c.classList.remove('ativo'));
-      btn.classList.add('ativo');
-      filtrar();
-    }
-
+    function setFiltro(f,btn) { filtroAtivo=f; document.querySelectorAll('.chip').forEach(c=>c.classList.remove('ativo')); btn.classList.add('ativo'); filtrar(); }
     function renderizar(lista) {
-      const grid = document.getElementById('grid');
-      if (!lista.length) {
-        grid.innerHTML = `<div class="empty-state"><div class="icon">📦</div><p>Nenhum livro encontrado.</p></div>`;
-        return;
-      }
-
-      const max = Math.max(...lista.map(l => l.totalDisponiveis), 1);
-
-      grid.innerHTML = lista.map((l, i) => {
-        const nivel = getNivel(l.totalDisponiveis);
-        const pct   = Math.round((l.totalDisponiveis / max) * 100);
-        return `
-          <div class="estoque-card" style="animation-delay:${i * .04}s">
-            <div class="card-capa">
-              <div class="sk-capa" id="capa-${l.id}"></div>
-              <span class="estoque-overlay ${NIVEL_OV[nivel]}">${NIVEL_LABEL[nivel]}</span>
-            </div>
-            <div class="card-info">
-              <div class="card-titulo">${l.titulo}</div>
-              <div class="card-autor">${l.autor}</div>
-              <div class="card-cat">${CATEGORIAS[l.categoria] || l.categoria}</div>
-              <div class="disp-row">
-                <span class="label">Disponíveis</span>
-                <span class="num">${l.totalDisponiveis}</span>
-              </div>
-              <div class="disp-track">
-                <div class="disp-fill ${NIVEL_FILL[nivel]}" style="width:${pct}%"></div>
-              </div>
-            </div>
-          </div>`;
+      const grid=document.getElementById('grid');
+      if(!lista.length){grid.innerHTML='<div class="empty-state"><div class="icon">📦</div><p>Nenhum livro encontrado.</p></div>';return;}
+      const max=Math.max(...lista.map(l=>l.totalDisponiveis),1);
+      grid.innerHTML=lista.map((l,i)=>{
+        const nivel=getNivel(l.totalDisponiveis);
+        const pct=Math.round((l.totalDisponiveis/max)*100);
+        return `<div class="estoque-card" style="animation-delay:${i*.04}s">
+          <div class="card-capa"><div class="sk-capa" id="capa-${l.id}"></div><span class="estoque-overlay ${NIVEL_OV[nivel]}">${NIVEL_LABEL[nivel]}</span></div>
+          <div class="card-info">
+            <div class="card-titulo">${l.titulo}</div>
+            <div class="card-autor">${l.autor}</div>
+            <div class="card-cat">${CATEGORIAS[l.categoria]||l.categoria}</div>
+            <div class="disp-row"><span class="label">Disponíveis</span><span class="num">${l.totalDisponiveis}</span></div>
+            <div class="disp-track"><div class="disp-fill ${NIVEL_FILL[nivel]}" style="width:${pct}%"></div></div>
+          </div></div>`;
       }).join('');
-
-      // Carrega capas de forma assíncrona — sem bloquear o render
-      lista.forEach(l => carregarCapa(l));
+      lista.forEach(l=>carregarCapa(l));
     }
-
     async function carregarCapa(livro) {
-      const url = await buscarCapa(livro);
-      const el  = document.getElementById('capa-' + livro.id);
-      if (!el) return;
-      if (url) {
-        el.outerHTML = `<img src="${url}" alt="${livro.titulo}" style="width:100%;height:100%;object-fit:cover;">`;
-      } else {
-        el.outerHTML = `<div class="no-cover">📖</div>`;
-      }
+      const url=await buscarCapa(livro);
+      const el=document.getElementById('capa-'+livro.id);
+      if(!el) return;
+      if(url){el.outerHTML=`<img src="${url}" alt="${livro.titulo}" style="width:100%;height:100%;object-fit:cover;">`;}
+      else{el.outerHTML='<div class="no-cover">📖</div>';}
     }
-
     carregar();
   </script>
 </body>

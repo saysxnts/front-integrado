@@ -8,125 +8,45 @@
   <link rel="stylesheet" href="css/layout.css">
   <style>
     .page-wrap { padding: 28px 40px 60px; max-width: 1200px; margin: 0 auto; }
-
-    /* ── Stats topo ── */
-    .stats-row {
-      display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px;
-      margin-bottom: 28px;
-    }
-    .stat-pill {
-      background: white; border-radius: var(--radius-lg); padding: 16px 20px;
-      border: 1px solid rgba(155,123,93,.1); box-shadow: var(--shadow-sm);
-      display: flex; align-items: center; gap: 14px;
-      transition: transform .25s var(--ease-bounce), box-shadow .25s;
-      cursor: pointer; animation: fadeUp .4s both;
-    }
+    .stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 28px; }
+    .stat-pill { background: white; border-radius: var(--radius-lg); padding: 16px 20px; border: 1px solid rgba(155,123,93,.1); box-shadow: var(--shadow-sm); display: flex; align-items: center; gap: 14px; transition: transform .25s var(--ease-bounce), box-shadow .25s; cursor: pointer; animation: fadeUp .4s both; }
     .stat-pill:hover { transform: translateY(-3px); box-shadow: var(--shadow-md); }
     .stat-pill.ativo-tab { border-color: var(--primary); box-shadow: 0 0 0 2px rgba(155,123,93,.25); }
     .stat-icon { width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.3rem; flex-shrink: 0; }
-    .si-pend { background: rgba(243,156,18,.12); }
-    .si-aprov { background: rgba(39,174,96,.12); }
-    .si-dev { background: rgba(127,140,141,.12); }
-    .si-total { background: rgba(155,123,93,.12); }
+    .si-pend { background: rgba(243,156,18,.12); } .si-aprov { background: rgba(39,174,96,.12); } .si-dev { background: rgba(127,140,141,.12); } .si-total { background: rgba(155,123,93,.12); }
     .stat-txt strong { display: block; font-family: var(--font-display); font-size: 1.6rem; font-weight: 900; color: var(--text-dark); line-height: 1; }
     .stat-txt span { font-size: .75rem; color: var(--text-muted); font-weight: 500; }
-
-    /* ── Tabs ── */
-    .tabs-bar {
-      display: flex; gap: 4px; background: var(--bg-warm);
-      border-radius: var(--radius-lg); padding: 4px; margin-bottom: 24px;
-      border: 1px solid var(--beige);
-    }
-    .tab-btn {
-      flex: 1; padding: 10px 16px; border-radius: var(--radius-md);
-      border: none; background: transparent; font-family: var(--font-body);
-      font-size: .85rem; font-weight: 600; color: var(--text-muted);
-      cursor: pointer; transition: all .25s; display: flex; align-items: center; justify-content: center; gap: 8px;
-    }
-    .tab-btn .tab-count {
-      background: var(--beige); color: var(--text-muted);
-      border-radius: 50px; padding: 1px 8px; font-size: .72rem; font-weight: 700;
-      transition: all .25s;
-    }
+    .tabs-bar { display: flex; gap: 4px; background: var(--bg-warm); border-radius: var(--radius-lg); padding: 4px; margin-bottom: 24px; border: 1px solid var(--beige); }
+    .tab-btn { flex: 1; padding: 10px 16px; border-radius: var(--radius-md); border: none; background: transparent; font-family: var(--font-body); font-size: .85rem; font-weight: 600; color: var(--text-muted); cursor: pointer; transition: all .25s; display: flex; align-items: center; justify-content: center; gap: 8px; }
+    .tab-btn .tab-count { background: var(--beige); color: var(--text-muted); border-radius: 50px; padding: 1px 8px; font-size: .72rem; font-weight: 700; transition: all .25s; }
     .tab-btn.ativo { background: white; color: var(--primary-darker); box-shadow: var(--shadow-sm); }
     .tab-btn.ativo .tab-count { background: var(--primary-dark); color: white; }
-
-    /* ── Filtro / busca ── */
     .filter-row { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
-    .busca-inst {
-      flex: 1; min-width: 200px; padding: 9px 16px; border-radius: 50px;
-      border: 1.5px solid var(--beige); background: white;
-      font-family: var(--font-body); font-size: .88rem; color: var(--text-dark); outline: none;
-      transition: border-color .2s, box-shadow .2s;
-    }
+    .busca-inst { flex: 1; min-width: 200px; padding: 9px 16px; border-radius: 50px; border: 1.5px solid var(--beige); background: white; font-family: var(--font-body); font-size: .88rem; color: var(--text-dark); outline: none; transition: border-color .2s, box-shadow .2s; }
     .busca-inst:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(155,123,93,.12); }
-    .sort-btn {
-      padding: 9px 16px; border-radius: 50px; border: 1.5px solid var(--beige);
-      background: white; font-family: var(--font-body); font-size: .82rem;
-      font-weight: 500; color: var(--text-mid); cursor: pointer; transition: all .2s;
-    }
+    .sort-btn { padding: 9px 16px; border-radius: 50px; border: 1.5px solid var(--beige); background: white; font-family: var(--font-body); font-size: .82rem; font-weight: 500; color: var(--text-mid); cursor: pointer; transition: all .2s; }
     .sort-btn:hover { background: var(--bg-warm); border-color: var(--primary); }
-
-    /* ── Tab content ── */
     .tab-content { display: none; }
     .tab-content.ativo { display: block; animation: fadeUp .3s both; }
-
-    /* ── Card de protocolo ── */
-    .protocolo-card {
-      background: white; border-radius: var(--radius-lg);
-      border: 1px solid rgba(155,123,93,.1); box-shadow: var(--shadow-sm);
-      overflow: hidden; margin-bottom: 12px;
-      transition: transform .3s var(--ease-bounce), box-shadow .3s;
-      animation: fadeUp .4s both;
-    }
+    .protocolo-card { background: white; border-radius: var(--radius-lg); border: 1px solid rgba(155,123,93,.1); box-shadow: var(--shadow-sm); overflow: hidden; margin-bottom: 12px; transition: transform .3s var(--ease-bounce), box-shadow .3s; animation: fadeUp .4s both; }
     .protocolo-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
-
-    .card-head {
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 14px 20px; background: var(--bg-warm);
-      border-bottom: 1px solid var(--beige); flex-wrap: wrap; gap: 8px;
-    }
+    .card-head { display: flex; align-items: center; justify-content: space-between; padding: 14px 20px; background: var(--bg-warm); border-bottom: 1px solid var(--beige); flex-wrap: wrap; gap: 8px; }
     .card-head-left { display: flex; align-items: center; gap: 12px; }
-    .proto-id {
-      font-family: var(--font-display); font-size: .95rem; font-weight: 700; color: var(--text-dark);
-    }
-    .escola-chip {
-      display: flex; align-items: center; gap: 5px;
-      background: white; border: 1px solid var(--beige);
-      border-radius: 50px; padding: 3px 10px;
-      font-size: .75rem; font-weight: 600; color: var(--text-mid);
-    }
-    .status-pill {
-      padding: 4px 12px; border-radius: 50px;
-      font-size: .72rem; font-weight: 700; letter-spacing: .04em;
-    }
+    .proto-id { font-family: var(--font-display); font-size: .95rem; font-weight: 700; color: var(--text-dark); }
+    .escola-chip { display: flex; align-items: center; gap: 5px; background: white; border: 1px solid var(--beige); border-radius: 50px; padding: 3px 10px; font-size: .75rem; font-weight: 600; color: var(--text-mid); }
+    .status-pill { padding: 4px 12px; border-radius: 50px; font-size: .72rem; font-weight: 700; letter-spacing: .04em; }
     .sp-pend { background: rgba(243,156,18,.12); color: #8a5e00; border: 1px solid rgba(243,156,18,.25); }
-    .sp-apro { background: rgba(39,174,96,.12);  color: #1a7a40; border: 1px solid rgba(39,174,96,.2); }
+    .sp-apro { background: rgba(39,174,96,.12); color: #1a7a40; border: 1px solid rgba(39,174,96,.2); }
     .sp-devol{ background: rgba(127,140,141,.12); color: #5a6464; border: 1px solid rgba(127,140,141,.2); }
-
     .card-body { padding: 14px 20px; display: flex; gap: 16px; }
     .card-body-info { flex: 1; min-width: 0; }
-    .gestor-row {
-      display: flex; align-items: center; gap: 6px;
-      font-size: .82rem; color: var(--text-muted); margin-bottom: 10px;
-    }
+    .gestor-row { display: flex; align-items: center; gap: 6px; font-size: .82rem; color: var(--text-muted); margin-bottom: 10px; }
     .gestor-row strong { color: var(--text-dark); }
-
-    /* Itens do protocolo */
     .itens-lista { display: flex; flex-direction: column; gap: 5px; }
-    .item-row {
-      display: flex; align-items: center; gap: 8px;
-      padding: 6px 10px; background: var(--bg-warm);
-      border-radius: var(--radius-md); font-size: .82rem;
-    }
+    .item-row { display: flex; align-items: center; gap: 8px; padding: 6px 10px; background: var(--bg-warm); border-radius: var(--radius-md); font-size: .82rem; }
     .item-row .itit { font-weight: 600; color: var(--text-dark); flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .item-row .iserie {
-      flex-shrink: 0; font-size: .7rem; background: var(--beige);
-      padding: 2px 8px; border-radius: 50px; color: var(--text-muted);
-    }
+    .item-row .iserie { flex-shrink: 0; font-size: .7rem; background: var(--beige); padding: 2px 8px; border-radius: 50px; color: var(--text-muted); }
     .item-row .iqt { flex-shrink: 0; font-size: .75rem; color: var(--text-muted); }
-
-    /* Timeline vencimento */
     .venc-bar { margin-top: 10px; }
     .venc-label { font-size: .72rem; color: var(--text-muted); margin-bottom: 4px; display: flex; justify-content: space-between; }
     .venc-track { height: 5px; background: var(--beige); border-radius: 3px; overflow: hidden; }
@@ -134,57 +54,26 @@
     .vf-ok   { background: linear-gradient(90deg, #27ae60, #2ecc71); }
     .vf-warn { background: linear-gradient(90deg, #f39c12, #f1c40f); }
     .vf-over { background: linear-gradient(90deg, #e74c3c, #c0392b); }
-
-    /* Ações */
-    .card-foot {
-      padding: 10px 20px; border-top: 1px solid var(--beige);
-      display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
-    }
-    .btn-aprovar {
-      padding: 8px 22px; border-radius: 50px; border: none;
-      background: var(--primary-dark); color: white;
-      font-family: var(--font-body); font-size: .82rem; font-weight: 700;
-      cursor: pointer; transition: all .25s; position: relative; overflow: hidden;
-    }
+    .card-foot { padding: 10px 20px; border-top: 1px solid var(--beige); display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+    .btn-aprovar { padding: 8px 22px; border-radius: 50px; border: none; background: var(--primary-dark); color: white; font-family: var(--font-body); font-size: .82rem; font-weight: 700; cursor: pointer; transition: all .25s; }
     .btn-aprovar:hover { background: var(--primary-darker); transform: translateY(-1px); box-shadow: var(--shadow-sm); }
     .btn-aprovar:disabled { opacity: .6; cursor: not-allowed; transform: none; }
-    .btn-devolucao {
-      padding: 8px 18px; border-radius: 50px; border: 1.5px solid var(--beige);
-      background: white; color: var(--text-mid); font-family: var(--font-body);
-      font-size: .82rem; font-weight: 600; cursor: pointer; transition: all .2s;
-      text-decoration: none; display: inline-block;
-    }
+    .btn-devolucao { padding: 8px 18px; border-radius: 50px; border: 1.5px solid var(--beige); background: white; color: var(--text-mid); font-family: var(--font-body); font-size: .82rem; font-weight: 600; cursor: pointer; transition: all .2s; text-decoration: none; display: inline-block; }
     .btn-devolucao:hover { background: var(--bg-warm); border-color: var(--primary); }
-    .fb-inline {
-      font-size: .8rem; padding: 4px 10px; border-radius: 50px; display: none;
-    }
+    .fb-inline { font-size: .8rem; padding: 4px 10px; border-radius: 50px; display: none; }
     .fbi-ok  { background: rgba(39,174,96,.1); color: #1a7a40; }
     .fbi-err { background: rgba(231,76,60,.1); color: #b03228; }
-
-    /* Data col */
-    .card-dates {
-      display: flex; flex-direction: column; gap: 4px; flex-shrink: 0;
-      font-size: .75rem; color: var(--text-muted); text-align: right; min-width: 110px;
-    }
+    .card-dates { display: flex; flex-direction: column; gap: 4px; flex-shrink: 0; font-size: .75rem; color: var(--text-muted); text-align: right; min-width: 110px; }
     .card-dates strong { color: var(--text-dark); display: block; font-size: .78rem; }
-
-    /* Empty */
     .empty-state { text-align: center; padding: 48px 20px; color: var(--text-muted); }
     .empty-icon { font-size: 3rem; margin-bottom: 12px; }
-
-    @media (max-width: 768px) {
-      .page-wrap { padding: 16px 20px 60px; }
-      .stats-row { grid-template-columns: 1fr 1fr; }
-      .tabs-bar { flex-wrap: wrap; }
-      .tab-btn { flex: none; }
-      .card-body { flex-direction: column; }
-      .card-dates { text-align: left; }
-    }
+    @media (max-width: 768px) { .page-wrap { padding: 16px 20px 60px; } .stats-row { grid-template-columns: 1fr 1fr; } .tabs-bar { flex-wrap: wrap; } .tab-btn { flex: none; } .card-body { flex-direction: column; } .card-dates { text-align: left; } }
   </style>
 </head>
 <body>
   <nav id="menu-lateral" class="menu-lateral">
     <div class="fechar-menu" onclick="toggleMenu()">✕</div>
+    <a href="dashboard.html"       class="menu-item">📊 DASHBOARD BI</a>
     <a href="catalogo-admin.html"  class="menu-item">CATÁLOGO</a>
     <a href="meu-perfil-ADM.html"  class="menu-item">MEU PERFIL</a>
     <a href="adicionar-livro.html" class="menu-item">ADICIONAR LIVROS</a>
@@ -192,23 +81,16 @@
     <a href="controle-estoque.html"class="menu-item">CONTROLE DE ESTOQUE</a>
     <a href="controle-usuario.html"class="menu-item">CONTROLE DE USUÁRIOS</a>
   </nav>
-
   <header class="header">
     <div class="menu-hamburguer" onclick="toggleMenu()"><span></span><span></span><span></span></div>
-    <div class="logo-header">
-      <img src="img/logo-capa-e-barra-de-pesquisa.png" alt="Logo" class="logo-img">
-      <span class="logo-text">LER E EDUCAR</span>
-    </div>
+    <div class="logo-header"><img src="img/logo-capa-e-barra-de-pesquisa.png" alt="Logo" class="logo-img"><span class="logo-text">LER E EDUCAR</span></div>
     <input type="text" placeholder="Buscar..." class="busca">
     <div class="header-direita">
       <div class="usuario">Olá, <span id="nome-usuario-logado">Admin</span></div>
       <a href="#" class="sair" onclick="Auth.logout()">SAIR</a>
     </div>
   </header>
-
   <div class="page-wrap">
-
-    <!-- Stats -->
     <div class="stats-row">
       <div class="stat-pill" onclick="mudarTab('pendente')" style="animation-delay:.05s">
         <div class="stat-icon si-pend">⏳</div>
@@ -227,34 +109,25 @@
         <div class="stat-txt"><strong id="s-total">-</strong><span>Total</span></div>
       </div>
     </div>
-
-    <!-- Tabs -->
     <div class="tabs-bar">
-      <button class="tab-btn ativo" id="tab-pend" onclick="mudarTab('pendente')">⏳ Pendentes <span class="tab-count" id="tc-pend">0</span></button>
-      <button class="tab-btn"       id="tab-apro" onclick="mudarTab('aprovado')">✅ Aprovados <span class="tab-count" id="tc-apro">0</span></button>
+      <button class="tab-btn ativo" id="tab-pend"  onclick="mudarTab('pendente')">⏳ Pendentes  <span class="tab-count" id="tc-pend">0</span></button>
+      <button class="tab-btn"       id="tab-apro"  onclick="mudarTab('aprovado')">✅ Aprovados  <span class="tab-count" id="tc-apro">0</span></button>
       <button class="tab-btn"       id="tab-devol" onclick="mudarTab('devolvido')">📦 Devolvidos <span class="tab-count" id="tc-devol">0</span></button>
     </div>
-
-    <!-- Busca -->
     <div class="filter-row">
       <input type="text" class="busca-inst" id="busca-inst" placeholder="🔍 Filtrar por escola ou gestor..." oninput="filtrarLista()">
       <button class="sort-btn" onclick="toggleOrdem()">↕ <span id="sort-label">Mais recentes</span></button>
     </div>
-
-    <!-- Conteúdos -->
     <div class="tab-content ativo" id="tab-pendente"></div>
-    <div class="tab-content" id="tab-aprovado"></div>
-    <div class="tab-content" id="tab-devolvido"></div>
-
+    <div class="tab-content"       id="tab-aprovado"></div>
+    <div class="tab-content"       id="tab-devolvido"></div>
   </div>
-
   <script src="js/api.js"></script>
   <script src="js/layout.js"></script>
   <script src="js/animations.js"></script>
   <script>
     Auth.exigirLogin(); Auth.exibirNome();
     initAnimations({ tilt: false });
-
     let todos = [], ordemAsc = false, tabAtual = 'pendente';
 
     async function carregar() {
@@ -264,11 +137,10 @@
       atualizarStats(empr);
       renderizarTodos();
     }
-
     function atualizarStats(empr) {
-      const pend = empr.filter(e => e.status === 'PENDENTE').length;
-      const apro = empr.filter(e => e.status === 'APROVADO').length;
-      const devol = empr.filter(e => e.status === 'DEVOLVIDO').length;
+      const pend = empr.filter(e=>e.status==='PENDENTE').length;
+      const apro = empr.filter(e=>e.status==='APROVADO').length;
+      const devol= empr.filter(e=>e.status==='DEVOLVIDO').length;
       document.getElementById('s-pend').textContent  = pend;
       document.getElementById('s-apro').textContent  = apro;
       document.getElementById('s-dev').textContent   = devol;
@@ -277,85 +149,64 @@
       document.getElementById('tc-apro').textContent  = apro;
       document.getElementById('tc-devol').textContent = devol;
     }
-
     function mudarTab(tab) {
       tabAtual = tab;
-      ['pendente','aprovado','devolvido'].forEach(t => {
-        document.getElementById('tab-' + t).classList.remove('ativo');
-        document.getElementById('tab-' + (t === 'devolvido' ? 'devol' : t === 'aprovado' ? 'apro' : 'pend')).classList.remove('ativo');
-        document.getElementById('tab-content-' + t)?.classList.remove('ativo');
-      });
-      document.getElementById('tab-' + (tab === 'pendente' ? 'pend' : tab === 'aprovado' ? 'apro' : 'devol')).classList.add('ativo');
-      document.getElementById('tab-' + tab).classList.add('ativo');
+      document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('ativo'));
+      document.querySelectorAll('.tab-content').forEach(c=>c.classList.remove('ativo'));
+      const map={pendente:'tab-pend',aprovado:'tab-apro',devolvido:'tab-devol'};
+      document.getElementById(map[tab]).classList.add('ativo');
+      document.getElementById('tab-'+tab).classList.add('ativo');
       filtrarLista();
     }
-
     function filtrarLista() {
-      const q = document.getElementById('busca-inst').value.toLowerCase();
-      const status = tabAtual.toUpperCase();
-      let lista = todos.filter(e => e.status === status);
-      if (q) lista = lista.filter(e =>
-        (e.nomeInstituicao||'').toLowerCase().includes(q) ||
-        (e.nomeGestor||'').toLowerCase().includes(q)
-      );
-      lista = ordemAsc
-        ? lista.sort((a,b) => new Date(a.dataEmissao) - new Date(b.dataEmissao))
-        : lista.sort((a,b) => new Date(b.dataEmissao) - new Date(a.dataEmissao));
-      renderLista(tabAtual, lista);
+      const q=document.getElementById('busca-inst').value.toLowerCase();
+      const status=tabAtual.toUpperCase();
+      let lista=todos.filter(e=>e.status===status);
+      if(q) lista=lista.filter(e=>(e.nomeInstituicao||'').toLowerCase().includes(q)||(e.nomeGestor||'').toLowerCase().includes(q));
+      lista=ordemAsc?lista.sort((a,b)=>new Date(a.dataEmissao)-new Date(b.dataEmissao)):lista.sort((a,b)=>new Date(b.dataEmissao)-new Date(a.dataEmissao));
+      renderLista(tabAtual,lista);
     }
-
     function renderizarTodos() {
-      ['pendente','aprovado','devolvido'].forEach(t => {
-        const lista = todos.filter(e => e.status === t.toUpperCase());
-        renderLista(t, lista);
+      ['pendente','aprovado','devolvido'].forEach(t=>{
+        const lista=todos.filter(e=>e.status===t.toUpperCase());
+        renderLista(t,lista);
       });
     }
-
     function toggleOrdem() {
-      ordemAsc = !ordemAsc;
-      document.getElementById('sort-label').textContent = ordemAsc ? 'Mais antigos' : 'Mais recentes';
+      ordemAsc=!ordemAsc;
+      document.getElementById('sort-label').textContent=ordemAsc?'Mais antigos':'Mais recentes';
       filtrarLista();
     }
-
-    function renderLista(tab, lista) {
-      const el = document.getElementById('tab-' + tab);
-      if (!lista.length) {
-        const labels = { pendente:'Nenhuma solicitação pendente.', aprovado:'Nenhum empréstimo ativo.', devolvido:'Nenhuma devolução registrada.' };
-        el.innerHTML = `<div class="empty-state"><div class="empty-icon">${tab==='pendente'?'⏳':tab==='aprovado'?'✅':'📦'}</div><p>${labels[tab]}</p></div>`;
+    function renderLista(tab,lista) {
+      const el=document.getElementById('tab-'+tab);
+      if(!lista.length){
+        const labels={pendente:'Nenhuma solicitação pendente.',aprovado:'Nenhum empréstimo ativo.',devolvido:'Nenhuma devolução registrada.'};
+        el.innerHTML=`<div class="empty-state"><div class="empty-icon">${tab==='pendente'?'⏳':tab==='aprovado'?'✅':'📦'}</div><p>${labels[tab]}</p></div>`;
         return;
       }
-      el.innerHTML = lista.map((e, i) => cardHtml(e, i)).join('');
+      el.innerHTML=lista.map((e,i)=>cardHtml(e,i)).join('');
     }
-
     function calcVenc(dataVenc) {
-      if (!dataVenc) return null;
-      const hoje = new Date(); const venc = new Date(dataVenc);
-      const total = 90; const restante = Math.ceil((venc - hoje) / 86400000);
-      const pct = Math.max(0, Math.min(100, (restante / total) * 100));
-      const cls = restante < 0 ? 'vf-over' : restante < 15 ? 'vf-warn' : 'vf-ok';
-      const label = restante < 0 ? `Vencido há ${Math.abs(restante)} dias` : restante === 0 ? 'Vence hoje!' : `${restante} dias restantes`;
-      return { pct, cls, label, venc: formatarData(dataVenc) };
+      if(!dataVenc) return null;
+      const hoje=new Date(),venc=new Date(dataVenc);
+      const restante=Math.ceil((venc-hoje)/86400000);
+      const pct=Math.max(0,Math.min(100,(restante/90)*100));
+      const cls=restante<0?'vf-over':restante<15?'vf-warn':'vf-ok';
+      const label=restante<0?`Vencido há ${Math.abs(restante)} dias`:restante===0?'Vence hoje!':`${restante} dias restantes`;
+      return {pct,cls,label,venc:formatarData(dataVenc)};
     }
-
-    function cardHtml(e, i) {
-      const venc = calcVenc(e.dataVencimento);
-      const itensHtml = (e.itens||[]).map(it => `
-        <div class="item-row">
-          <span>📖</span>
-          <span class="itit">${it.tituloLivro}</span>
-          <span class="iserie">${SERIES[it.serieDestino]||it.serieDestino}</span>
-          <span class="iqt">${it.quantidade}x</span>
-        </div>`).join('');
-
-      const statusCls = { PENDENTE:'sp-pend', APROVADO:'sp-apro', DEVOLVIDO:'sp-devol' }[e.status];
-      const statusLabel = { PENDENTE:'Pendente', APROVADO:'Ativo', DEVOLVIDO:'Devolvido' }[e.status];
-
+    function cardHtml(e,i) {
+      const venc=calcVenc(e.dataVencimento);
+      const itensHtml=(e.itens||[]).map(it=>`
+        <div class="item-row"><span>📖</span><span class="itit">${it.tituloLivro}</span><span class="iserie">${SERIES[it.serieDestino]||it.serieDestino}</span><span class="iqt">${it.quantidade}x</span></div>`).join('');
+      const statusCls={PENDENTE:'sp-pend',APROVADO:'sp-apro',DEVOLVIDO:'sp-devol'}[e.status];
+      const statusLabel={PENDENTE:'Pendente',APROVADO:'Ativo',DEVOLVIDO:'Devolvido'}[e.status];
       return `
         <div class="protocolo-card" id="card-${e.id}" style="animation-delay:${i*.05}s">
           <div class="card-head">
             <div class="card-head-left">
               <span class="proto-id">Protocolo #${e.id}</span>
-              ${e.nomeInstituicao ? `<span class="escola-chip">🏫 ${e.nomeInstituicao}</span>` : ''}
+              ${e.nomeInstituicao?`<span class="escola-chip">🏫 ${e.nomeInstituicao}</span>`:''}
             </div>
             <span class="status-pill ${statusCls}">${statusLabel}</span>
           </div>
@@ -363,54 +214,34 @@
             <div class="card-body-info">
               <div class="gestor-row">👤 <strong>${e.nomeGestor||'-'}</strong></div>
               <div class="itens-lista">${itensHtml}</div>
-              ${venc && e.status==='APROVADO' ? `
+              ${venc&&e.status==='APROVADO'?`
                 <div class="venc-bar">
                   <div class="venc-label"><span>Vencimento: ${venc.venc}</span><span>${venc.label}</span></div>
                   <div class="venc-track"><div class="venc-fill ${venc.cls}" style="width:${venc.pct}%"></div></div>
-                </div>` : ''}
+                </div>`:''}
             </div>
             <div class="card-dates">
-              <span>Emitido</span>
-              <strong>${formatarData(e.dataEmissao)}</strong>
-              ${e.dataVencimento && e.status==='DEVOLVIDO' ? `<span style="margin-top:6px">Encerrado</span><strong>${formatarData(e.dataVencimento)}</strong>` : ''}
+              <span>Emitido</span><strong>${formatarData(e.dataEmissao)}</strong>
             </div>
           </div>
-          ${e.status === 'PENDENTE' ? `
+          ${e.status==='PENDENTE'?`
             <div class="card-foot">
               <button class="btn-aprovar" onclick="aprovar(${e.id},this)">✓ Aprovar empréstimo</button>
               <span class="fb-inline" id="fbi-${e.id}"></span>
-            </div>` : e.status === 'APROVADO' ? `
+            </div>`:e.status==='APROVADO'?`
             <div class="card-foot">
               <a href="devolucao.html" class="btn-devolucao">📦 Registrar devolução</a>
-            </div>` : ''}
+            </div>`:''}
         </div>`;
     }
-
-    async function aprovar(id, btn) {
-      btn.disabled = true; btn.textContent = 'Aprovando...';
-      const res = await patch('/emprestimos/' + id + '/aprovar');
-      const fb = document.getElementById('fbi-' + id);
-      fb.style.display = 'inline';
-      if (res && res.id) {
-        fb.className = 'fb-inline fbi-ok'; fb.textContent = '✓ Aprovado!';
-        setTimeout(carregar, 1000);
-      } else {
-        fb.className = 'fb-inline fbi-err'; fb.textContent = res?.mensagens?.[0] || 'Erro.';
-        btn.disabled = false; btn.textContent = '✓ Aprovar empréstimo';
-      }
+    async function aprovar(id,btn) {
+      btn.disabled=true; btn.textContent='Aprovando...';
+      const res=await patch('/emprestimos/'+id+'/aprovar');
+      const fb=document.getElementById('fbi-'+id);
+      fb.style.display='inline';
+      if(res&&res.id){fb.className='fb-inline fbi-ok';fb.textContent='✓ Aprovado!';setTimeout(carregar,1000);}
+      else{fb.className='fb-inline fbi-err';fb.textContent=res?.mensagens?.[0]||'Erro.';btn.disabled=false;btn.textContent='✓ Aprovar empréstimo';}
     }
-
-    // Fix tab switching — usar IDs corretos
-    function mudarTab(tab) {
-      tabAtual = tab;
-      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('ativo'));
-      document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('ativo'));
-      const map = { pendente:'tab-pend', aprovado:'tab-apro', devolvido:'tab-devol' };
-      document.getElementById(map[tab]).classList.add('ativo');
-      document.getElementById('tab-' + tab).classList.add('ativo');
-      filtrarLista();
-    }
-
     carregar();
   </script>
 </body>

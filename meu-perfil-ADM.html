@@ -2,167 +2,20 @@
 <html lang="pt-br">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Meu Perfil | Admin</title>
-  <link rel="stylesheet" href="css/design-system.css">
+  <title>Meu Perfil - Administrador</title>
   <link rel="stylesheet" href="css/layout.css">
+  <link rel="stylesheet" href="css/meu-perfil-ADM.css">
   <style>
-    .page-wrap { padding: 28px 40px 60px; max-width: 1100px; margin: 0 auto; }
-
-    /* ── Hero do perfil ── */
-    .perfil-hero {
-      background: linear-gradient(135deg, var(--primary-darker) 0%, var(--primary-dark) 60%, #8b6241 100%);
-      border-radius: var(--radius-xl); padding: 36px 40px; margin-bottom: 24px;
-      display: flex; align-items: center; gap: 28px;
-      position: relative; overflow: hidden;
-      box-shadow: var(--shadow-lg); animation: fadeUp .5s both;
-    }
-    .perfil-hero::before {
-      content: ''; position: absolute; inset: 0;
-      background: radial-gradient(ellipse at 80% 50%, rgba(255,255,255,.07) 0%, transparent 60%);
-    }
-    .perfil-avatar {
-      width: 88px; height: 88px; border-radius: 50%;
-      background: rgba(255,255,255,.15); border: 3px solid rgba(255,255,255,.3);
-      display: flex; align-items: center; justify-content: center;
-      font-family: var(--font-display); font-size: 2.4rem; font-weight: 900;
-      color: white; flex-shrink: 0; position: relative; z-index: 1;
-      box-shadow: 0 4px 20px rgba(0,0,0,.2);
-    }
-    .perfil-hero-info { position: relative; z-index: 1; flex: 1; }
-    .perfil-nome { font-family: var(--font-display); font-size: 1.6rem; font-weight: 700; color: white; margin-bottom: 4px; }
-    .perfil-role {
-      display: inline-flex; align-items: center; gap: 6px;
-      background: rgba(255,255,255,.15); border: 1px solid rgba(255,255,255,.2);
-      color: rgba(255,255,255,.9); padding: 4px 14px; border-radius: 50px;
-      font-size: .78rem; font-weight: 600; letter-spacing: .04em; margin-bottom: 14px;
-    }
-    .perfil-role::before { content: '●'; font-size: .5rem; color: var(--accent); }
-    .perfil-meta { display: flex; gap: 20px; flex-wrap: wrap; }
-    .meta-item { font-size: .82rem; color: rgba(255,255,255,.7); display: flex; align-items: center; gap: 5px; }
-    .meta-item strong { color: white; }
-
-    /* Acesso rápido no hero */
-    .hero-actions { display: flex; flex-direction: column; gap: 8px; flex-shrink: 0; position: relative; z-index: 1; }
-    .btn-hero-action {
-      padding: 9px 18px; border-radius: 50px; border: 1.5px solid rgba(255,255,255,.25);
-      background: rgba(255,255,255,.1); color: white; font-family: var(--font-body);
-      font-size: .82rem; font-weight: 600; cursor: pointer; transition: all .2s;
-      text-decoration: none; display: inline-flex; align-items: center; gap: 6px; white-space: nowrap;
-    }
-    .btn-hero-action:hover { background: rgba(255,255,255,.2); border-color: rgba(255,255,255,.4); }
-
-    /* ── Grid principal ── */
-    .main-grid { display: grid; grid-template-columns: 1fr 340px; gap: 20px; align-items: start; }
-
-    /* ── Stats cards ── */
-    .stats-section { margin-bottom: 20px; }
-    .stats-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
-    .stat-card {
-      background: white; border-radius: var(--radius-lg); padding: 20px;
-      border: 1px solid rgba(155,123,93,.1); box-shadow: var(--shadow-sm);
-      display: flex; align-items: center; gap: 16px;
-      transition: transform .3s var(--ease-bounce), box-shadow .3s; cursor: default;
-      animation: fadeUp .4s both;
-    }
-    .stat-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-md); }
-    .sc-icon {
-      width: 52px; height: 52px; border-radius: var(--radius-md);
-      display: flex; align-items: center; justify-content: center; font-size: 1.5rem; flex-shrink: 0;
-    }
-    .sc-livros  { background: rgba(155,123,93,.12); }
-    .sc-inst    { background: rgba(52,152,219,.1); }
-    .sc-pend    { background: rgba(243,156,18,.1); }
-    .sc-apro    { background: rgba(39,174,96,.1); }
-    .sc-info { flex: 1; min-width: 0; }
-    .sc-num {
-      font-family: var(--font-display); font-size: 2rem; font-weight: 900;
-      color: var(--text-dark); line-height: 1; margin-bottom: 3px;
-    }
-    .sc-label { font-size: .78rem; color: var(--text-muted); font-weight: 500; }
-    .sc-trend { font-size: .7rem; margin-top: 4px; }
-    .trend-up { color: #27ae60; } .trend-same { color: var(--text-muted); }
-
-    /* ── Atividade recente ── */
-    .section-card {
-      background: white; border-radius: var(--radius-xl); padding: 24px;
-      border: 1px solid rgba(155,123,93,.1); box-shadow: var(--shadow-sm);
-      margin-bottom: 20px; animation: fadeUp .4s .1s both;
-    }
-    .section-card-title {
-      font-family: var(--font-display); font-size: 1rem; font-weight: 700;
-      color: var(--text-dark); margin-bottom: 16px; padding-bottom: 10px;
-      border-bottom: 1px solid var(--beige); display: flex; align-items: center; justify-content: space-between;
-    }
-    .section-card-title a { font-size: .78rem; font-weight: 500; color: var(--primary); text-decoration: none; }
-    .section-card-title a:hover { text-decoration: underline; }
-
-    .atividade-item {
-      display: flex; align-items: center; gap: 12px;
-      padding: 10px 0; border-bottom: 1px solid rgba(155,123,93,.07);
-    }
-    .atividade-item:last-child { border: none; padding-bottom: 0; }
-    .at-dot {
-      width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
-    }
-    .at-pend { background: #f39c12; } .at-apro { background: #27ae60; } .at-devol { background: #7f8c8d; }
-    .at-info { flex: 1; min-width: 0; }
-    .at-titulo { font-size: .85rem; font-weight: 600; color: var(--text-dark); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .at-sub { font-size: .75rem; color: var(--text-muted); }
-    .at-data { font-size: .72rem; color: var(--text-muted); flex-shrink: 0; }
-    .status-mini {
-      padding: 2px 8px; border-radius: 50px; font-size: .68rem; font-weight: 700; flex-shrink: 0;
-    }
-    .sm-pend { background: rgba(243,156,18,.1); color: #8a5e00; }
-    .sm-apro { background: rgba(39,174,96,.1); color: #1a7a40; }
-    .sm-devol{ background: rgba(127,140,141,.1); color: #5a6464; }
-    .empty-atividade { text-align: center; color: var(--text-muted); padding: 20px; font-size: .88rem; }
-
-    /* ── Sidebar ── */
-    .sidebar-col { display: flex; flex-direction: column; gap: 16px; }
-
-    /* Saúde do acervo */
-    .acervo-card {
-      background: white; border-radius: var(--radius-xl); padding: 22px;
-      border: 1px solid rgba(155,123,93,.1); box-shadow: var(--shadow-sm);
-      animation: fadeUp .4s .15s both;
-    }
-    .acervo-title { font-family: var(--font-display); font-size: .95rem; font-weight: 700; color: var(--text-dark); margin-bottom: 14px; }
-    .acervo-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
-    .acervo-row-label { font-size: .82rem; color: var(--text-mid); }
-    .acervo-row-val { font-size: .88rem; font-weight: 700; color: var(--text-dark); }
-    .acervo-bar { height: 6px; background: var(--beige); border-radius: 3px; overflow: hidden; margin-bottom: 12px; }
-    .acervo-fill { height: 100%; border-radius: 3px; background: linear-gradient(90deg, var(--primary), var(--accent)); transition: width .8s var(--ease-smooth); }
-
-    /* Ações rápidas */
-    .acoes-card {
-      background: white; border-radius: var(--radius-xl); padding: 22px;
-      border: 1px solid rgba(155,123,93,.1); box-shadow: var(--shadow-sm);
-      animation: fadeUp .4s .2s both;
-    }
-    .acoes-title { font-family: var(--font-display); font-size: .95rem; font-weight: 700; color: var(--text-dark); margin-bottom: 14px; }
-    .acao-item {
-      display: flex; align-items: center; gap: 12px;
-      padding: 10px 12px; border-radius: var(--radius-md);
-      text-decoration: none; color: var(--text-dark); transition: background .2s;
-    }
-    .acao-item:hover { background: var(--bg-warm); }
-    .acao-icon { font-size: 1.2rem; width: 32px; text-align: center; flex-shrink: 0; }
-    .acao-txt strong { display: block; font-size: .85rem; font-weight: 600; }
-    .acao-txt span { font-size: .73rem; color: var(--text-muted); }
-
-    @media (max-width: 900px) {
-      .page-wrap { padding: 16px 20px 60px; }
-      .main-grid { grid-template-columns: 1fr; }
-      .perfil-hero { flex-direction: column; text-align: center; padding: 28px 24px; }
-      .hero-actions { flex-direction: row; flex-wrap: wrap; justify-content: center; }
-      .stats-grid { grid-template-columns: 1fr 1fr; }
-    }
+    .stat-box { display:flex;gap:16px;margin:20px 0;flex-wrap:wrap; }
+    .stat { background:#f0f4ff;border-radius:10px;padding:14px 24px;text-align:center;min-width:120px; }
+    .stat strong { display:block;font-size:1.8rem;color:#2c3e50; }
+    .stat span   { font-size:.85rem;color:#666; }
   </style>
 </head>
 <body>
   <nav id="menu-lateral" class="menu-lateral">
     <div class="fechar-menu" onclick="toggleMenu()">✕</div>
+    <a href="dashboard.html"       class="menu-item">📊 DASHBOARD BI</a>
     <a href="catalogo-admin.html"  class="menu-item">CATÁLOGO</a>
     <a href="meu-perfil-ADM.html"  class="menu-item ativo">MEU PERFIL</a>
     <a href="adicionar-livro.html" class="menu-item">ADICIONAR LIVROS</a>
@@ -177,209 +30,60 @@
       <img src="img/logo-capa-e-barra-de-pesquisa.png" alt="Logo" class="logo-img">
       <span class="logo-text">LER E EDUCAR</span>
     </div>
-    <input type="text" placeholder="Buscar..." class="busca">
+    <input type="text" placeholder="Buscar livro..." class="busca">
     <div class="header-direita">
-      <div class="usuario">Olá, <span id="nome-usuario-logado">Admin</span></div>
+      <div class="usuario">Olá, <span id="adminName">Administrador</span></div>
       <a href="#" class="sair" onclick="Auth.logout()">SAIR</a>
     </div>
   </header>
 
-  <div class="page-wrap">
+  <main class="perfil-adm-container">
+    <h1>MEU PERFIL — ADMINISTRADOR</h1>
+    <p class="subtitulo">Meus dados</p>
 
-    <!-- Hero -->
-    <div class="perfil-hero">
-      <div class="perfil-avatar" id="avatar">A</div>
-      <div class="perfil-hero-info">
-        <h1 class="perfil-nome" id="perfil-nome">Administrador</h1>
-        <div class="perfil-role">Administrador do Sistema</div>
-        <div class="perfil-meta">
-          <span class="meta-item">📧 <strong>admin@lereducar.com.br</strong></span>
-          <span class="meta-item">🏛️ <strong>Ler e Educar</strong></span>
-          <span class="meta-item">🗓️ <strong id="data-hoje"></strong></span>
+    <form class="perfil-form">
+      <div class="linha">
+        <div class="campo">
+          <label>Nome completo</label>
+          <input type="text" id="nomeCompleto" disabled>
+        </div>
+        <div class="campo campo-pequeno">
+          <label>Tipo</label>
+          <input type="text" id="tipoUsuario" value="Administrador" disabled>
         </div>
       </div>
-      <div class="hero-actions">
-        <a href="adicionar-livro.html" class="btn-hero-action">＋ Novo livro</a>
-        <a href="emprestimo.html"      class="btn-hero-action">📋 Empréstimos</a>
-        <a href="controle-usuario.html"class="btn-hero-action">👥 Usuários</a>
-      </div>
+    </form>
+
+    <h2 style="margin-top:28px;margin-bottom:8px">Resumo do sistema</h2>
+    <div class="stat-box">
+      <div class="stat"><strong id="qt-livros">-</strong><span>Livros no catálogo</span></div>
+      <div class="stat"><strong id="qt-inst">-</strong><span>Instituições</span></div>
+      <div class="stat"><strong id="qt-pendente">-</strong><span>Empréstimos pendentes</span></div>
+      <div class="stat"><strong id="qt-aprovado">-</strong><span>Empréstimos ativos</span></div>
     </div>
-
-    <!-- Grid -->
-    <div class="main-grid">
-
-      <!-- Coluna esquerda -->
-      <div>
-        <!-- Stats -->
-        <div class="stats-section">
-          <div class="stats-grid">
-            <div class="stat-card" style="animation-delay:.05s">
-              <div class="sc-icon sc-livros">📚</div>
-              <div class="sc-info">
-                <div class="sc-num" id="st-livros">-</div>
-                <div class="sc-label">Livros no catálogo</div>
-                <div class="sc-trend trend-same" id="st-livros-disp"></div>
-              </div>
-            </div>
-            <div class="stat-card" style="animation-delay:.10s">
-              <div class="sc-icon sc-inst">🏫</div>
-              <div class="sc-info">
-                <div class="sc-num" id="st-inst">-</div>
-                <div class="sc-label">Instituições parceiras</div>
-                <div class="sc-trend" id="st-inst-pend"></div>
-              </div>
-            </div>
-            <div class="stat-card" style="animation-delay:.15s">
-              <div class="sc-icon sc-pend">⏳</div>
-              <div class="sc-info">
-                <div class="sc-num" id="st-pend">-</div>
-                <div class="sc-label">Empréstimos pendentes</div>
-                <div class="sc-trend trend-same">Aguardando aprovação</div>
-              </div>
-            </div>
-            <div class="stat-card" style="animation-delay:.20s">
-              <div class="sc-icon sc-apro">✅</div>
-              <div class="sc-info">
-                <div class="sc-num" id="st-apro">-</div>
-                <div class="sc-label">Empréstimos ativos</div>
-                <div class="sc-trend trend-up" id="st-taxa"></div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Atividade recente -->
-        <div class="section-card">
-          <div class="section-card-title">
-            Atividade Recente
-            <a href="emprestimo.html">Ver todos →</a>
-          </div>
-          <div id="atividade-lista"><p class="empty-atividade">Carregando...</p></div>
-        </div>
-      </div>
-
-      <!-- Coluna direita -->
-      <div class="sidebar-col">
-
-        <!-- Saúde do acervo -->
-        <div class="acervo-card">
-          <div class="acervo-title">📊 Saúde do Acervo</div>
-          <div id="acervo-content"><p style="font-size:.82rem;color:var(--text-muted)">Carregando...</p></div>
-        </div>
-
-        <!-- Ações rápidas -->
-        <div class="acoes-card">
-          <div class="acoes-title">⚡ Ações Rápidas</div>
-          <a href="adicionar-livro.html" class="acao-item">
-            <span class="acao-icon">📚</span>
-            <div class="acao-txt"><strong>Adicionar livro</strong><span>Novo título no catálogo</span></div>
-          </a>
-          <a href="emprestimo.html" class="acao-item">
-            <span class="acao-icon">⏳</span>
-            <div class="acao-txt"><strong>Ver pendentes</strong><span>Aprovar solicitações</span></div>
-          </a>
-          <a href="controle-usuario.html" class="acao-item">
-            <span class="acao-icon">🏫</span>
-            <div class="acao-txt"><strong>Gerenciar escolas</strong><span>Aprovar e bloquear</span></div>
-          </a>
-          <a href="controle-estoque.html" class="acao-item">
-            <span class="acao-icon">📦</span>
-            <div class="acao-txt"><strong>Controle de estoque</strong><span>Ver disponibilidade</span></div>
-          </a>
-          <a href="devolucao.html" class="acao-item">
-            <span class="acao-icon">↩️</span>
-            <div class="acao-txt"><strong>Registrar devolução</strong><span>Receber exemplares</span></div>
-          </a>
-        </div>
-
-      </div>
-    </div>
-  </div>
+  </main>
 
   <script src="js/api.js"></script>
   <script src="js/layout.js"></script>
-  <script src="js/animations.js"></script>
   <script>
-    Auth.exigirLogin(); Auth.exibirNome();
-    initAnimations({ tilt: false });
-
-    // Data de hoje
-    document.getElementById('data-hoje').textContent =
-      new Date().toLocaleDateString('pt-BR', { day:'2-digit', month:'long', year:'numeric' });
+    Auth.exigirLogin();
+    Auth.exibirNome();
 
     async function carregar() {
-      const nome = Auth.nome() || 'Administrador';
-      document.getElementById('perfil-nome').textContent = nome;
-      document.getElementById('avatar').textContent = nome[0].toUpperCase();
+      document.getElementById('nomeCompleto').value = Auth.nome() || '-';
 
       const [livros, inst, empr] = await Promise.all([
-        get('/livros'), get('/instituicoes'), get('/emprestimos')
+        get('/livros'),
+        get('/instituicoes'),
+        get('/emprestimos')
       ]);
 
-      // Stats
-      if (livros && !livros.status) {
-        const totalDisp = livros.reduce((a,l) => a + l.totalDisponiveis, 0);
-        document.getElementById('st-livros').textContent = livros.length;
-        document.getElementById('st-livros-disp').textContent = totalDisp + ' disponíveis';
-        document.getElementById('st-livros-disp').className = 'sc-trend ' + (totalDisp > 0 ? 'trend-up' : 'trend-same');
-        renderAcervo(livros);
+      if (livros && !livros.status) document.getElementById('qt-livros').textContent = livros.length;
+      if (inst   && !inst.status)   document.getElementById('qt-inst').textContent   = inst.length;
+      if (empr   && !empr.status) {
+        document.getElementById('qt-pendente').textContent = empr.filter(e => e.status === 'PENDENTE').length;
+        document.getElementById('qt-aprovado').textContent = empr.filter(e => e.status === 'APROVADO').length;
       }
-      if (inst && !inst.status) {
-        document.getElementById('st-inst').textContent = inst.length;
-        const pend = inst.filter(i => i.status === 'PENDENTE').length;
-        document.getElementById('st-inst-pend').textContent = pend > 0 ? `${pend} aguardando aprovação` : 'Todas ativas';
-        document.getElementById('st-inst-pend').className = 'sc-trend ' + (pend > 0 ? 'trend-same' : 'trend-up');
-      }
-      if (empr && !empr.status) {
-        const pend = empr.filter(e => e.status === 'PENDENTE').length;
-        const apro = empr.filter(e => e.status === 'APROVADO').length;
-        const total = empr.length;
-        document.getElementById('st-pend').textContent = pend;
-        document.getElementById('st-apro').textContent = apro;
-        const taxa = total > 0 ? Math.round(apro/total*100) : 0;
-        document.getElementById('st-taxa').textContent = `${taxa}% do total`;
-        document.getElementById('st-taxa').className = 'sc-trend ' + (taxa >= 50 ? 'trend-up' : 'trend-same');
-        renderAtividade(empr);
-      }
-    }
-
-    function renderAcervo(livros) {
-      const totalExemp = livros.reduce((a,l) => a + (l.totalDisponiveis||0), 0);
-      const semEstoque = livros.filter(l => l.totalDisponiveis === 0).length;
-      const baixoEstoque = livros.filter(l => l.totalDisponiveis > 0 && l.totalDisponiveis <= 3).length;
-      const ok = livros.length - semEstoque - baixoEstoque;
-      const pct = livros.length > 0 ? Math.round(ok/livros.length*100) : 0;
-
-      document.getElementById('acervo-content').innerHTML = `
-        <div class="acervo-row"><span class="acervo-row-label">Títulos em estoque</span><span class="acervo-row-val" style="color:#27ae60">${ok}</span></div>
-        <div class="acervo-bar"><div class="acervo-fill" style="width:${pct}%"></div></div>
-        <div class="acervo-row"><span class="acervo-row-label">Estoque baixo (≤3)</span><span class="acervo-row-val" style="color:#f39c12">${baixoEstoque}</span></div>
-        <div class="acervo-bar"><div class="acervo-fill" style="width:${livros.length>0?Math.round(baixoEstoque/livros.length*100):0}%;background:linear-gradient(90deg,#f39c12,#f1c40f)"></div></div>
-        <div class="acervo-row"><span class="acervo-row-label">Sem estoque</span><span class="acervo-row-val" style="color:#e74c3c">${semEstoque}</span></div>
-        <div class="acervo-bar"><div class="acervo-fill" style="width:${livros.length>0?Math.round(semEstoque/livros.length*100):0}%;background:linear-gradient(90deg,#e74c3c,#c0392b)"></div></div>
-        <div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--beige);font-size:.78rem;color:var(--text-muted)">
-          Total de exemplares disponíveis: <strong style="color:var(--text-dark)">${totalExemp}</strong>
-        </div>`;
-    }
-
-    function renderAtividade(empr) {
-      const ultimos = [...empr]
-        .sort((a,b) => new Date(b.dataEmissao) - new Date(a.dataEmissao))
-        .slice(0, 6);
-      const el = document.getElementById('atividade-lista');
-      if (!ultimos.length) { el.innerHTML = '<p class="empty-atividade">Nenhum empréstimo registrado.</p>'; return; }
-      const cls = { PENDENTE:'at-pend sm-pend', APROVADO:'at-apro sm-apro', DEVOLVIDO:'at-devol sm-devol' };
-      const label = { PENDENTE:'Pendente', APROVADO:'Ativo', DEVOLVIDO:'Devolvido' };
-      el.innerHTML = ultimos.map(e => `
-        <div class="atividade-item">
-          <div class="at-dot ${cls[e.status].split(' ')[0]}"></div>
-          <div class="at-info">
-            <div class="at-titulo">${e.nomeInstituicao || 'Instituição'} — Protocolo #${e.id}</div>
-            <div class="at-sub">${e.nomeGestor || '-'} · ${(e.itens||[]).length} título(s)</div>
-          </div>
-          <span class="status-mini ${cls[e.status].split(' ')[1]}">${label[e.status]}</span>
-          <span class="at-data">${formatarData(e.dataEmissao)}</span>
-        </div>`).join('');
     }
 
     carregar();

@@ -2,119 +2,22 @@
 <html lang="pt-br">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Adicionar Livro | Ler e Educar</title>
-  <link rel="stylesheet" href="css/design-system.css">
+  <title>Adicionar Livros</title>
   <link rel="stylesheet" href="css/layout.css">
+  <link rel="stylesheet" href="css/adicionar-livro.css">
   <style>
-    .page-content { padding: 28px 40px 60px; max-width: 1100px; margin: 0 auto; display: grid; grid-template-columns: 1fr 320px; gap: 32px; align-items: start; }
-    .page-title { font-family: var(--font-display); font-size: 1.6rem; font-weight: 700; color: var(--text-dark); margin-bottom: 4px; }
-    .page-sub { font-size: .88rem; color: var(--text-muted); margin-bottom: 24px; }
-    .page-header { grid-column: 1 / -1; }
-
-    /* ── Form card ── */
-    .form-card { background: white; border-radius: var(--radius-xl); padding: 36px; border: 1px solid rgba(155,123,93,.1); box-shadow: var(--shadow-sm); }
-    .section-title { font-family: var(--font-display); font-size: 1rem; font-weight: 700; color: var(--text-dark); margin-bottom: 16px; padding-bottom: 8px; border-bottom: 1px solid var(--beige); display: flex; align-items: center; gap: 8px; }
-    .section-title::before { content: ''; width: 3px; height: 18px; background: linear-gradient(to bottom, var(--primary), var(--accent)); border-radius: 2px; }
-
-    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px; }
-    .form-full { grid-column: 1 / -1; }
-    .form-group { display: flex; flex-direction: column; gap: 5px; }
-    .form-group label { font-size: .72rem; font-weight: 700; letter-spacing: .07em; text-transform: uppercase; color: var(--text-muted); }
-    .form-group label .req { color: var(--accent); }
-    .form-group input, .form-group select, .form-group textarea {
-      padding: 11px 14px; border: 1.5px solid var(--beige); border-radius: var(--radius-md);
-      font-family: var(--font-body); font-size: .92rem; color: var(--text-dark); background: white;
-      outline: none; transition: border-color .2s, box-shadow .2s, transform .15s;
-    }
-    .form-group input:focus, .form-group select:focus {
-      border-color: var(--primary); box-shadow: 0 0 0 3px rgba(155,123,93,.15); transform: translateY(-1px);
-    }
-
-    /* ISBN row com busca */
-    .isbn-row { display: grid; grid-template-columns: 1fr auto; gap: 10px; align-items: end; }
-    .btn-isbn { padding: 11px 16px; background: var(--primary-dark); color: white; border: none; border-radius: var(--radius-md); font-family: var(--font-body); font-size: .82rem; font-weight: 600; cursor: pointer; white-space: nowrap; transition: all .2s; }
-    .btn-isbn:hover { background: var(--primary-darker); }
-    .btn-isbn:disabled { opacity: .6; cursor: not-allowed; }
-
-    /* Categoria como grid de cards */
-    .cat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-top: 4px; }
-    .cat-option {
-      padding: 12px 6px; border-radius: var(--radius-md); border: 1.5px solid var(--beige);
-      background: white; text-align: center; cursor: pointer; transition: all .2s;
-    }
-    .cat-option input { display: none; }
-    .cat-option .cat-icon { font-size: 1.3rem; display: block; margin-bottom: 4px; }
-    .cat-option .cat-name { font-size: .68rem; font-weight: 600; color: var(--text-muted); line-height: 1.2; }
-    .cat-option:has(input:checked) { background: var(--primary-dark); border-color: var(--primary-dark); }
-    .cat-option:has(input:checked) .cat-name { color: white; }
-    .cat-option:hover { border-color: var(--primary); transform: translateY(-1px); }
-
-    /* Séries pills */
-    .series-pills { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px; }
-    .serie-pill { display: flex; align-items: center; gap: 5px; padding: 9px 18px; border-radius: 50px; border: 1.5px solid var(--beige); background: white; font-size: .84rem; font-weight: 500; color: var(--text-mid); cursor: pointer; transition: all .2s; user-select: none; }
-    .serie-pill input { display: none; }
-    .serie-pill:has(input:checked) { background: var(--primary-dark); border-color: var(--primary-dark); color: white; }
-    .serie-pill:hover { border-color: var(--primary); }
-
-    /* Stepper de quantidade */
-    .qty-wrap { display: flex; align-items: center; gap: 12px; }
-    .qty-btn { width: 36px; height: 36px; border-radius: 50%; border: 1.5px solid var(--beige); background: white; font-size: 1.2rem; cursor: pointer; display: flex; align-items: center; justify-content: center; font-weight: 700; transition: all .2s; }
-    .qty-btn:hover { background: var(--beige); border-color: var(--primary); }
-    .qty-display { font-family: var(--font-display); font-size: 1.3rem; font-weight: 700; color: var(--text-dark); min-width: 36px; text-align: center; }
-    input#qtd { display: none; }
-
-    .btn-submit {
-      width: 100%; padding: 14px; background: var(--primary-dark); color: white; border: none;
-      border-radius: 50px; font-family: var(--font-body); font-size: 1rem; font-weight: 700;
-      cursor: pointer; transition: all .25s; position: relative; overflow: hidden; margin-top: 8px;
-    }
-    .btn-submit:hover { background: var(--primary-darker); transform: translateY(-2px); box-shadow: var(--shadow-md); }
-    .btn-submit:disabled { opacity: .6; cursor: not-allowed; transform: none; }
-
-    .form-fb { padding: 12px 16px; border-radius: var(--radius-md); font-size: .88rem; margin-top: 12px; display: none; }
-    .form-fb.ok  { background: rgba(39,174,96,.1); color: #1a7a40; border: 1px solid rgba(39,174,96,.2); }
-    .form-fb.err { background: rgba(231,76,60,.1); color: #b03228; border: 1px solid rgba(231,76,60,.2); }
-
-    /* ── Preview sidebar ── */
-    .preview-card {
-      background: white; border-radius: var(--radius-xl); padding: 24px;
-      border: 1px solid rgba(155,123,93,.1); box-shadow: var(--shadow-sm);
-      position: sticky; top: 88px;
-    }
-    .preview-title { font-size: .72rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 14px; }
-    .preview-livro {
-      border-radius: var(--radius-lg); border: 1px solid rgba(155,123,93,.1); overflow: hidden;
-      box-shadow: var(--shadow-sm);
-    }
-    .preview-capa {
-      width: 100%; height: 220px; background: var(--bg-warm);
-      display: flex; align-items: center; justify-content: center;
-      font-size: 3rem; overflow: hidden;
-      transition: all .3s;
-    }
-    .preview-capa img { width: 100%; height: 100%; object-fit: cover; }
-    .preview-info { padding: 14px; background: white; }
-    .preview-titulo { font-family: var(--font-display); font-size: .95rem; font-weight: 700; color: var(--text-dark); margin-bottom: 2px; min-height: 20px; }
-    .preview-autor  { font-size: .78rem; color: var(--text-muted); margin-bottom: 8px; }
-    .preview-badge  { display: inline-block; padding: 2px 10px; border-radius: 50px; font-size: .68rem; font-weight: 700; background: rgba(39,174,96,.1); color: #1a7a40; border: 1px solid rgba(39,174,96,.2); }
-    .preview-cat { font-size: .72rem; color: var(--primary-dark); font-weight: 600; margin-top: 6px; }
-
-    .preview-hint { text-align: center; font-size: .78rem; color: var(--text-muted); margin-top: 12px; line-height: 1.5; }
-
-    @media(max-width:900px){
-      .page-content{ grid-template-columns: 1fr; padding:20px; }
-      .page-header{ grid-column:1; }
-      .preview-card{ position:static; }
-      .cat-grid{ grid-template-columns:repeat(4,1fr); }
-      .form-grid{ grid-template-columns:1fr; }
-      .form-full{ grid-column:1; }
-    }
+    .form-select { width:100%;padding:8px;border-radius:6px;border:1px solid #ccc;margin-bottom:10px; }
+    .checkbox-group { display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px; }
+    .checkbox-group label { display:flex;align-items:center;gap:4px;font-size:.9rem; }
+    .feedback { padding:10px 14px;border-radius:6px;margin-top:12px;display:none; }
+    .feedback.ok  { background:#d4edda;color:#155724; }
+    .feedback.err { background:#f8d7da;color:#721c24; }
   </style>
 </head>
 <body>
   <nav id="menu-lateral" class="menu-lateral">
     <div class="fechar-menu" onclick="toggleMenu()">✕</div>
+    <a href="dashboard.html"       class="menu-item">📊 DASHBOARD BI</a>
     <a href="catalogo-admin.html"  class="menu-item">CATÁLOGO</a>
     <a href="meu-perfil-ADM.html"  class="menu-item">MEU PERFIL</a>
     <a href="adicionar-livro.html" class="menu-item ativo">ADICIONAR LIVROS</a>
@@ -125,259 +28,126 @@
 
   <header class="header">
     <div class="menu-hamburguer" onclick="toggleMenu()"><span></span><span></span><span></span></div>
-    <div class="logo-header"><img src="img/logo-capa-e-barra-de-pesquisa.png" alt="Logo" class="logo-img"><span class="logo-text">LER E EDUCAR</span></div>
-    <input type="text" placeholder="Buscar..." class="busca">
-    <div class="header-direita"><div class="usuario">Olá, <span id="nome-usuario-logado">Administrador</span></div><a href="#" class="sair" onclick="Auth.logout()">SAIR</a></div>
+    <div class="logo-header">
+      <img src="img/logo-capa-e-barra-de-pesquisa.png" alt="Logo" class="logo-img">
+      <span class="logo-text">LER E EDUCAR</span>
+    </div>
+    <input type="text" placeholder="Buscar livro..." class="busca">
+    <div class="header-direita">
+      <div class="usuario">Olá, <span id="nome-usuario-logado">Administrador</span></div>
+      <a href="#" class="sair" onclick="Auth.logout()">SAIR</a>
+    </div>
   </header>
 
-  <div class="page-content">
-    <div class="page-header">
-      <h1 class="page-title">Adicionar Livro</h1>
-      <p class="page-sub">Preencha os dados e o livro será adicionado ao catálogo imediatamente.</p>
-    </div>
+  <main class="pagina-adicionar-livro">
+    <h1 class="titulo-pagina">ADICIONAR LIVROS</h1>
 
-    <!-- FORMULÁRIO -->
-    <div class="form-card">
+    <div class="form-livro">
+      <div class="coluna-esquerda">
+        <div class="input-group">
+          <label>Nome do livro:</label>
+          <input type="text" id="titulo">
+        </div>
+        <div class="input-group">
+          <label>Autor:</label>
+          <input type="text" id="autor">
+        </div>
+        <div class="input-group">
+          <label>Editora:</label>
+          <input type="text" id="editora">
+        </div>
+      </div>
 
-      <!-- Dados básicos -->
-      <div class="section-title">Dados do Livro</div>
-      <div class="form-grid" style="margin-bottom:20px">
-        <div class="form-group form-full">
-          <label>Título <span class="req">*</span></label>
-          <input type="text" id="titulo" placeholder="Título completo do livro" oninput="atualizarPreview()">
+      <div class="coluna-direita">
+        <div class="input-group">
+          <label>Ano de lançamento:</label>
+          <input type="number" id="ano" min="1900" max="2099">
         </div>
-        <div class="form-group">
-          <label>Autor <span class="req">*</span></label>
-          <input type="text" id="autor" placeholder="Nome do autor" oninput="atualizarPreview()">
+        <div class="input-group">
+          <label>Categoria:</label>
+          <select id="categoria" class="form-select">
+            <option value="">Selecione...</option>
+            <option value="ALFABETIZACAO_LETRAMENTO">Alfabetização e Letramento</option>
+            <option value="CIENCIAS_NATUREZA">Ciências da Natureza</option>
+            <option value="FABULAS">Fábulas</option>
+            <option value="CONTOS_DE_FADAS">Conto de Fadas</option>
+            <option value="HISTORIA_CULTURA">História e Cultura</option>
+            <option value="MATEMATICA">Matemática</option>
+            <option value="OUTRO">Outro</option>
+          </select>
         </div>
-        <div class="form-group">
-          <label>Editora</label>
-          <input type="text" id="editora" placeholder="Nome da editora">
-        </div>
-        <div class="form-group">
-          <label>Ano de Publicação</label>
-          <input type="number" id="ano" min="1900" max="2099" placeholder="Ex: 2022">
-        </div>
-        <div class="form-group form-full">
-          <label>ISBN <small style="font-weight:400;text-transform:none;letter-spacing:0">(busca a capa automaticamente)</small></label>
-          <div class="isbn-row">
-            <input type="text" id="isbn" placeholder="Ex: 9788503007245" oninput="atualizarPreview()">
-            <button class="btn-isbn" onclick="buscarPorISBN()">🔍 Buscar dados</button>
+        <div class="input-group">
+          <label>Séries indicadas:</label>
+          <div class="checkbox-group">
+            <label><input type="checkbox" value="PRIMEIRO_ANO"> 1º Ano</label>
+            <label><input type="checkbox" value="SEGUNDO_ANO"> 2º Ano</label>
+            <label><input type="checkbox" value="TERCEIRO_ANO"> 3º Ano</label>
+            <label><input type="checkbox" value="QUARTO_ANO"> 4º Ano</label>
+            <label><input type="checkbox" value="QUINTO_ANO"> 5º Ano</label>
           </div>
         </div>
-      </div>
-
-      <!-- Categoria -->
-      <div class="section-title">Categoria <span class="req" style="color:var(--accent)">*</span></div>
-      <div class="cat-grid" style="margin-bottom:24px">
-        <label class="cat-option"><input type="radio" name="categoria" value="ALFABETIZACAO_LETRAMENTO" onchange="atualizarPreview()"><span class="cat-icon">🔤</span><span class="cat-name">Alfabetização</span></label>
-        <label class="cat-option"><input type="radio" name="categoria" value="CIENCIAS_NATUREZA" onchange="atualizarPreview()"><span class="cat-icon">🌿</span><span class="cat-name">Ciências</span></label>
-        <label class="cat-option"><input type="radio" name="categoria" value="FABULAS" onchange="atualizarPreview()"><span class="cat-icon">🦊</span><span class="cat-name">Fábulas</span></label>
-        <label class="cat-option"><input type="radio" name="categoria" value="CONTOS_DE_FADAS" onchange="atualizarPreview()"><span class="cat-icon">🏰</span><span class="cat-name">Contos de Fadas</span></label>
-        <label class="cat-option"><input type="radio" name="categoria" value="HISTORIA_CULTURA" onchange="atualizarPreview()"><span class="cat-icon">🌍</span><span class="cat-name">História e Cultura</span></label>
-        <label class="cat-option"><input type="radio" name="categoria" value="MATEMATICA" onchange="atualizarPreview()"><span class="cat-icon">🔢</span><span class="cat-name">Matemática</span></label>
-        <label class="cat-option"><input type="radio" name="categoria" value="OUTRO" onchange="atualizarPreview()"><span class="cat-icon">📖</span><span class="cat-name">Outro</span></label>
-      </div>
-
-      <!-- Séries -->
-      <div class="section-title">Séries Indicadas</div>
-      <div class="series-pills" style="margin-bottom:24px">
-        <label class="serie-pill"><input type="checkbox" value="PRIMEIRO_ANO"> 1º Ano</label>
-        <label class="serie-pill"><input type="checkbox" value="SEGUNDO_ANO"> 2º Ano</label>
-        <label class="serie-pill"><input type="checkbox" value="TERCEIRO_ANO"> 3º Ano</label>
-        <label class="serie-pill"><input type="checkbox" value="QUARTO_ANO"> 4º Ano</label>
-        <label class="serie-pill"><input type="checkbox" value="QUINTO_ANO"> 5º Ano</label>
-      </div>
-
-      <!-- Quantidade + URL -->
-      <div class="section-title">Exemplares e Capa</div>
-      <div class="form-grid">
-        <div class="form-group">
-          <label>Quantidade de Exemplares <span class="req">*</span></label>
-          <div class="qty-wrap">
-            <button class="qty-btn" onclick="ajustarQtd(-1)">−</button>
-            <span class="qty-display" id="qty-display">1</span>
-            <button class="qty-btn" onclick="ajustarQtd(1)">+</button>
-            <input type="number" id="qtd" value="1" min="1">
-          </div>
+        <div class="input-group">
+          <label>Quantidade de exemplares:</label>
+          <input type="number" id="qtd" min="1" value="1">
         </div>
-        <div class="form-group">
-          <label>URL da Capa <small style="font-weight:400;text-transform:none;letter-spacing:0">(opcional)</small></label>
-          <input type="text" id="capa-url" placeholder="https://..." oninput="previewCapaURL()">
-        </div>
-      </div>
 
-      <div class="form-fb" id="form-fb"></div>
-      <button class="btn-submit" id="btn-submit" onclick="adicionar()">Adicionar ao Catálogo</button>
+        <div id="feedback" class="feedback"></div>
+        <button class="btn-adicionar" onclick="adicionarLivro()">ADICIONAR AO CATÁLOGO</button>
+      </div>
     </div>
-
-    <!-- PREVIEW -->
-    <div class="preview-card">
-      <div class="preview-title">Prévia do Card</div>
-      <div class="preview-livro">
-        <div class="preview-capa" id="prev-capa">📖</div>
-        <div class="preview-info">
-          <div class="preview-titulo" id="prev-titulo">Título do livro</div>
-          <div class="preview-autor"  id="prev-autor">Autor</div>
-          <span class="preview-badge">1 disponível</span>
-          <div class="preview-cat" id="prev-cat"></div>
-        </div>
-      </div>
-      <p class="preview-hint">A capa é buscada automaticamente pela Open Library ao informar o ISBN.</p>
-    </div>
-  </div>
+  </main>
 
   <script src="js/api.js"></script>
   <script src="js/layout.js"></script>
-  <script src="js/animations.js"></script>
   <script>
-    Auth.exigirLogin(); Auth.exibirNome();
-    initAnimations({ tilt: false });
+    Auth.exigirLogin();
+    Auth.exibirNome();
 
-    let qtdAtual = 1;
-    let capaUrlAtual = '';
+    async function adicionarLivro() {
+      const titulo    = document.getElementById('titulo').value.trim();
+      const autor     = document.getElementById('autor').value.trim();
+      const editora   = document.getElementById('editora').value.trim();
+      const ano       = parseInt(document.getElementById('ano').value);
+      const categoria = document.getElementById('categoria').value;
+      const qtd       = parseInt(document.getElementById('qtd').value);
+      const series    = [...document.querySelectorAll('.checkbox-group input:checked')].map(c => c.value);
+      const fb        = document.getElementById('feedback');
 
-    const CATS = {
-      ALFABETIZACAO_LETRAMENTO:'Alfabetização e Letramento', CIENCIAS_NATUREZA:'Ciências da Natureza',
-      FABULAS:'Fábulas', CONTOS_DE_FADAS:'Conto de Fadas', HISTORIA_CULTURA:'História e Cultura',
-      MATEMATICA:'Matemática', OUTRO:'Outros'
-    };
-
-    function ajustarQtd(d) {
-      qtdAtual = Math.max(1, qtdAtual + d);
-      document.getElementById('qty-display').textContent = qtdAtual;
-      document.getElementById('qtd').value = qtdAtual;
-    }
-
-    // Atualiza a prévia ao vivo
-    function atualizarPreview() {
-      const titulo = document.getElementById('titulo').value || 'Título do livro';
-      const autor  = document.getElementById('autor').value  || 'Autor';
-      const cat    = document.querySelector('input[name="categoria"]:checked')?.value;
-      document.getElementById('prev-titulo').textContent = titulo;
-      document.getElementById('prev-autor').textContent  = autor;
-      document.getElementById('prev-cat').textContent    = cat ? CATS[cat] : '';
-
-      // Atualiza capa pelo ISBN com debounce
-      const isbn = document.getElementById('isbn').value.trim();
-      if (isbn.length >= 10 && !capaUrlAtual) atualizarCapaPreview(isbn);
-    }
-
-    const atualizarCapaDebounce = debounce(async (isbn) => {
-      if (isbn.length < 10) return;
-      const url = `https://covers.openlibrary.org/b/isbn/${isbn}-M.jpg`;
-      const ok = await verificarImagem(url);
-      if (ok) { capaUrlAtual = ''; exibirCapaPreview(url); }
-    }, 600);
-
-    function atualizarCapaPreview(isbn) { atualizarCapaDebounce(isbn); }
-    document.getElementById('isbn').addEventListener('input', e => {
-      capaUrlAtual = '';
-      atualizarCapaDebounce(e.target.value.trim());
-    });
-
-    function previewCapaURL() {
-      const url = document.getElementById('capa-url').value.trim();
-      capaUrlAtual = url;
-      if (url) exibirCapaPreview(url);
-      else document.getElementById('prev-capa').innerHTML = '📖';
-    }
-
-    function exibirCapaPreview(url) {
-      document.getElementById('prev-capa').innerHTML = `<img src="${url}" onerror="this.parentNode.innerHTML='📖'">`;
-    }
-
-    function verificarImagem(url) {
-      return new Promise(r => {
-        const img = new Image();
-        img.onload = () => r(img.width > 1);
-        img.onerror = () => r(false);
-        img.src = url;
-      });
-    }
-
-    // Buscar dados pelo ISBN na Open Library
-    async function buscarPorISBN() {
-      const isbn = document.getElementById('isbn').value.trim();
-      if (!isbn) return;
-      const btn = document.querySelector('.btn-isbn');
-      btn.disabled = true; btn.textContent = '⏳';
-      try {
-        const res  = await fetch(`https://openlibrary.org/api/books?bibkeys=ISBN:${isbn}&format=json&jscmd=data`);
-        const data = await res.json();
-        const livro = data[`ISBN:${isbn}`];
-        if (livro) {
-          if (livro.title && !document.getElementById('titulo').value)
-            document.getElementById('titulo').value = livro.title;
-          if (livro.authors?.[0]?.name && !document.getElementById('autor').value)
-            document.getElementById('autor').value = livro.authors[0].name;
-          if (livro.publishers?.[0]?.name && !document.getElementById('editora').value)
-            document.getElementById('editora').value = livro.publishers[0].name;
-          if (livro.publish_date && !document.getElementById('ano').value) {
-            const ano = livro.publish_date.match(/\d{4}/)?.[0];
-            if (ano) document.getElementById('ano').value = ano;
-          }
-          atualizarPreview();
-          showToast('Dados preenchidos pela Open Library!', 'ok');
-        } else {
-          showToast('ISBN não encontrado na Open Library.', 'err');
-        }
-      } catch { showToast('Erro ao buscar ISBN.', 'err'); }
-      btn.disabled = false; btn.textContent = '🔍 Buscar dados';
-    }
-
-    // Adicionar livro
-    async function adicionar() {
-      const titulo   = document.getElementById('titulo').value.trim();
-      const autor    = document.getElementById('autor').value.trim();
-      const editora  = document.getElementById('editora').value.trim();
-      const ano      = parseInt(document.getElementById('ano').value) || null;
-      const isbn     = document.getElementById('isbn').value.trim() || null;
-      const categoria= document.querySelector('input[name="categoria"]:checked')?.value;
-      const series   = [...document.querySelectorAll('.series-pills input:checked')].map(c=>c.value);
-      const capaUrl  = document.getElementById('capa-url').value.trim() || null;
-      const fb       = document.getElementById('form-fb');
-      const btn      = document.getElementById('btn-submit');
-
-      if (!titulo || !autor)    { mostrarFb('Título e autor são obrigatórios.', false); return; }
-      if (!categoria)           { mostrarFb('Selecione uma categoria.', false); return; }
-
-      btn.disabled = true; btn.textContent = 'Adicionando...';
+      if (!titulo || !autor || !editora || !ano || !categoria || !qtd) {
+        mostrarFb('Preencha todos os campos obrigatórios.', false); return;
+      }
+      if (!series.length) {
+        mostrarFb('Selecione ao menos uma série.', false); return;
+      }
 
       const res = await post('/livros', {
-        titulo, autor, editora, anoPublicacao: ano, isbn, categoria,
-        seriesIndicadas: series, imagemCapaUrl: capaUrl,
-        quantidadeExemplares: qtdAtual
+        titulo, autor, editora,
+        anoPublicacao: ano,
+        categoria,
+        seriesIndicadas: series,
+        quantidadeExemplares: qtd
       });
 
       if (res && res.id) {
-        mostrarFb(`✓ "${res.titulo}" adicionado ao catálogo com ${qtdAtual} exemplar(es)!`, true);
-        limpar();
-        showToast('Livro adicionado com sucesso!', 'ok');
+        mostrarFb('✓ Livro "' + res.titulo + '" adicionado com sucesso!', true);
+        limparForm();
       } else {
-        mostrarFb(res?.mensagens?.join(', ') || 'Erro ao adicionar.', false);
+        const msg = res?.mensagens?.[0] || 'Erro ao adicionar livro.';
+        mostrarFb(msg, false);
       }
-      btn.disabled = false; btn.textContent = 'Adicionar ao Catálogo';
     }
 
     function mostrarFb(msg, ok) {
-      const fb = document.getElementById('form-fb');
-      fb.textContent = msg; fb.className = 'form-fb ' + (ok?'ok':'err'); fb.style.display = 'block';
-      fb.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      const fb = document.getElementById('feedback');
+      fb.textContent = msg;
+      fb.className = 'feedback ' + (ok ? 'ok' : 'err');
+      fb.style.display = 'block';
     }
 
-    function limpar() {
-      ['titulo','autor','editora','ano','isbn','capa-url'].forEach(id => { const el=document.getElementById(id); if(el) el.value=''; });
-      document.querySelectorAll('input[name="categoria"]').forEach(r => r.checked=false);
-      document.querySelectorAll('.series-pills input').forEach(c => c.checked=false);
-      qtdAtual = 1;
-      document.getElementById('qty-display').textContent = 1;
-      document.getElementById('qtd').value = 1;
-      document.getElementById('prev-titulo').textContent = 'Título do livro';
-      document.getElementById('prev-autor').textContent = 'Autor';
-      document.getElementById('prev-cat').textContent = '';
-      document.getElementById('prev-capa').innerHTML = '📖';
-      capaUrlAtual = '';
+    function limparForm() {
+      ['titulo','autor','editora','ano','qtd'].forEach(id => document.getElementById(id).value = '');
+      document.getElementById('categoria').value = '';
+      document.querySelectorAll('.checkbox-group input').forEach(c => c.checked = false);
     }
   </script>
 </body>
