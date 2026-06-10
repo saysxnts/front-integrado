@@ -2,175 +2,140 @@
 <html lang="pt-br">
 <head>
   <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Dashboard | Ler e Educar</title>
+  <title>Dashboard BI | Ler e Educar</title>
   <link rel="stylesheet" href="css/design-system.css">
   <link rel="stylesheet" href="css/layout.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
   <style>
-    :root { --grad: linear-gradient(135deg,#5a3f28 0%,#7b5a3c 60%,#9b7b5d 100%); }
-    body { background:#f5f0ea; }
-    .dash { padding:22px 32px 60px; max-width:1400px; margin:0 auto; }
+    *, *::before, *::after { box-sizing:border-box; }
+    :root {
+      --c1:#5a3f28; --c2:#7b5a3c; --c3:#c4a882;
+      --green:#27ae60; --yellow:#f39c12; --red:#e74c3c; --blue:#3498db; --purple:#9b59b6; --teal:#1abc9c;
+      --card-bg:#ffffff; --page-bg:#f0ebe4;
+    }
+    body { background:var(--page-bg); margin:0; font-family:'DM Sans',Arial,sans-serif; }
 
-    /* ── TOP BAR ── */
-    .topbar {
+    .bi-wrap { padding:20px 28px 60px; max-width:1600px; margin:0 auto; }
+
+    /* ── TOPBAR ── */
+    .bi-top {
       display:flex; align-items:center; justify-content:space-between;
-      margin-bottom:22px; flex-wrap:wrap; gap:12px;
+      margin-bottom:18px; flex-wrap:wrap; gap:10px;
     }
-    .topbar-left h1 { font-family:var(--font-display); font-size:1.5rem; font-weight:700; color:var(--text-dark); margin-bottom:2px; }
-    .topbar-left p  { font-size:.8rem; color:var(--text-muted); }
-    .topbar-right   { display:flex; align-items:center; gap:10px; }
-    .live-pill {
-      display:flex; align-items:center; gap:6px;
-      background:rgba(39,174,96,.1); border:1px solid rgba(39,174,96,.25);
-      border-radius:50px; padding:5px 14px; font-size:.75rem; font-weight:600; color:#1a7a40;
-    }
-    .live-dot { width:7px; height:7px; border-radius:50%; background:#27ae60; animation:pulse 1.5s infinite; }
-    .btn-refresh {
-      display:flex; align-items:center; gap:6px;
-      padding:8px 18px; border-radius:50px; border:1.5px solid var(--beige);
-      background:white; font-family:var(--font-body); font-size:.82rem;
-      font-weight:600; color:var(--text-mid); cursor:pointer; transition:all .2s;
-    }
-    .btn-refresh:hover { background:var(--beige); border-color:var(--primary); }
-    .refresh-icon { display:inline-block; transition:transform .5s; }
-    .spinning { animation:spin .6s linear; }
-    #clock { font-family:var(--font-display); font-size:.85rem; font-weight:700; color:var(--text-dark); }
+    .bi-top-title h1 { font-family:'Playfair Display',serif; font-size:1.4rem; font-weight:700; color:#1a1a1a; margin:0 0 2px; }
+    .bi-top-title p  { font-size:.75rem; color:#888; margin:0; }
+    .bi-top-right { display:flex; align-items:center; gap:10px; }
+    .bi-clock { font-family:'Playfair Display',serif; font-size:.9rem; font-weight:700; color:#333; background:white; padding:6px 14px; border-radius:8px; border:1px solid #e8e0d8; }
+    .bi-pill-live { display:flex; align-items:center; gap:5px; background:rgba(39,174,96,.1); border:1px solid rgba(39,174,96,.3); border-radius:20px; padding:5px 12px; font-size:.72rem; font-weight:700; color:#1a7a40; }
+    .live-dot { width:6px; height:6px; border-radius:50%; background:var(--green); animation:pulse 1.4s infinite; }
+    .bi-btn { padding:7px 16px; border-radius:8px; border:1px solid #ddd; background:white; font-size:.78rem; font-weight:600; color:#555; cursor:pointer; transition:all .2s; display:flex; align-items:center; gap:5px; }
+    .bi-btn:hover { background:#f5f5f5; border-color:#bbb; }
+    .spin-anim { animation:spin .5s linear; }
 
-    /* ── ALERTAS ── */
-    .alerts-bar { display:flex; flex-direction:column; gap:8px; margin-bottom:20px; }
-    .alert-item {
-      display:flex; align-items:center; gap:10px;
-      padding:10px 16px; border-radius:var(--radius-md); border:1px solid;
-      animation:fadeUp .3s both;
-    }
-    .alert-warn   { background:rgba(243,156,18,.07); border-color:rgba(243,156,18,.3); }
-    .alert-danger { background:rgba(231,76,60,.07);  border-color:rgba(231,76,60,.25); }
-    .alert-ok     { background:rgba(39,174,96,.07);  border-color:rgba(39,174,96,.2); }
-    .alert-text   { font-size:.83rem; color:var(--text-dark); flex:1; }
-    .alert-link   {
-      padding:4px 12px; border-radius:50px; font-size:.73rem; font-weight:700;
-      text-decoration:none; transition:all .2s; flex-shrink:0;
-    }
-    .al-warn   { background:rgba(243,156,18,.15); color:#7a5000; }
-    .al-danger { background:rgba(231,76,60,.12);  color:#a02020; }
-    .al-ok     { background:rgba(39,174,96,.12);  color:#1a7a40; }
-
-    /* ── HERO STATS ── */
-    .hero-stats { display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin-bottom:20px; }
-    .hero-card {
-      background:white; border-radius:var(--radius-xl); padding:20px 22px;
-      border:1px solid rgba(155,123,93,.1); box-shadow:var(--shadow-sm);
-      position:relative; overflow:hidden; cursor:default;
-      transition:transform .3s var(--ease-bounce),box-shadow .3s;
+    /* ── KPI CARDS ── */
+    .kpi-row { display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin-bottom:18px; }
+    .kpi-card {
+      background:var(--card-bg); border-radius:12px; padding:18px 20px;
+      border:1px solid rgba(0,0,0,.06); box-shadow:0 2px 12px rgba(0,0,0,.06);
+      position:relative; overflow:hidden; cursor:pointer;
+      transition:transform .25s, box-shadow .25s;
       animation:fadeUp .4s both;
     }
-    .hero-card:hover { transform:translateY(-4px); box-shadow:var(--shadow-md); }
-    .hero-card::before {
-      content:''; position:absolute; top:0; left:0; right:0; height:3px;
-      background:var(--grad); transform:scaleX(0); transform-origin:left;
-      transition:transform .4s var(--ease-smooth);
-    }
-    .hero-card:hover::before { transform:scaleX(1); }
-    .hc-head { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:12px; }
-    .hc-icon {
-      width:44px; height:44px; border-radius:var(--radius-md);
-      display:flex; align-items:center; justify-content:center; font-size:1.25rem;
-    }
-    .hci-1 { background:rgba(155,123,93,.12); }
-    .hci-2 { background:rgba(39,174,96,.12); }
-    .hci-3 { background:rgba(243,156,18,.12); }
-    .hci-4 { background:rgba(52,152,219,.1); }
-    .hc-trend {
-      font-size:.7rem; font-weight:700; padding:2px 9px; border-radius:50px;
-    }
-    .tr-up   { background:rgba(39,174,96,.1);  color:#1a7a40; }
-    .tr-warn { background:rgba(243,156,18,.1); color:#8a5e00; }
-    .tr-down { background:rgba(231,76,60,.1);  color:#b03228; }
-    .hc-num { font-family:var(--font-display); font-size:2.4rem; font-weight:900; color:var(--text-dark); line-height:1; margin-bottom:4px; }
-    .hc-label { font-size:.78rem; color:var(--text-muted); font-weight:500; }
-    .hc-sub   { font-size:.72rem; color:var(--text-muted); margin-top:4px; }
+    .kpi-card:hover { transform:translateY(-3px); box-shadow:0 8px 24px rgba(0,0,0,.1); }
+    .kpi-card-accent { position:absolute; left:0; top:0; bottom:0; width:4px; border-radius:12px 0 0 12px; }
+    .kpi-top { display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; }
+    .kpi-icon { width:40px; height:40px; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:1.15rem; }
+    .kpi-badge { font-size:.68rem; font-weight:700; padding:2px 8px; border-radius:20px; }
+    .b-up   { background:rgba(39,174,96,.12); color:#1a7a40; }
+    .b-warn { background:rgba(243,156,18,.12); color:#8a5000; }
+    .b-down { background:rgba(231,76,60,.12);  color:#a02020; }
+    .b-blue { background:rgba(52,152,219,.1); color:#1a4a7a; }
+    .kpi-num { font-family:'Playfair Display',serif; font-size:2.2rem; font-weight:900; color:#111; line-height:1; margin-bottom:4px; }
+    .kpi-label { font-size:.75rem; color:#888; }
+    .kpi-sub   { font-size:.7rem; color:#999; margin-top:4px; }
+    /* Sparkline mini canvas */
+    .kpi-spark { margin-top:10px; }
+    .kpi-spark canvas { width:100% !important; height:40px !important; }
 
-    /* ── CHARTS ROW ── */
-    .charts-row { display:grid; grid-template-columns:1.7fr 1fr; gap:16px; margin-bottom:20px; }
-    .chart-card {
-      background:white; border-radius:var(--radius-xl); padding:22px;
-      border:1px solid rgba(155,123,93,.1); box-shadow:var(--shadow-sm);
-      animation:fadeUp .4s .08s both;
+    /* ── CHARTS MAIN ── */
+    .charts-main { display:grid; grid-template-columns:2fr 1fr 1fr; gap:14px; margin-bottom:18px; }
+    .charts-row2  { display:grid; grid-template-columns:1fr 1fr 1fr; gap:14px; margin-bottom:18px; }
+    .chart-panel {
+      background:var(--card-bg); border-radius:12px; padding:20px;
+      border:1px solid rgba(0,0,0,.06); box-shadow:0 2px 12px rgba(0,0,0,.06);
+      animation:fadeUp .4s both;
     }
-    .cc-title { font-family:var(--font-display); font-size:.95rem; font-weight:700; color:var(--text-dark); margin-bottom:2px; }
-    .cc-sub   { font-size:.72rem; color:var(--text-muted); margin-bottom:16px; }
-    .chart-wrap { position:relative; height:220px; }
+    .chart-panel.span2 { grid-column:span 2; }
+    .cp-head { display:flex; align-items:center; justify-content:space-between; margin-bottom:4px; }
+    .cp-title { font-family:'Playfair Display',serif; font-size:.92rem; font-weight:700; color:#1a1a1a; }
+    .cp-sub   { font-size:.7rem; color:#aaa; margin-bottom:14px; }
+    .cp-badge { font-size:.68rem; font-weight:600; padding:3px 10px; border-radius:20px; background:#f5f0ea; color:#7b5a3c; }
+    .chart-area { position:relative; }
+    .h180 { height:180px; }
+    .h200 { height:200px; }
+    .h220 { height:220px; }
+    .h240 { height:240px; }
 
-    /* Doughnut legenda */
-    .donut-center {
-      position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
-      text-align:center; pointer-events:none;
+    /* Donut center */
+    .donut-wrap { position:relative; }
+    .donut-center { position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); text-align:center; pointer-events:none; }
+    .donut-center b { font-family:'Playfair Display',serif; font-size:1.5rem; font-weight:900; color:#111; display:block; line-height:1; }
+    .donut-center small { font-size:.65rem; color:#aaa; }
+    .donut-leg { display:flex; flex-direction:column; gap:6px; margin-top:12px; }
+    .dl { display:flex; align-items:center; justify-content:space-between; font-size:.76rem; }
+    .dl-left { display:flex; align-items:center; gap:6px; }
+    .dl-dot { width:9px; height:9px; border-radius:50%; flex-shrink:0; }
+    .dl-val { font-weight:700; color:#333; }
+
+    /* ── BOTTOM ── */
+    .bi-bottom { display:grid; grid-template-columns:1.6fr 1fr; gap:14px; margin-bottom:18px; }
+    .bi-table-panel {
+      background:var(--card-bg); border-radius:12px; padding:20px;
+      border:1px solid rgba(0,0,0,.06); box-shadow:0 2px 12px rgba(0,0,0,.06);
+      animation:fadeUp .4s .1s both;
     }
-    .donut-center strong { font-family:var(--font-display); font-size:1.6rem; font-weight:900; color:var(--text-dark); display:block; }
-    .donut-center span   { font-size:.72rem; color:var(--text-muted); }
-    .donut-legend { display:flex; justify-content:center; gap:16px; margin-top:12px; flex-wrap:wrap; }
-    .dl-item { display:flex; align-items:center; gap:5px; font-size:.75rem; color:var(--text-mid); }
-    .dl-dot  { width:10px; height:10px; border-radius:50%; flex-shrink:0; }
-
-    /* ── BOTTOM ROW ── */
-    .bottom-row { display:grid; grid-template-columns:1.4fr 1fr; gap:16px; margin-bottom:20px; }
-
-    /* Activity table */
-    .table-card {
-      background:white; border-radius:var(--radius-xl); padding:22px;
-      border:1px solid rgba(155,123,93,.1); box-shadow:var(--shadow-sm);
-      animation:fadeUp .4s .12s both;
-    }
-    .tc-head { display:flex; align-items:center; justify-content:space-between; margin-bottom:16px; }
-    .tc-title { font-family:var(--font-display); font-size:.95rem; font-weight:700; color:var(--text-dark); }
-    .tc-link  { font-size:.75rem; color:var(--primary); text-decoration:none; font-weight:500; }
-    .tc-link:hover { text-decoration:underline; }
-    table { width:100%; border-collapse:collapse; font-size:.82rem; }
-    th { text-align:left; padding:7px 10px; font-size:.68rem; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--text-muted); border-bottom:1px solid var(--beige); }
-    td { padding:9px 10px; border-bottom:1px solid rgba(155,123,93,.06); color:var(--text-mid); vertical-align:middle; }
+    .btp-head { display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; }
+    .btp-title { font-family:'Playfair Display',serif; font-size:.92rem; font-weight:700; color:#1a1a1a; }
+    .btp-link  { font-size:.72rem; color:var(--c1); text-decoration:none; font-weight:600; }
+    .btp-link:hover { text-decoration:underline; }
+    table { width:100%; border-collapse:collapse; }
+    th { text-align:left; padding:6px 10px; font-size:.65rem; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:#bbb; border-bottom:1px solid #f0f0f0; }
+    td { padding:9px 10px; border-bottom:1px solid #fafafa; font-size:.8rem; color:#555; vertical-align:middle; }
+    tr:hover td { background:#fafcff; }
     tr:last-child td { border:none; }
-    tr:hover td { background:var(--bg-warm); }
-    td.bold { font-weight:700; color:var(--text-dark); }
-    .sp { padding:3px 9px; border-radius:50px; font-size:.68rem; font-weight:700; }
-    .sp-P { background:rgba(243,156,18,.12); color:#8a5e00; }
-    .sp-A { background:rgba(39,174,96,.12);  color:#1a7a40; }
-    .sp-D { background:rgba(127,140,141,.12); color:#5a6464; }
+    .td-bold { font-weight:700; color:#222; }
+    .sp { display:inline-block; padding:2px 8px; border-radius:20px; font-size:.67rem; font-weight:700; }
+    .sp-P { background:#fff3cd; color:#856404; }
+    .sp-A { background:#d1f2e4; color:#0f6b3a; }
+    .sp-D { background:#f0f0f0; color:#666; }
 
-    /* Estoque + acervo */
-    .side-card {
-      background:white; border-radius:var(--radius-xl); padding:22px;
-      border:1px solid rgba(155,123,93,.1); box-shadow:var(--shadow-sm);
-      animation:fadeUp .4s .16s both;
+    /* Alerts panel */
+    .alerts-panel {
+      background:var(--card-bg); border-radius:12px; padding:20px;
+      border:1px solid rgba(0,0,0,.06); box-shadow:0 2px 12px rgba(0,0,0,.06);
+      animation:fadeUp .4s .15s both; display:flex; flex-direction:column; gap:10px;
     }
-    .sc-title { font-family:var(--font-display); font-size:.95rem; font-weight:700; color:var(--text-dark); margin-bottom:16px; }
-    .stock-item { margin-bottom:12px; }
-    .stock-item:last-child { margin-bottom:0; }
-    .stock-row { display:flex; justify-content:space-between; font-size:.8rem; margin-bottom:3px; }
-    .stock-name { color:var(--text-dark); font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:170px; }
-    .stock-num  { color:var(--text-muted); font-size:.75rem; flex-shrink:0; }
-    .stock-bar  { height:5px; background:var(--beige); border-radius:3px; overflow:hidden; }
-    .sb-fill    { height:100%; border-radius:3px; transition:width .8s var(--ease-smooth); }
-    .sb-ok  { background:linear-gradient(90deg,#27ae60,#2ecc71); }
-    .sb-low { background:linear-gradient(90deg,#e67e22,#f1c40f); }
-    .sb-out { background:#e74c3c; }
-
-    /* ── ACTIONS GRID ── */
-    .actions-grid { display:grid; grid-template-columns:repeat(5,1fr); gap:12px; }
-    .action-card {
-      background:white; border-radius:var(--radius-lg); padding:18px 12px;
-      border:1px solid rgba(155,123,93,.1); box-shadow:var(--shadow-sm);
-      text-align:center; text-decoration:none; transition:all .3s var(--ease-bounce);
-      animation:fadeUp .4s .2s both; display:block;
+    .ap-title { font-family:'Playfair Display',serif; font-size:.92rem; font-weight:700; color:#1a1a1a; margin-bottom:4px; }
+    .alert-row {
+      display:flex; align-items:flex-start; gap:10px;
+      padding:10px 12px; border-radius:8px; border:1px solid;
     }
-    .action-card:hover { transform:translateY(-5px); box-shadow:var(--shadow-md); border-color:var(--primary); }
-    .action-icon  { font-size:1.7rem; display:block; margin-bottom:8px; }
-    .action-label { font-size:.75rem; font-weight:600; color:var(--text-mid); display:block; line-height:1.3; }
+    .ar-warn   { background:rgba(243,156,18,.06); border-color:rgba(243,156,18,.25); }
+    .ar-danger { background:rgba(231,76,60,.06);  border-color:rgba(231,76,60,.2); }
+    .ar-ok     { background:rgba(39,174,96,.06);  border-color:rgba(39,174,96,.2); }
+    .ar-blue   { background:rgba(52,152,219,.06); border-color:rgba(52,152,219,.2); }
+    .ar-icon { font-size:1rem; flex-shrink:0; margin-top:1px; }
+    .ar-content { flex:1; min-width:0; }
+    .ar-title  { font-size:.8rem; font-weight:700; color:#222; margin-bottom:1px; }
+    .ar-desc   { font-size:.72rem; color:#888; }
+    .ar-action { flex-shrink:0; font-size:.7rem; font-weight:700; padding:3px 10px; border-radius:20px; text-decoration:none; transition:all .2s; }
+    .ara-warn   { background:rgba(243,156,18,.15); color:#8a5000; }
+    .ara-danger { background:rgba(231,76,60,.1);   color:#a02020; }
+    .ara-blue   { background:rgba(52,152,219,.1);  color:#1a4a7a; }
 
-    /* mini section header */
-    .sec-hdr { font-size:.7rem; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--text-muted); margin-bottom:10px; margin-top:4px; }
-
-    @media(max-width:1100px){ .hero-stats{grid-template-columns:1fr 1fr;} .charts-row,.bottom-row{grid-template-columns:1fr;} .actions-grid{grid-template-columns:repeat(3,1fr);} }
-    @media(max-width:768px){ .dash{padding:14px 16px 60px;} .hero-stats{grid-template-columns:1fr 1fr;} .actions-grid{grid-template-columns:1fr 1fr;} }
+    @media(max-width:1200px){ .charts-main{grid-template-columns:1fr 1fr;} .charts-row2{grid-template-columns:1fr 1fr;} .chart-panel.span2{grid-column:span 2;} }
+    @media(max-width:900px){ .kpi-row{grid-template-columns:1fr 1fr;} .charts-main,.charts-row2{grid-template-columns:1fr;} .chart-panel.span2{grid-column:span 1;} .bi-bottom{grid-template-columns:1fr;} }
+    @media(max-width:600px){ .kpi-row{grid-template-columns:1fr 1fr;} .bi-wrap{padding:12px 14px 60px;} }
   </style>
 </head>
 <body>
@@ -195,113 +160,139 @@
     </div>
   </header>
 
-  <div class="dash">
+  <div class="bi-wrap">
 
     <!-- Top bar -->
-    <div class="topbar">
-      <div class="topbar-left">
-        <h1>Dashboard</h1>
-        <p id="last-update">Carregando dados...</p>
+    <div class="bi-top">
+      <div class="bi-top-title">
+        <h1>Business Intelligence</h1>
+        <p id="last-upd">Carregando...</p>
       </div>
-      <div class="topbar-right">
-        <span id="clock"></span>
-        <div class="live-pill"><div class="live-dot"></div>Tempo real</div>
-        <button class="btn-refresh" onclick="carregarTudo(true)">
-          <span class="refresh-icon" id="refresh-icon">↺</span> Atualizar
-        </button>
+      <div class="bi-top-right">
+        <span class="bi-clock" id="bi-clock">--:--:--</span>
+        <div class="bi-pill-live"><div class="live-dot"></div>Ao vivo</div>
+        <button class="bi-btn" onclick="carregar(true)"><span id="ri">↺</span> Atualizar</button>
       </div>
     </div>
 
-    <!-- Alertas -->
-    <div class="alerts-bar" id="alerts-bar"></div>
-
-    <!-- KPIs -->
-    <div class="hero-stats">
-      <div class="hero-card" style="animation-delay:.04s" onclick="location.href='catalogo-admin.html'">
-        <div class="hc-head">
-          <div class="hc-icon hci-1">📚</div>
-          <span class="hc-trend tr-up" id="tr-livros">—</span>
+    <!-- KPI Row -->
+    <div class="kpi-row">
+      <div class="kpi-card" style="animation-delay:.04s" onclick="location.href='catalogo-admin.html'">
+        <div class="kpi-card-accent" style="background:linear-gradient(to bottom,#5a3f28,#9b7b5d)"></div>
+        <div class="kpi-top">
+          <div class="kpi-icon" style="background:#f5f0ea">📚</div>
+          <span class="kpi-badge b-up" id="kpib1">—</span>
         </div>
-        <div class="hc-num" id="kpi-livros">—</div>
-        <div class="hc-label">Livros no catálogo</div>
-        <div class="hc-sub" id="sub-livros"></div>
+        <div class="kpi-num" id="kn1">—</div>
+        <div class="kpi-label">Livros no acervo</div>
+        <div class="kpi-sub" id="ks1">—</div>
+        <div class="kpi-spark"><canvas id="spark1"></canvas></div>
       </div>
-      <div class="hero-card" style="animation-delay:.08s" onclick="location.href='controle-usuario.html'">
-        <div class="hc-head">
-          <div class="hc-icon hci-2">🏫</div>
-          <span class="hc-trend" id="tr-inst">—</span>
+      <div class="kpi-card" style="animation-delay:.08s" onclick="location.href='controle-usuario.html'">
+        <div class="kpi-card-accent" style="background:linear-gradient(to bottom,#27ae60,#2ecc71)"></div>
+        <div class="kpi-top">
+          <div class="kpi-icon" style="background:rgba(39,174,96,.08)">🏫</div>
+          <span class="kpi-badge" id="kpib2">—</span>
         </div>
-        <div class="hc-num" id="kpi-inst">—</div>
-        <div class="hc-label">Instituições parceiras</div>
-        <div class="hc-sub" id="sub-inst"></div>
+        <div class="kpi-num" id="kn2">—</div>
+        <div class="kpi-label">Instituições</div>
+        <div class="kpi-sub" id="ks2">—</div>
+        <div class="kpi-spark"><canvas id="spark2"></canvas></div>
       </div>
-      <div class="hero-card" style="animation-delay:.12s" onclick="location.href='emprestimo.html'">
-        <div class="hc-head">
-          <div class="hc-icon hci-3">⏳</div>
-          <span class="hc-trend" id="tr-pend">—</span>
+      <div class="kpi-card" style="animation-delay:.12s" onclick="location.href='emprestimo.html'">
+        <div class="kpi-card-accent" style="background:linear-gradient(to bottom,#f39c12,#f1c40f)"></div>
+        <div class="kpi-top">
+          <div class="kpi-icon" style="background:rgba(243,156,18,.08)">📋</div>
+          <span class="kpi-badge" id="kpib3">—</span>
         </div>
-        <div class="hc-num" id="kpi-pend">—</div>
-        <div class="hc-label">Empréstimos pendentes</div>
-        <div class="hc-sub" id="sub-pend"></div>
+        <div class="kpi-num" id="kn3">—</div>
+        <div class="kpi-label">Total empréstimos</div>
+        <div class="kpi-sub" id="ks3">—</div>
+        <div class="kpi-spark"><canvas id="spark3"></canvas></div>
       </div>
-      <div class="hero-card" style="animation-delay:.16s" onclick="location.href='controle-estoque.html'">
-        <div class="hc-head">
-          <div class="hc-icon hci-4">📦</div>
-          <span class="hc-trend" id="tr-exemp">—</span>
+      <div class="kpi-card" style="animation-delay:.16s" onclick="location.href='controle-estoque.html'">
+        <div class="kpi-card-accent" style="background:linear-gradient(to bottom,#3498db,#5dade2)"></div>
+        <div class="kpi-top">
+          <div class="kpi-icon" style="background:rgba(52,152,219,.08)">📦</div>
+          <span class="kpi-badge b-blue" id="kpib4">—</span>
         </div>
-        <div class="hc-num" id="kpi-exemp">—</div>
-        <div class="hc-label">Exemplares disponíveis</div>
-        <div class="hc-sub" id="sub-exemp"></div>
+        <div class="kpi-num" id="kn4">—</div>
+        <div class="kpi-label">Exemplares disponíveis</div>
+        <div class="kpi-sub" id="ks4">—</div>
+        <div class="kpi-spark"><canvas id="spark4"></canvas></div>
       </div>
     </div>
 
-    <!-- Charts -->
-    <div class="charts-row">
-      <div class="chart-card">
-        <div class="cc-title">Acervo por Categoria</div>
-        <div class="cc-sub">Títulos e exemplares disponíveis</div>
-        <div class="chart-wrap"><canvas id="chart-cat"></canvas></div>
-      </div>
-      <div class="chart-card">
-        <div class="cc-title">Status dos Empréstimos</div>
-        <div class="cc-sub">Distribuição atual</div>
-        <div class="chart-wrap" style="height:190px; position:relative">
-          <canvas id="chart-empr"></canvas>
-          <div class="donut-center">
-            <strong id="donut-total">—</strong>
-            <span>total</span>
-          </div>
+    <!-- Charts row 1 -->
+    <div class="charts-main">
+      <!-- Empréstimos ao longo do tempo -->
+      <div class="chart-panel" style="animation-delay:.06s">
+        <div class="cp-head">
+          <span class="cp-title">Empréstimos ao longo do tempo</span>
+          <span class="cp-badge" id="empr-period">Últimos registros</span>
         </div>
-        <div class="donut-legend" id="donut-legend"></div>
+        <div class="cp-sub">Volume de solicitações por data de emissão</div>
+        <div class="chart-area h220"><canvas id="chart-linha"></canvas></div>
+      </div>
+      <!-- Status dos empréstimos -->
+      <div class="chart-panel" style="animation-delay:.10s">
+        <div class="cp-head"><span class="cp-title">Status dos Empréstimos</span></div>
+        <div class="cp-sub">Distribuição atual</div>
+        <div class="chart-area h160 donut-wrap">
+          <canvas id="chart-donut"></canvas>
+          <div class="donut-center"><b id="donut-n">—</b><small>total</small></div>
+        </div>
+        <div class="donut-leg" id="donut-leg"></div>
+      </div>
+      <!-- Taxa de aprovação -->
+      <div class="chart-panel" style="animation-delay:.14s">
+        <div class="cp-head"><span class="cp-title">Taxa de Aprovação</span></div>
+        <div class="cp-sub">Empréstimos aprovados vs pendentes</div>
+        <div class="chart-area h160"><canvas id="chart-taxa"></canvas></div>
+        <div style="text-align:center;margin-top:10px">
+          <div style="font-family:'Playfair Display',serif;font-size:1.8rem;font-weight:900;color:#111" id="taxa-num">—%</div>
+          <div style="font-size:.7rem;color:#aaa">taxa de aprovação</div>
+        </div>
       </div>
     </div>
 
-    <!-- Bottom row -->
-    <div class="bottom-row">
-      <div class="table-card">
-        <div class="tc-head">
-          <span class="tc-title">Atividade Recente</span>
-          <a href="emprestimo.html" class="tc-link">Ver todos →</a>
+    <!-- Charts row 2 -->
+    <div class="charts-row2">
+      <!-- Acervo por categoria -->
+      <div class="chart-panel span2" style="animation-delay:.08s">
+        <div class="cp-head">
+          <span class="cp-title">Acervo por Categoria</span>
+          <span class="cp-badge">Livros e disponibilidade</span>
+        </div>
+        <div class="cp-sub">Total de títulos e exemplares disponíveis por categoria</div>
+        <div class="chart-area h200"><canvas id="chart-cat"></canvas></div>
+      </div>
+      <!-- Top livros mais emprestados -->
+      <div class="chart-panel" style="animation-delay:.12s">
+        <div class="cp-head"><span class="cp-title">Livros Mais Solicitados</span></div>
+        <div class="cp-sub">Por quantidade de protocolos</div>
+        <div class="chart-area h200"><canvas id="chart-top"></canvas></div>
+      </div>
+    </div>
+
+    <!-- Bottom -->
+    <div class="bi-bottom">
+      <div class="bi-table-panel">
+        <div class="btp-head">
+          <span class="btp-title">Atividade Recente</span>
+          <a href="emprestimo.html" class="btp-link">Ver todos →</a>
         </div>
         <table>
-          <thead><tr><th>#</th><th>Instituição</th><th>Gestor</th><th>Data</th><th>Status</th></tr></thead>
-          <tbody id="activity-tbody"><tr><td colspan="5" style="text-align:center;color:var(--text-muted)">Carregando...</td></tr></tbody>
+          <thead><tr><th>Proto.</th><th>Instituição</th><th>Gestor</th><th>Livros</th><th>Data</th><th>Status</th></tr></thead>
+          <tbody id="bi-tbody">
+            <tr><td colspan="6" style="text-align:center;color:#ccc;padding:24px">Carregando...</td></tr>
+          </tbody>
         </table>
       </div>
-      <div class="side-card">
-        <div class="sc-title">📊 Saúde do Estoque</div>
-        <div id="stock-list"><p style="font-size:.82rem;color:var(--text-muted)">Carregando...</p></div>
+      <div class="alerts-panel">
+        <div class="ap-title">🔔 Alertas e Notificações</div>
+        <div id="alerts-list"></div>
       </div>
-    </div>
-
-    <!-- Ações rápidas -->
-    <div class="sec-hdr">Ações rápidas</div>
-    <div class="actions-grid">
-      <a href="adicionar-livro.html" class="action-card"><span class="action-icon">📚</span><span class="action-label">Adicionar livro</span></a>
-      <a href="emprestimo.html"      class="action-card"><span class="action-icon">⏳</span><span class="action-label">Aprovar pendentes</span></a>
-      <a href="controle-usuario.html"class="action-card"><span class="action-icon">🏫</span><span class="action-label">Gerenciar escolas</span></a>
-      <a href="devolucao.html"       class="action-card"><span class="action-icon">↩️</span><span class="action-label">Devoluções</span></a>
-      <a href="controle-estoque.html"class="action-card"><span class="action-icon">📦</span><span class="action-label">Ver estoque</span></a>
     </div>
 
   </div>
@@ -314,188 +305,255 @@
     initAnimations({ tilt:false });
 
     // Relógio
-    const clockEl = document.getElementById('clock');
-    setInterval(() => {
-      clockEl.textContent = new Date().toLocaleTimeString('pt-BR', {hour:'2-digit',minute:'2-digit',second:'2-digit'});
-    }, 1000);
+    const clk = document.getElementById('bi-clock');
+    setInterval(()=>{ clk.textContent=new Date().toLocaleTimeString('pt-BR'); }, 1000);
 
-    const CATS  = { ALFABETIZACAO_LETRAMENTO:'Alfabetização', CIENCIAS_NATUREZA:'Ciências', FABULAS:'Fábulas', CONTOS_DE_FADAS:'Contos', HISTORIA_CULTURA:'História', MATEMATICA:'Matemática', OUTRO:'Outros' };
-    const CORES = ['#9b7b5d','#7b5a3c','#c4a882','#d4956a','#b8866a','#8b6c51','#e6d0bb'];
+    const CATS  = {ALFABETIZACAO_LETRAMENTO:'Alfabetização',CIENCIAS_NATUREZA:'Ciências',FABULAS:'Fábulas',CONTOS_DE_FADAS:'Contos',HISTORIA_CULTURA:'História',MATEMATICA:'Matemática',OUTRO:'Outros'};
+    const charts = {};
+    const CHART_DEFAULTS = {
+      responsive:true, maintainAspectRatio:false,
+      plugins:{ legend:{ display:false }, tooltip:{ backgroundColor:'rgba(26,26,26,.85)', titleFont:{size:11}, bodyFont:{size:11}, padding:10, cornerRadius:8 } }
+    };
 
-    let charts = {};
-
-    function animarNum(el, target) {
-      const start = parseInt(el.textContent) || 0;
-      const steps = 30;
-      const step  = (target - start) / steps;
-      let cur = start, i = 0;
-      const t = setInterval(() => {
-        cur += step; i++;
-        el.textContent = Math.round(cur);
-        if (i >= steps) { el.textContent = target; clearInterval(t); }
-      }, 25);
+    // Animação de contador
+    function animN(id, target) {
+      const el = document.getElementById(id);
+      if (!el) return;
+      const from = parseInt(el.textContent)||0;
+      const diff = target - from, steps = 25;
+      let i = 0;
+      const t = setInterval(()=>{ i++; el.textContent=Math.round(from+(diff/steps)*i); if(i>=steps){el.textContent=target;clearInterval(t);} }, 30);
     }
 
-    function destroyChart(key) { if (charts[key]) { charts[key].destroy(); delete charts[key]; } }
+    function killChart(k){ if(charts[k]){ charts[k].destroy(); delete charts[k]; } }
 
-    async function carregarTudo(manual = false) {
-      if (manual) {
-        const ic = document.getElementById('refresh-icon');
-        ic.classList.add('spinning');
-        setTimeout(() => ic.classList.remove('spinning'), 600);
-      }
-
-      const [livros, inst, empr] = await Promise.all([
-        get('/livros'), get('/instituicoes'), get('/emprestimos')
-      ]);
-
-      document.getElementById('last-update').textContent =
-        'Atualizado: ' + new Date().toLocaleString('pt-BR', {day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit',second:'2-digit'});
-
-      if (livros && !livros.status) preencherLivros(livros);
-      if (inst   && !inst.status)   preencherInst(inst);
-      if (empr   && !empr.status)   preencherEmpr(empr);
-      if (livros && empr && !livros.status && !empr.status) preencherAlertas(livros, inst, empr);
-    }
-
-    function preencherLivros(livros) {
-      const disp  = livros.reduce((a,l)=>a+(l.totalDisponiveis||0),0);
-      const semEs = livros.filter(l=>l.totalDisponiveis===0).length;
-      const baixo = livros.filter(l=>l.totalDisponiveis>0&&l.totalDisponiveis<=3).length;
-      animarNum(document.getElementById('kpi-livros'), livros.length);
-      animarNum(document.getElementById('kpi-exemp'),  disp);
-      document.getElementById('tr-livros').textContent = semEs>0 ? `${semEs} sem estoque` : '✓ Todos ok';
-      document.getElementById('tr-livros').className   = `hc-trend ${semEs>0?'tr-warn':'tr-up'}`;
-      document.getElementById('tr-exemp').textContent  = baixo>0 ? `${baixo} estoque baixo` : '✓ Bom nível';
-      document.getElementById('tr-exemp').className    = `hc-trend ${baixo>0?'tr-warn':'tr-up'}`;
-      document.getElementById('sub-livros').textContent= `${disp} exemplares disponíveis`;
-      document.getElementById('sub-exemp').textContent = `${semEs} sem estoque · ${baixo} estoque baixo`;
-
-      // Chart categorias
-      const grupos = {};
-      livros.forEach(l => {
-        const k = CATS[l.categoria]||l.categoria;
-        if (!grupos[k]) grupos[k]={t:0,d:0};
-        grupos[k].t++;
-        grupos[k].d+=l.totalDisponiveis||0;
+    // Mini sparkline
+    function mkSpark(id, data, color) {
+      killChart(id);
+      const ctx = document.getElementById(id);
+      if (!ctx) return;
+      const gradient = ctx.getContext('2d').createLinearGradient(0,0,0,40);
+      gradient.addColorStop(0, color+'33');
+      gradient.addColorStop(1, color+'00');
+      charts[id] = new Chart(ctx.getContext('2d'), {
+        type:'line',
+        data:{ labels:data.map((_,i)=>i), datasets:[{data, borderColor:color, borderWidth:2, fill:true, backgroundColor:gradient, tension:.4, pointRadius:0}]},
+        options:{ ...CHART_DEFAULTS, scales:{ x:{display:false}, y:{display:false} }, plugins:{legend:{display:false},tooltip:{enabled:false}}, animation:{duration:800} }
       });
-      const labels = Object.keys(grupos);
-      destroyChart('cat');
-      charts['cat'] = new Chart(document.getElementById('chart-cat').getContext('2d'), {
+    }
+
+    async function carregar(manual=false) {
+      if(manual){ const ri=document.getElementById('ri'); ri.classList.add('spin-anim'); setTimeout(()=>ri.classList.remove('spin-anim'),500); }
+
+      const [livros, inst, empr] = await Promise.all([get('/livros'), get('/instituicoes'), get('/emprestimos')]);
+      document.getElementById('last-upd').textContent =
+        'Atualizado em ' + new Date().toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',year:'2-digit',hour:'2-digit',minute:'2-digit',second:'2-digit'});
+
+      if (livros && !livros.status) renderLivros(livros);
+      if (inst   && !inst.status)   renderInst(inst);
+      if (empr   && !empr.status)   renderEmpr(empr, livros);
+      if (livros && empr && !livros.status && !empr.status) renderAlertas(livros, inst||[], empr);
+    }
+
+    function renderLivros(livros) {
+      const disp = livros.reduce((a,l)=>a+(l.totalDisponiveis||0),0);
+      const sem  = livros.filter(l=>l.totalDisponiveis===0).length;
+      const baixo= livros.filter(l=>l.totalDisponiveis>0&&l.totalDisponiveis<=3).length;
+
+      animN('kn1', livros.length);
+      animN('kn4', disp);
+      document.getElementById('kpib1').textContent = sem>0?`${sem} sem estoque`:'✓ Tudo ok';
+      document.getElementById('kpib1').className   = `kpi-badge ${sem>0?'b-warn':'b-up'}`;
+      document.getElementById('kpib4').textContent = baixo>0?`${baixo} baixo`:'✓ Ok';
+      document.getElementById('kpib4').className   = `kpi-badge ${baixo>0?'b-warn':'b-blue'}`;
+      document.getElementById('ks1').textContent   = `${disp} exemplares disponíveis`;
+      document.getElementById('ks4').textContent   = `${sem} sem estoque · ${baixo} estoque baixo`;
+
+      mkSpark('spark1', livros.map(l=>l.totalDisponiveis||0).slice(0,12), '#9b7b5d');
+      mkSpark('spark4', livros.map(l=>l.totalDisponiveis||0).sort((a,b)=>b-a).slice(0,12), '#3498db');
+
+      // Chart: categorias
+      const grp={};
+      livros.forEach(l=>{ const k=CATS[l.categoria]||l.categoria; if(!grp[k])grp[k]={t:0,d:0}; grp[k].t++; grp[k].d+=l.totalDisponiveis||0; });
+      const labels=Object.keys(grp);
+      killChart('cat');
+      charts['cat'] = new Chart(document.getElementById('chart-cat').getContext('2d'),{
         type:'bar',
         data:{
           labels,
           datasets:[
-            {label:'Disponíveis',data:labels.map(k=>grupos[k].d),backgroundColor:'rgba(155,123,93,.75)',borderRadius:6,borderSkipped:false},
-            {label:'Títulos',    data:labels.map(k=>grupos[k].t),backgroundColor:'rgba(155,123,93,.18)',borderRadius:6,borderSkipped:false}
+            {label:'Disponíveis',data:labels.map(k=>grp[k].d),backgroundColor:'rgba(90,63,40,.7)',borderRadius:6,borderSkipped:false,barPercentage:.5},
+            {label:'Títulos',    data:labels.map(k=>grp[k].t),backgroundColor:'rgba(196,168,130,.4)',borderRadius:6,borderSkipped:false,barPercentage:.5}
           ]
         },
         options:{
-          responsive:true,maintainAspectRatio:false,
-          plugins:{legend:{position:'top',labels:{font:{size:11},color:'#5a3f2a',boxWidth:10}}},
+          ...CHART_DEFAULTS,
+          plugins:{
+            ...CHART_DEFAULTS.plugins,
+            legend:{display:true,position:'top',labels:{font:{size:11},color:'#555',boxWidth:10,usePointStyle:true}}
+          },
           scales:{
-            x:{grid:{display:false},ticks:{color:'#8b7060',font:{size:10}}},
-            y:{grid:{color:'rgba(155,123,93,.07)'},ticks:{color:'#8b7060',font:{size:10}},beginAtZero:true}
+            x:{grid:{display:false},ticks:{color:'#999',font:{size:10}}},
+            y:{grid:{color:'rgba(0,0,0,.04)'},ticks:{color:'#999',font:{size:10}},beginAtZero:true}
           }
         }
       });
-
-      // Estoque
-      const sorted = [...livros].sort((a,b)=>a.totalDisponiveis-b.totalDisponiveis).slice(0,7);
-      const max = Math.max(...livros.map(l=>l.totalDisponiveis),1);
-      document.getElementById('stock-list').innerHTML = sorted.map(l=>{
-        const d=l.totalDisponiveis,pct=Math.round(d/max*100);
-        const cls=d===0?'sb-out':d<=3?'sb-low':'sb-ok';
-        return `<div class="stock-item">
-          <div class="stock-row"><span class="stock-name" title="${l.titulo}">${l.titulo}</span><span class="stock-num">${d} disp.</span></div>
-          <div class="stock-bar"><div class="sb-fill ${cls}" style="width:${pct}%"></div></div>
-        </div>`;
-      }).join('');
     }
 
-    function preencherInst(inst) {
-      const ativas = inst.filter(i=>i.status==='ATIVA').length;
-      const pend   = inst.filter(i=>i.status==='PENDENTE').length;
-      animarNum(document.getElementById('kpi-inst'), inst.length);
-      document.getElementById('tr-inst').textContent = pend>0 ? `${pend} pendente(s)` : '✓ Todas ativas';
-      document.getElementById('tr-inst').className   = `hc-trend ${pend>0?'tr-warn':'tr-up'}`;
-      document.getElementById('sub-inst').textContent= `${ativas} ativas · ${pend} aguardando`;
+    function renderInst(inst) {
+      const ativas=inst.filter(i=>i.status==='ATIVA').length;
+      const pend  =inst.filter(i=>i.status==='PENDENTE').length;
+      animN('kn2', inst.length);
+      document.getElementById('kpib2').textContent = pend>0?`${pend} pendente`:'✓ Todas ativas';
+      document.getElementById('kpib2').className   = `kpi-badge ${pend>0?'b-warn':'b-up'}`;
+      document.getElementById('ks2').textContent   = `${ativas} ativas · ${pend} aguardando`;
+      mkSpark('spark2', [ativas,ativas,ativas,inst.length], '#27ae60');
     }
 
-    function preencherEmpr(empr) {
+    function renderEmpr(empr, livros) {
+      const total = empr.length;
       const pend  = empr.filter(e=>e.status==='PENDENTE').length;
       const apro  = empr.filter(e=>e.status==='APROVADO').length;
       const devol = empr.filter(e=>e.status==='DEVOLVIDO').length;
-      const total = empr.length;
+      const taxa  = total>0?Math.round((apro+devol)/total*100):0;
 
-      animarNum(document.getElementById('kpi-pend'), pend);
-      document.getElementById('tr-pend').textContent = pend>0 ? `${pend} para aprovar` : '✓ Nenhum';
-      document.getElementById('tr-pend').className   = `hc-trend ${pend>0?'tr-warn':'tr-up'}`;
-      document.getElementById('sub-pend').textContent= `${apro} ativos · ${devol} devolvidos`;
+      animN('kn3', total);
+      document.getElementById('kpib3').textContent = pend>0?`${pend} pendentes`:'✓ Nenhum pendente';
+      document.getElementById('kpib3').className   = `kpi-badge ${pend>0?'b-warn':'b-up'}`;
+      document.getElementById('ks3').textContent   = `${apro} ativos · ${devol} devolvidos`;
+      document.getElementById('taxa-num').textContent = taxa+'%';
+      mkSpark('spark3', [pend,apro,devol,total].reverse(), '#f39c12');
 
       // Doughnut
-      document.getElementById('donut-total').textContent = total;
-      destroyChart('empr');
-      charts['empr'] = new Chart(document.getElementById('chart-empr').getContext('2d'), {
+      document.getElementById('donut-n').textContent = total;
+      killChart('donut');
+      const coresD=['#f39c12','#27ae60','#bdc3c7'];
+      const nomesD=['Pendentes','Aprovados','Devolvidos'];
+      const valsD =[pend,apro,devol];
+      charts['donut']=new Chart(document.getElementById('chart-donut').getContext('2d'),{
         type:'doughnut',
+        data:{labels:nomesD,datasets:[{data:valsD,backgroundColor:coresD,borderWidth:2,borderColor:'#fff',hoverOffset:6}]},
+        options:{...CHART_DEFAULTS,cutout:'64%',plugins:{...CHART_DEFAULTS.plugins,tooltip:{...CHART_DEFAULTS.plugins.tooltip,callbacks:{label:c=>{const p=total>0?Math.round(c.raw/total*100):0;return ` ${c.label}: ${c.raw} (${p}%)`;}}}}}
+      });
+      document.getElementById('donut-leg').innerHTML=nomesD.map((n,i)=>`
+        <div class="dl">
+          <div class="dl-left"><div class="dl-dot" style="background:${coresD[i]}"></div><span style="font-size:.76rem;color:#666">${n}</span></div>
+          <span class="dl-val">${valsD[i]}</span>
+        </div>`).join('');
+
+      // Taxa de aprovação (gauge com doughnut)
+      killChart('taxa');
+      charts['taxa']=new Chart(document.getElementById('chart-taxa').getContext('2d'),{
+        type:'doughnut',
+        data:{datasets:[{data:[taxa,100-taxa],backgroundColor:['#27ae60','#f0f0f0'],borderWidth:0,hoverOffset:0,circumference:270,rotation:225}]},
+        options:{...CHART_DEFAULTS,cutout:'72%',plugins:{...CHART_DEFAULTS.plugins,tooltip:{enabled:false}}}
+      });
+
+      // Linha temporal
+      const byDate={};
+      empr.forEach(e=>{
+        if(!e.dataEmissao) return;
+        const d=e.dataEmissao.slice(0,10);
+        byDate[d]=(byDate[d]||0)+1;
+      });
+      const dates=Object.keys(byDate).sort().slice(-14);
+      killChart('linha');
+      const gctx=document.getElementById('chart-linha').getContext('2d');
+      const grad=gctx.createLinearGradient(0,0,0,200);
+      grad.addColorStop(0,'rgba(90,63,40,.2)');
+      grad.addColorStop(1,'rgba(90,63,40,0)');
+      charts['linha']=new Chart(gctx,{
+        type:'line',
         data:{
-          labels:['Pendentes','Aprovados','Devolvidos'],
-          datasets:[{data:[pend,apro,devol],backgroundColor:['#f39c12','#27ae60','#95a5a6'],borderWidth:0,hoverOffset:8}]
+          labels:dates.map(d=>new Date(d+'T00:00:00').toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'})),
+          datasets:[{
+            label:'Empréstimos',
+            data:dates.map(d=>byDate[d]),
+            borderColor:'#5a3f28', borderWidth:2.5,
+            fill:true, backgroundColor:grad,
+            tension:.45, pointRadius:4,
+            pointBackgroundColor:'#fff', pointBorderColor:'#5a3f28', pointBorderWidth:2, pointHoverRadius:6
+          }]
         },
         options:{
-          responsive:true,maintainAspectRatio:false,cutout:'68%',
-          plugins:{
-            legend:{display:false},
-            tooltip:{callbacks:{label:c=>{const pct=total>0?Math.round(c.raw/total*100):0;return ` ${c.label}: ${c.raw} (${pct}%)`;}}}
+          ...CHART_DEFAULTS,
+          plugins:{...CHART_DEFAULTS.plugins,legend:{display:false}},
+          scales:{
+            x:{grid:{display:false},ticks:{color:'#999',font:{size:10}}},
+            y:{grid:{color:'rgba(0,0,0,.04)'},ticks:{color:'#999',font:{size:10}},beginAtZero:true,stepSize:1}
           }
         }
       });
-      const cores=['#f39c12','#27ae60','#95a5a6'],nomes=['Pendentes','Aprovados','Devolvidos'],vals=[pend,apro,devol];
-      document.getElementById('donut-legend').innerHTML=nomes.map((n,i)=>
-        `<div class="dl-item"><div class="dl-dot" style="background:${cores[i]}"></div>${n}: <strong style="color:var(--text-dark)">${vals[i]}</strong></div>`
-      ).join('');
+      document.getElementById('empr-period').textContent=dates.length>0?`${dates.length} datas distintas`:'—';
+
+      // Top livros
+      const livroCount={};
+      empr.forEach(e=>(e.itens||[]).forEach(it=>{ livroCount[it.tituloLivro]=(livroCount[it.tituloLivro]||0)+1; }));
+      const topLivros=Object.entries(livroCount).sort((a,b)=>b[1]-a[1]).slice(0,6);
+      killChart('top');
+      if(topLivros.length){
+        charts['top']=new Chart(document.getElementById('chart-top').getContext('2d'),{
+          type:'bar',
+          data:{
+            labels:topLivros.map(([t])=>t.length>18?t.slice(0,18)+'…':t),
+            datasets:[{data:topLivros.map(([,v])=>v),backgroundColor:['#5a3f28','#7b5a3c','#9b7b5d','#c4a882','#d4956a','#e6d0bb'],borderRadius:6,borderSkipped:false}]
+          },
+          options:{
+            ...CHART_DEFAULTS,
+            indexAxis:'y',
+            scales:{
+              x:{grid:{color:'rgba(0,0,0,.04)'},ticks:{color:'#999',font:{size:10}},beginAtZero:true,stepSize:1},
+              y:{grid:{display:false},ticks:{color:'#555',font:{size:10}}}
+            }
+          }
+        });
+      }
 
       // Tabela
       const ultimos=[...empr].sort((a,b)=>new Date(b.dataEmissao)-new Date(a.dataEmissao)).slice(0,8);
-      const scls={PENDENTE:'sp-P',APROVADO:'sp-A',DEVOLVIDO:'sp-D'};
-      const slbl={PENDENTE:'Pendente',APROVADO:'Ativo',DEVOLVIDO:'Devolvido'};
-      document.getElementById('activity-tbody').innerHTML = ultimos.length
+      const cls={PENDENTE:'sp-P',APROVADO:'sp-A',DEVOLVIDO:'sp-D'};
+      const lbl={PENDENTE:'Pendente',APROVADO:'Ativo',DEVOLVIDO:'Devolvido'};
+      document.getElementById('bi-tbody').innerHTML=ultimos.length
         ? ultimos.map(e=>`<tr>
-            <td class="bold">#${e.id}</td>
-            <td style="max-width:140px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${e.nomeInstituicao||'-'}</td>
-            <td style="max-width:110px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${e.nomeGestor||'-'}</td>
+            <td class="td-bold">#${e.id}</td>
+            <td style="max-width:130px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis">${e.nomeInstituicao||'-'}</td>
+            <td style="max-width:100px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis">${e.nomeGestor||'-'}</td>
+            <td>${(e.itens||[]).length}</td>
             <td style="white-space:nowrap">${formatarData(e.dataEmissao)}</td>
-            <td><span class="sp ${scls[e.status]}">${slbl[e.status]}</span></td>
+            <td><span class="sp ${cls[e.status]}">${lbl[e.status]}</span></td>
           </tr>`).join('')
-        : '<tr><td colspan="5" style="text-align:center;color:var(--text-muted)">Nenhum empréstimo registrado.</td></tr>';
+        : '<tr><td colspan="6" style="text-align:center;color:#ccc;padding:20px">Nenhum registro.</td></tr>';
     }
 
-    function preencherAlertas(livros, inst, empr) {
-      const alertas = [];
-      const pend  = empr.filter(e=>e.status==='PENDENTE').length;
-      const semEs = livros.filter(l=>l.totalDisponiveis===0).length;
-      const ipend = (inst||[]).filter(i=>i.status==='PENDENTE').length;
+    function renderAlertas(livros, inst, empr) {
+      const alertas=[];
+      const pend =empr.filter(e=>e.status==='PENDENTE').length;
+      const sem  =livros.filter(l=>l.totalDisponiveis===0).length;
+      const baixo=livros.filter(l=>l.totalDisponiveis>0&&l.totalDisponiveis<=3).length;
+      const ipend=(inst||[]).filter(i=>i.status==='PENDENTE').length;
+      const hoje=new Date(),em7=new Date(); em7.setDate(hoje.getDate()+7);
+      const venc=empr.filter(e=>e.status==='APROVADO'&&e.dataVencimento&&new Date(e.dataVencimento)<=em7&&new Date(e.dataVencimento)>=hoje);
 
-      // Vencimentos próximos (7 dias)
-      const hoje=new Date(), em7=new Date(); em7.setDate(hoje.getDate()+7);
-      const venc = empr.filter(e=>e.status==='APROVADO'&&e.dataVencimento&&new Date(e.dataVencimento)<=em7&&new Date(e.dataVencimento)>=hoje);
+      if(pend>0)   alertas.push({tipo:'ar-warn',  icon:'⏳',title:`${pend} solicitação(ões) pendente(s)`,desc:'Aguardando sua aprovação.',link:'emprestimo.html',ac:'ara-warn',al:'Aprovar'});
+      if(venc.length>0) alertas.push({tipo:'ar-warn',icon:'📅',title:`${venc.length} empréstimo(s) vencem em 7 dias`,desc:'Gestores devem confirmar o uso.',link:'emprestimo.html',ac:'ara-warn',al:'Ver'});
+      if(sem>0)    alertas.push({tipo:'ar-danger', icon:'📭',title:`${sem} livro(s) sem estoque`,desc:'Nenhum exemplar disponível.',link:'controle-estoque.html',ac:'ara-danger',al:'Ver estoque'});
+      if(baixo>0)  alertas.push({tipo:'ar-warn',  icon:'📉',title:`${baixo} livro(s) com estoque baixo (≤3)`,desc:'Considere reposição em breve.',link:'controle-estoque.html',ac:'ara-warn',al:'Ver'});
+      if(ipend>0)  alertas.push({tipo:'ar-blue',  icon:'🏫',title:`${ipend} escola(s) aguardando aprovação`,desc:'Novos cadastros para validar.',link:'controle-usuario.html',ac:'ara-blue',al:'Aprovar'});
+      if(!alertas.length) alertas.push({tipo:'ar-ok',icon:'✅',title:'Tudo em ordem!',desc:'Nenhuma ação urgente no momento.',link:null,ac:null,al:null});
 
-      if (pend>0)   alertas.push({tipo:'warn',  icon:'⏳',msg:`<strong>${pend}</strong> solicitação(ões) aguardando aprovação.`,href:'emprestimo.html',lbl:'Aprovar',lc:'al-warn'});
-      if (venc.length>0) alertas.push({tipo:'warn',icon:'📅',msg:`<strong>${venc.length}</strong> empréstimo(s) vencem nos próximos 7 dias.`,href:'emprestimo.html',lbl:'Ver',lc:'al-warn'});
-      if (semEs>0)  alertas.push({tipo:'danger',icon:'📭',msg:`<strong>${semEs}</strong> livro(s) sem exemplares disponíveis.`,href:'controle-estoque.html',lbl:'Ver estoque',lc:'al-danger'});
-      if (ipend>0)  alertas.push({tipo:'warn',  icon:'🏫',msg:`<strong>${ipend}</strong> escola(s) aguardando aprovação de cadastro.`,href:'controle-usuario.html',lbl:'Aprovar',lc:'al-warn'});
-      if (!alertas.length) alertas.push({tipo:'ok',icon:'✅',msg:'<strong>Tudo em ordem!</strong> Nenhuma ação urgente no momento.',href:null,lbl:null,lc:'al-ok'});
-
-      document.getElementById('alerts-bar').innerHTML = alertas.map((a,i)=>`
-        <div class="alert-item alert-${a.tipo}" style="animation-delay:${i*.05}s">
-          <span>${a.icon}</span>
-          <span class="alert-text">${a.msg}</span>
-          ${a.href?`<a href="${a.href}" class="alert-link ${a.lc}">${a.lbl}</a>`:''}
+      document.getElementById('alerts-list').innerHTML=alertas.map(a=>`
+        <div class="alert-row ${a.tipo}">
+          <div class="ar-icon">${a.icon}</div>
+          <div class="ar-content">
+            <div class="ar-title">${a.title}</div>
+            <div class="ar-desc">${a.desc}</div>
+          </div>
+          ${a.link?`<a href="${a.link}" class="ar-action ${a.ac}">${a.al}</a>`:''}
         </div>`).join('');
     }
 
-    carregarTudo();
-    setInterval(carregarTudo, 60000); // auto-refresh 60s
+    carregar();
+    setInterval(carregar, 60000);
   </script>
 </body>
 </html>
